@@ -20,8 +20,8 @@ define('VENDOR_PATH', INSTALLATION_ROOT_PATH . DIRECTORY_SEPARATOR . 'vendor' . 
  */
 if (!is_dir(OX_BASE_PATH . 'Core')) {
     define('CORE_AUTOLOADER_PATH', VENDOR_PATH .
-                                   'oxid-esales' . DIRECTORY_SEPARATOR .
-                                   'oxideshop-ce' . DIRECTORY_SEPARATOR .
+                                   'oxidio' . DIRECTORY_SEPARATOR .
+                                   'shop' . DIRECTORY_SEPARATOR .
                                    'source' . DIRECTORY_SEPARATOR .
                                    'Core' . DIRECTORY_SEPARATOR .
                                    'Autoload' . DIRECTORY_SEPARATOR);
