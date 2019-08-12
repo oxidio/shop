@@ -21,6 +21,11 @@ class OxidEshopPackage
     private $blackListFilters = [];
 
     /**
+     * @var array
+     */
+    private $whiteListFilters = [];
+
+    /**
      * If source-directory is given, the value defines which directory will be used to define where the files
      * and directories will be picked from. When the parameter is not given, the root directory of the module is used
      * instead.
@@ -83,6 +88,22 @@ class OxidEshopPackage
     public function setBlackListFilters(array $filters)
     {
         $this->blackListFilters = $filters;
+    }
+
+    /**
+     * @return array
+     */
+    public function getWhiteListFilters(): array
+    {
+        return $this->whiteListFilters;
+    }
+
+    /**
+     * @param array $filters
+     */
+    public function setWhiteListFilters(array $filters)
+    {
+        $this->whiteListFilters = $filters;
     }
 
     /**
