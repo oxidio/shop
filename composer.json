@@ -1,5 +1,8 @@
 {
-    "name": "oxid-esales/oxideshop-ce",
+    "name": "oxidio/shop",
+    "replace": {
+        "oxid-esales/oxideshop-ce": "self.version"
+    },
     "description": "This package contains OXID eShop CE source code.",
     "type": "oxideshop",
     "keywords": ["oxid", "modules", "eShop"],
@@ -56,6 +59,11 @@
         ]
     },
     "extra": {
+        "branch-alias": {
+            "dev-oxidio-master": "7.x-dev",
+            "dev-oxidio-6.x": "6.x-dev",
+            "dev-oxidio-6.1.x": "6.1.x-dev"
+        },
         "oxideshop": {
             "blacklist-filter": [
                 "Application/Component/**/*",
