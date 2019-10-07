@@ -15,12 +15,6 @@ use OxidEsales\EshopCommunity\Application\Model\Contract\ArticleInterface;
 class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements ArticleInterface
 {
     /**
-     * Order cache.
-     * @deprecated since v6.4.0 (2019-05-29); This static property will not be used anymore.
-     */
-    protected static $_aOrderCache = [];
-
-    /**
      * Current class name
      *
      * @var string
@@ -77,6 +71,9 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
      */
     protected $_aSkipSaveFields = ['oxtimestamp'];
 
+    /** @var \OxidEsales\Eshop\Application\Model\Order */
+    private $order;
+
     /**
      * Class constructor, initiates class constructor (parent::oxbase()).
      */
@@ -102,7 +99,7 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
                     $this->$sFieldName = $oProduct->$sName;
                 }
                 // formatting view
-                if (!$this->getConfig()->getConfigParam('blSkipFormatConversion')) {
+                if (!\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blSkipFormatConversion')) {
                     if ($sFieldName == "oxorderarticles__oxinsert") {
                         \OxidEsales\Eshop\Core\Registry::getUtilsDate()->convertDBDate($this->$sFieldName, true);
                     }
@@ -138,7 +135,7 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
         $oArticle->load($this->oxorderarticles__oxartid->value);
         $oArticle->beforeUpdate();
 
-        if ($this->getConfig()->getConfigParam('blUseStock')) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blUseStock')) {
             // get real article stock count
             $iStockCount = $this->_getArtStock($dAddAmount, $blAllowNegativeStock);
             $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
@@ -575,7 +572,7 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
                     }
                 }
 
-                $this->updateArticleStock($iStockChange * -1, $this->getConfig()->getConfigParam('blAllowNegativeStock'));
+                $this->updateArticleStock($iStockChange * -1, \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blAllowNegativeStock'));
 
                 // updating self
                 $this->oxorderarticles__oxamount = new \OxidEsales\Eshop\Core\Field($iNewAmount, \OxidEsales\Eshop\Core\Field::T_RAW);
@@ -601,7 +598,7 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
     public function cancelOrderArticle()
     {
         if ($this->oxorderarticles__oxstorno->value == 0) {
-            $myConfig = $this->getConfig();
+            $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
             $this->oxorderarticles__oxstorno = new \OxidEsales\Eshop\Core\Field(1);
             if ($this->save()) {
                 $this->updateArticleStock($this->oxorderarticles__oxamount->value, $myConfig->getConfigParam('blAllowNegativeStock'));
@@ -620,7 +617,7 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
     public function delete($sOXID = null)
     {
         if ($blDelete = parent::delete($sOXID)) {
-            $myConfig = $this->getConfig();
+            $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
             if ($this->oxorderarticles__oxstorno->value != 1) {
                 $this->updateArticleStock($this->oxorderarticles__oxamount->value, $myConfig->getConfigParam('blAllowNegativeStock'));
             }
@@ -640,12 +637,12 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
     {
         // ordered articles
         if (($blSave = parent::save()) && $this->isNewOrderItem()) {
-            $myConfig = $this->getConfig();
+            $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
             if ($myConfig->getConfigParam('blUseStock') &&
                 $myConfig->getConfigParam('blPsBasketReservationEnabled')
             ) {
-                $this->getSession()
-                    ->getBasketReservations()
+                $session = \OxidEsales\Eshop\Core\Registry::getSession();
+                $session->getBasketReservations()
                     ->commitArticleReservation(
                         $this->oxorderarticles__oxartid->value,
                         $this->oxorderarticles__oxamount->value
@@ -700,7 +697,7 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
     {
         $oLang = \OxidEsales\Eshop\Core\Registry::getLang();
         $oOrder = $this->getOrder();
-        $oCurrency = $this->getConfig()->getCurrencyObject($oOrder->oxorder__oxcurrency->value);
+        $oCurrency = \OxidEsales\Eshop\Core\Registry::getConfig()->getCurrencyObject($oOrder->oxorder__oxcurrency->value);
 
         return $oLang->formatCurrency($this->oxorderarticles__oxbrutprice->value, $oCurrency);
     }
@@ -714,7 +711,7 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
     {
         $oLang = \OxidEsales\Eshop\Core\Registry::getLang();
         $oOrder = $this->getOrder();
-        $oCurrency = $this->getConfig()->getCurrencyObject($oOrder->oxorder__oxcurrency->value);
+        $oCurrency = \OxidEsales\Eshop\Core\Registry::getConfig()->getCurrencyObject($oOrder->oxorder__oxcurrency->value);
 
         return $oLang->formatCurrency($this->oxorderarticles__oxbprice->value, $oCurrency);
     }
@@ -728,28 +725,26 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
     {
         $oLang = \OxidEsales\Eshop\Core\Registry::getLang();
         $oOrder = $this->getOrder();
-        $oCurrency = $this->getConfig()->getCurrencyObject($oOrder->oxorder__oxcurrency->value);
+        $oCurrency = \OxidEsales\Eshop\Core\Registry::getConfig()->getCurrencyObject($oOrder->oxorder__oxcurrency->value);
 
         return $oLang->formatCurrency($this->oxorderarticles__oxnprice->value, $oCurrency);
     }
 
     /**
-     * Returns oxOrder object that the article belongs to
+     * Returns Order object that the article belongs to.
      *
-     * @return mixed - on success returns oxOrder object, else returns null
+     * @return null|\OxidEsales\Eshop\Application\Model\Order
      */
     public function getOrder()
     {
         if ($this->oxorderarticles__oxorderid->value) {
-            // checking if the object already exists in the cache
-            if (@isset($this->_aOrderCache[$this->oxorderarticles__oxorderid->value])) {
-                // returning the cached object
-                return $this->_aOrderCache[$this->oxorderarticles__oxorderid->value];
+            if ($this->order !== null && $this->order->getId() === $this->oxorderarticles__oxorderid->value) {
+                return $this->order;
             }
-            // creatina new order object and trying to load it
+
             $oOrder = oxNew(\OxidEsales\Eshop\Application\Model\Order::class);
             if ($oOrder->load($this->oxorderarticles__oxorderid->value)) {
-                return $this->_aOrderCache[$this->oxorderarticles__oxorderid->value] = $oOrder;
+                return $this->order = $oOrder;
             }
         }
 
@@ -808,7 +803,7 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
         $oArticle = $this->getArticle();
 
         if ($oArticle->oxarticles__oxisdownloadable->value) {
-            $oConfig = $this->getConfig();
+            $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
             $sOrderId = $this->oxorderarticles__oxorderid->value;
             $sOrderArticleId = $this->getId();
             $sShopId = $oConfig->getShopId();
@@ -847,7 +842,7 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
     {
         $oLang = \OxidEsales\Eshop\Core\Registry::getLang();
         $oOrder = $this->getOrder();
-        $oCurrency = $this->getConfig()->getCurrencyObject($oOrder->oxorder__oxcurrency->value);
+        $oCurrency = \OxidEsales\Eshop\Core\Registry::getConfig()->getCurrencyObject($oOrder->oxorder__oxcurrency->value);
 
         return $oLang->formatCurrency($this->oxorderarticles__oxnetprice->value, $oCurrency);
     }

@@ -5,6 +5,8 @@
  */
 namespace OxidEsales\EshopCommunity\Tests\Unit\Application\Controller;
 
+use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Registry;
 use \oxRegistry;
 use \oxTestModules;
 
@@ -52,7 +54,7 @@ class CmpLangTest extends \OxidTestCase
         $oConfig = $this->getConfig();
         $oConfig->setActiveView($oView);
         $oLangView->setParent($oView);
-        $oLangView->setConfig($oConfig);
+        Registry::set(Config::class, $oConfig);
         $oLangView->init();
         $oLang = $oLangView->render();
         $sExpLink0 = $this->getConfig()->getShopCurrentURL(0) . "cl=basket";
@@ -72,7 +74,7 @@ class CmpLangTest extends \OxidTestCase
         $oConfig = $this->getConfig();
         $oConfig->setActiveView($oView);
         $oLangView->setParent($oView);
-        $oLangView->setConfig($oConfig);
+        Registry::set(Config::class, $oConfig);
         $oLangView->init();
         $oLang = $oLangView->render();
         $sExpLink0 = $this->getConfig()->getShopCurrentURL(0) . "cl=basket&amp;fnc=changebasket";

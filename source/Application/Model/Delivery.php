@@ -124,7 +124,7 @@ class Delivery extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
     {
         parent::__construct();
         $this->init('oxdelivery');
-        $this->setDelVatOnTop($this->getConfig()->getConfigParam('blDeliveryVatOnTop'));
+        $this->setDelVatOnTop(\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blDeliveryVatOnTop'));
     }
 
     /**
@@ -215,7 +215,7 @@ class Delivery extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
             $oProduct = $oProduct->getArticle();
         }
 
-        $blExclNonMaterial = $this->getConfig()->getConfigParam('blExclNonMaterialFromDelivery');
+        $blExclNonMaterial = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blExclNonMaterialFromDelivery');
 
         // mark free shipping products
         if ($oProduct->oxarticles__oxfreeshipping->value || ($oProduct->oxarticles__oxnonmaterial->value && $blExclNonMaterial)) {
@@ -461,7 +461,7 @@ class Delivery extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
         $blResult = false;
 
         if ($this->getConditionType() == self::CONDITION_TYPE_PRICE) {
-            $oCur = $this->getConfig()->getActShopCurrencyObject();
+            $oCur = \OxidEsales\Eshop\Core\Registry::getConfig()->getActShopCurrencyObject();
             $iAmount /= $oCur->rate;
         }
 
@@ -608,7 +608,7 @@ class Delivery extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
     protected function _getCostSum()
     {
         if ($this->getAddSumType() == 'abs') {
-            $oCur = $this->getConfig()->getActShopCurrencyObject();
+            $oCur = \OxidEsales\Eshop\Core\Registry::getConfig()->getActShopCurrencyObject();
             $dPrice = $this->getAddSum() * $oCur->rate * $this->_getMultiplier();
         } else {
             $dPrice = $this->_dPrice / 100 * $this->getAddSum();

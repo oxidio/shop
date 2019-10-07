@@ -219,7 +219,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
         }
         startProfile("isSearchEngine");
 
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $blIsSe = false;
 
         if (!($myConfig->getConfigParam('iDebug') && $this->isAdmin())) {
@@ -299,7 +299,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
 
         if (is_null($iCurPrecision)) {
             if (!$oCur) {
-                $oCur = $this->getConfig()->getActShopCurrencyObject();
+                $oCur = \OxidEsales\Eshop\Core\Registry::getConfig()->getActShopCurrencyObject();
             }
 
             $iCurPrecision = $oCur->decimal;
@@ -856,7 +856,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
      */
     public function checkAccessRights()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         $blIsAuth = false;
 
@@ -973,7 +973,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
             return $this->_blSeoIsActive;
         }
 
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         if (($this->_blSeoIsActive = $myConfig->getConfigParam('blSeoMode')) === null) {
             $this->_blSeoIsActive = true;
@@ -1078,9 +1078,10 @@ class Utils extends \OxidEsales\Eshop\Core\Base
         $this->_simpleRedirect($sUrl, $sHeaderCode);
 
         try { //may occur in case db is lost
-            $this->getSession()->freeze();
-        } catch (\OxidEsales\Eshop\Core\Exception\StandardException $oEx) {
-            $oEx->debugOut();
+            $session = \OxidEsales\Eshop\Core\Registry::getSession();
+            $session->freeze();
+        } catch (\OxidEsales\Eshop\Core\Exception\StandardException $exception) {
+            \OxidEsales\Eshop\Core\Registry::getLogger()->error($exception->getMessage(), [$exception]);
             //do nothing else to make sure the redirect takes place
         }
 
@@ -1104,7 +1105,8 @@ class Utils extends \OxidEsales\Eshop\Core\Base
      */
     protected function prepareToExit()
     {
-        $this->getSession()->freeze();
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+        $session->freeze();
         $this->commitFileCache();
 
         $this->dispatchEvent(new \OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\ApplicationExitEvent());
@@ -1161,7 +1163,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
      */
     protected function _fillExplodeArray($aName, $dVat = null)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $oObject = new stdClass();
         $aPrice = explode('!P!', $aName[0]);
 
@@ -1226,9 +1228,9 @@ class Utils extends \OxidEsales\Eshop\Core\Base
     {
         $blCalculationModeNetto = $this->_isPriceViewModeNetto();
 
-        $oCurrency = $this->getConfig()->getActShopCurrencyObject();
+        $oCurrency = \OxidEsales\Eshop\Core\Registry::getConfig()->getActShopCurrencyObject();
 
-        $blEnterNetPrice = $this->getConfig()->getConfigParam('blEnterNetPrice');
+        $blEnterNetPrice = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blEnterNetPrice');
         if ($blCalculationModeNetto && !$blEnterNetPrice) {
             $dPrice = round(\OxidEsales\Eshop\Core\Price::brutto2Netto($dPrice, $dVat), $oCurrency->decimal);
         } elseif (!$blCalculationModeNetto && $blEnterNetPrice) {
@@ -1245,7 +1247,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
      */
     protected function _isPriceViewModeNetto()
     {
-        $blResult = (bool) $this->getConfig()->getConfigParam('blShowNetPrice');
+        $blResult = (bool) \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blShowNetPrice');
         $oUser = $this->_getArticleUser();
         if ($oUser) {
             $blResult = $oUser->isPriceViewModeNetto();
@@ -1312,7 +1314,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
      */
     public function logger($sText, $blNewline = false)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         if ($myConfig->getConfigParam('iDebug') == -2) {
             if (gettype($sText) != 'string') {
@@ -1322,20 +1324,6 @@ class Utils extends \OxidEsales\Eshop\Core\Base
             $logger = Registry::getLogger();
             $logger->debug($logMessage);
         }
-    }
-
-    /**
-     * Applies ROT13 encoding to $sStr
-     *
-     * @deprecated since v6.1.0 (2017-12-19); Use standard str_rot13 method.
-     *
-     * @param string $sStr to encoding string
-     *
-     * @return string
-     */
-    public function strRot13($sStr)
-    {
-        return str_rot13($sStr);
     }
 
     /**
@@ -1353,7 +1341,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
     {
         $versionPrefix = $this->getEditionCacheFilePrefix();
 
-        $sPath = realpath($this->getConfig()->getConfigParam('sCompileDir'));
+        $sPath = realpath(\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('sCompileDir'));
 
         if (!$sPath) {
             return false;
@@ -1401,7 +1389,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
     {
         $sCache = "<?php\n\$aLangCache = " . var_export($aLangCache, true) . ";\n?>";
         $sFileName = $this->getCacheFilePath($sCacheName);
-        $cacheDirectory = $this->getConfig()->getConfigParam('sCompileDir');
+        $cacheDirectory = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('sCompileDir');
 
         $tmpFile = $cacheDirectory . basename($sFileName) . uniqid('.temp', true) . '.txt';
         $blRes = file_put_contents($tmpFile, $sCache, LOCK_EX);
@@ -1425,24 +1413,6 @@ class Utils extends \OxidEsales\Eshop\Core\Base
         }
 
         return $sUrl;
-    }
-
-    /**
-     * Writes given log message. Returns write state
-     *
-     * @deprecated since v5.3 (2016-06-17); Logging mechanism will change in the future.
-     *
-     * @param string $logMessage  log message
-     * @param string $logFileName log file name
-     *
-     * @return bool
-     */
-    public function writeToLog($logMessage, $logFileName)
-    {
-        $logger = Registry::getLogger();
-        $logger->error($logMessage);
-
-        return true;
     }
 
     /**

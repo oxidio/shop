@@ -53,7 +53,7 @@ class CategoryMainAjax extends \OxidEsales\Eshop\Application\Controller\Admin\Li
      */
     protected function _getQuery()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         $sArticleTable = $this->_getViewName('oxarticles');
         $sO2CView = $this->_getViewName('oxobject2category');
@@ -99,7 +99,7 @@ class CategoryMainAjax extends \OxidEsales\Eshop\Application\Controller\Admin\Li
         $sQ = parent::_addFilter($sQ);
 
         // display variants or not ?
-        if (!$this->getConfig()->getConfigParam('blVariantsSelection')) {
+        if (!\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blVariantsSelection')) {
             $sQ .= " and {$sArtTable}.oxparentid = '' ";
         }
 
@@ -114,7 +114,7 @@ class CategoryMainAjax extends \OxidEsales\Eshop\Application\Controller\Admin\Li
      */
     public function addArticle()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         $aArticles = $this->_getActionIds('oxarticles.oxid');
         $sCategoryID = $myConfig->getRequestParameter('synchoxid');
@@ -281,7 +281,7 @@ class CategoryMainAjax extends \OxidEsales\Eshop\Application\Controller\Admin\Li
         $where = "where oxcatnid=" . $db->quote($categoryID);
 
         $whereProductIdIn = " oxobjectid in ( {$prodIds} )";
-        if (!$this->getConfig()->getConfigParam('blVariantsSelection')) {
+        if (!\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blVariantsSelection')) {
             $whereProductIdIn = "( " . $whereProductIdIn . " OR oxobjectid in (
                                         select oxid from oxarticles where oxparentid in ({$prodIds})
                                         )

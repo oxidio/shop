@@ -139,7 +139,7 @@ class ManufacturerListController extends \OxidEsales\Eshop\Application\Controlle
         $sManufacturerId = $oManufacturer->getId();
 
         // load only articles which we show on screen
-        $iNrofCatArticles = (int) $this->getConfig()->getConfigParam('iNrofCatArticles');
+        $iNrofCatArticles = (int) \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('iNrofCatArticles');
         $iNrofCatArticles = $iNrofCatArticles ? $iNrofCatArticles : 1;
 
         $oArtList = oxNew(\OxidEsales\Eshop\Application\Model\ArticleList::class);
@@ -337,7 +337,7 @@ class ManufacturerListController extends \OxidEsales\Eshop\Application\Controlle
     public function getTitleSuffix()
     {
         if ($this->getActManufacturer()->oxmanufacturers__oxshowsuffix->value) {
-            return $this->getConfig()->getActiveShop()->oxshops__oxtitlesuffix->value;
+            return \OxidEsales\Eshop\Core\Registry::getConfig()->getActiveShop()->oxshops__oxtitlesuffix->value;
         }
     }
 

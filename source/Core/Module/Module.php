@@ -424,7 +424,7 @@ class Module extends \OxidEsales\Eshop\Core\Base
         $sModulePath = (isset($aModulePaths[$sModuleId])) ? $aModulePaths[$sModuleId] : '';
 
         // if still no module dir, try using module ID as dir name
-        if (!$sModulePath && is_dir($this->getConfig()->getModulesDir() . $sModuleId)) {
+        if (!$sModulePath && is_dir(\OxidEsales\Eshop\Core\Registry::getConfig()->getModulesDir() . $sModuleId)) {
             $sModulePath = $sModuleId;
         }
 
@@ -445,7 +445,7 @@ class Module extends \OxidEsales\Eshop\Core\Base
         }
 
         if ($sModuleDir = $this->getModulePath($sModuleId)) {
-            return $this->getConfig()->getModulesDir() . $sModuleDir;
+            return \OxidEsales\Eshop\Core\Registry::getConfig()->getModulesDir() . $sModuleDir;
         }
 
         return false;
@@ -486,7 +486,7 @@ class Module extends \OxidEsales\Eshop\Core\Base
             return [];
         }
 
-        $sShopId = $this->getConfig()->getShopId();
+        $sShopId = \OxidEsales\Eshop\Core\Registry::getConfig()->getShopId();
 
         return \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->getCol("SELECT oxtemplate FROM oxtplblocks WHERE oxmodule = :oxmodule AND oxshopid = :oxshopid", [
             ':oxmodule' => $sModuleId,

@@ -94,7 +94,7 @@ class AccountRecommlistController extends \OxidEsales\Eshop\Application\Controll
         // list of found oxrecommlists
         if (!$oActList && $oLists->count()) {
             $this->_iAllArtCnt = $oUser->getRecommListsCount();
-            $iNrofCatArticles = (int) $this->getConfig()->getConfigParam('iNrofCatArticles');
+            $iNrofCatArticles = (int) \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('iNrofCatArticles');
             $iNrofCatArticles = $iNrofCatArticles ? $iNrofCatArticles : 10;
             $this->_iCntPages = ceil($this->_iAllArtCnt / $iNrofCatArticles);
         }
@@ -224,8 +224,8 @@ class AccountRecommlistController extends \OxidEsales\Eshop\Application\Controll
         if (($oUser = $this->getUser())) {
             if (!($oRecommList = $this->getActiveRecommList())) {
                 $oRecommList = oxNew(\OxidEsales\Eshop\Application\Model\RecommendationList::class);
-                $oRecommList->oxrecommlists__oxuserid = new Field($oUser->getId());
-                $oRecommList->oxrecommlists__oxshopid = new Field($this->getConfig()->getShopId());
+                $oRecommList->oxrecommlists__oxuserid = new \OxidEsales\Eshop\Core\Field($oUser->getId());
+                $oRecommList->oxrecommlists__oxshopid = new \OxidEsales\Eshop\Core\Field(\OxidEsales\Eshop\Core\Registry::getConfig()->getShopId());
             } else {
                 $this->_sThisTemplate = 'page/account/recommendationedit.tpl';
             }

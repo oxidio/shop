@@ -100,7 +100,7 @@ class ModuleInstaller extends \OxidEsales\Eshop\Core\Base
      */
     public function getModulesWithExtendedClass()
     {
-        return $this->getConfig()->getModulesWithExtendedClass();
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getModulesWithExtendedClass();
     }
 
     /**

@@ -5,6 +5,8 @@
  */
 namespace OxidEsales\EshopCommunity\Tests\Unit\Core;
 
+use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Theme;
 use \stdClass;
 use \oxRegistry;
@@ -212,12 +214,11 @@ class UtilsViewTest extends \OxidTestCase
 
     public function testAddErrorToDisplayCustomDestinationFromParam()
     {
-        $oSession = $this->getMock(\OxidEsales\Eshop\Core\Session::class, ['getId']);
-        $oSession->expects($this->once())->method('getId')->will($this->returnValue(true));
+        $session = $this->getMock(\OxidEsales\Eshop\Core\Session::class, ['getId']);
+        $session->expects($this->once())->method('getId')->will($this->returnValue(true));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Session::class, $session);
 
-        $oxUtilsView = $this->getMock(\OxidEsales\Eshop\Core\UtilsView::class, ['getSession']);
-        $oxUtilsView->expects($this->once())->method('getSession')->will($this->returnValue($oSession));
-
+        $oxUtilsView = oxNew(\OxidEsales\Eshop\Core\UtilsView::class);
         $oxUtilsView->addErrorToDisplay("testMessage", false, true, "myDest");
 
         $aErrors = oxRegistry::getSession()->getVariable('Errors');
@@ -231,34 +232,32 @@ class UtilsViewTest extends \OxidTestCase
         $this->setRequestParameter('CustomError', 'myDest');
         $this->setRequestParameter('actcontrol', 'oxwminibasket');
 
-        $oSession = $this->getMock(\OxidEsales\Eshop\Core\Session::class, ['getId']);
-        $oSession->expects($this->once())->method('getId')->will($this->returnValue(true));
+        $session = $this->getMock(\OxidEsales\Eshop\Core\Session::class, ['getId']);
+        $session->expects($this->once())->method('getId')->will($this->returnValue(true));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Session::class, $session);
 
-        $oxUtilsView = $this->getMock(\OxidEsales\Eshop\Core\UtilsView::class, ['getSession']);
-        $oxUtilsView->expects($this->once())->method('getSession')->will($this->returnValue($oSession));
-
+        $oxUtilsView = oxNew(\OxidEsales\Eshop\Core\UtilsView::class);
         $oxUtilsView->addErrorToDisplay("testMessage", false, true, "");
-        $aErrors = oxRegistry::getSession()->getVariable('Errors');
+        $aErrors = Registry::getSession()->getVariable('Errors');
         $oEx = unserialize($aErrors['myDest'][0]);
         $this->assertEquals("testMessage", $oEx->getOxMessage());
-        $aErrorController = oxRegistry::getSession()->getVariable('ErrorController');
+        $aErrorController = Registry::getSession()->getVariable('ErrorController');
         $this->assertEquals("oxwminibasket", $aErrorController['myDest']);
     }
 
     public function testAddErrorToDisplayDefaultDestination()
     {
         $this->setRequestParameter('actcontrol', 'start');
-        $oSession = $this->getMock(\OxidEsales\Eshop\Core\Session::class, ['getId']);
-        $oSession->expects($this->once())->method('getId')->will($this->returnValue(true));
+        $session = $this->getMock(\OxidEsales\Eshop\Core\Session::class, ['getId']);
+        $session->expects($this->once())->method('getId')->will($this->returnValue(true));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Session::class, $session);
 
-        $oxUtilsView = $this->getMock(\OxidEsales\Eshop\Core\UtilsView::class, ['getSession']);
-        $oxUtilsView->expects($this->once())->method('getSession')->will($this->returnValue($oSession));
-
+        $oxUtilsView = oxNew(\OxidEsales\Eshop\Core\UtilsView::class);
         $oxUtilsView->addErrorToDisplay("testMessage", false, true, "");
-        $aErrors = oxRegistry::getSession()->getVariable('Errors');
+        $aErrors = Registry::getSession()->getVariable('Errors');
         $oEx = unserialize($aErrors['default'][0]);
         $this->assertEquals("testMessage", $oEx->getOxMessage());
-        $aErrorController = oxRegistry::getSession()->getVariable('ErrorController');
+        $aErrorController = Registry::getSession()->getVariable('ErrorController');
         $this->assertEquals("start", $aErrorController['default']);
     }
 
@@ -267,47 +266,44 @@ class UtilsViewTest extends \OxidTestCase
         $oTest = oxNew('oxException');
         $oTest->setMessage("testMessage");
 
-        $oSession = $this->getMock(\OxidEsales\Eshop\Core\Session::class, ['getId']);
-        $oSession->expects($this->once())->method('getId')->will($this->returnValue(true));
+        $session = $this->getMock(\OxidEsales\Eshop\Core\Session::class, ['getId']);
+        $session->expects($this->once())->method('getId')->will($this->returnValue(true));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Session::class, $session);
 
-        $oxUtilsView = $this->getMock(\OxidEsales\Eshop\Core\UtilsView::class, ['getSession']);
-        $oxUtilsView->expects($this->once())->method('getSession')->will($this->returnValue($oSession));
-
+        $oxUtilsView = oxNew(\OxidEsales\Eshop\Core\UtilsView::class);
         $oxUtilsView->addErrorToDisplay($oTest, false, false, "");
 
-        $aErrors = oxRegistry::getSession()->getVariable('Errors');
+        $aErrors = Registry::getSession()->getVariable('Errors');
         $oEx = unserialize($aErrors['default'][0]);
         $this->assertEquals("testMessage", $oEx->getOxMessage());
     }
 
     public function testAddErrorToDisplayIfNotSet()
     {
-        $oSession = $this->getMock(\OxidEsales\Eshop\Core\Session::class, ['getId']);
-        $oSession->expects($this->once())->method('getId')->will($this->returnValue(true));
+        $session = $this->getMock(\OxidEsales\Eshop\Core\Session::class, ['getId']);
+        $session->expects($this->once())->method('getId')->will($this->returnValue(true));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Session::class, $session);
 
-        $oxUtilsView = $this->getMock(\OxidEsales\Eshop\Core\UtilsView::class, ['getSession']);
-        $oxUtilsView->expects($this->once())->method('getSession')->will($this->returnValue($oSession));
-
+        $oxUtilsView = oxNew(\OxidEsales\Eshop\Core\UtilsView::class);
         $oxUtilsView->addErrorToDisplay(null, false, false, "");
 
-        $aErrors = oxRegistry::getSession()->getVariable('Errors');
+        $aErrors = Registry::getSession()->getVariable('Errors');
         //$oEx = unserialize($aErrors['default'][0]);
         //$this->assertEquals("", $oEx->getOxMessage());
         $this->assertFalse(isset($aErrors['default'][0]));
-        $this->assertNull(oxRegistry::getSession()->getVariable('ErrorController'));
+        $this->assertNull(Registry::getSession()->getVariable('ErrorController'));
     }
 
     public function testAddErrorToDisplay_startsSessionIfNotStarted()
     {
-        $oSession = $this->getMock(\OxidEsales\Eshop\Core\Session::class, ['getId', 'isHeaderSent', 'setForceNewSession', 'start']);
-        $oSession->expects($this->once())->method('getId')->will($this->returnValue(false));
-        $oSession->expects($this->once())->method('isHeaderSent')->will($this->returnValue(false));
-        $oSession->expects($this->once())->method('setForceNewSession');
-        $oSession->expects($this->once())->method('start');
+        $session = $this->getMock(\OxidEsales\Eshop\Core\Session::class, ['getId', 'isHeaderSent', 'setForceNewSession', 'start']);
+        $session->expects($this->once())->method('getId')->will($this->returnValue(false));
+        $session->expects($this->once())->method('isHeaderSent')->will($this->returnValue(false));
+        $session->expects($this->once())->method('setForceNewSession');
+        $session->expects($this->once())->method('start');
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Session::class, $session);
 
-        $oxUtilsView = $this->getMock(\OxidEsales\Eshop\Core\UtilsView::class, ['getSession']);
-        $oxUtilsView->expects($this->once())->method('getSession')->will($this->returnValue($oSession));
-
+        $oxUtilsView = oxNew(\OxidEsales\Eshop\Core\UtilsView::class);
         $oxUtilsView->addErrorToDisplay(null, false, false, "");
     }
 
@@ -363,7 +359,7 @@ class UtilsViewTest extends \OxidTestCase
         $smarty = $this->getSmartyMock();
 
         $oUtilsView = oxNew('oxUtilsView');
-        $oUtilsView->setConfig($config);
+        Registry::set(Config::class, $config);
         $oUtilsView->UNITfillCommonSmartyProperties($smarty);
         $oUtilsView->UNITsmartyCompileCheck($smarty);
 
@@ -412,7 +408,7 @@ class UtilsViewTest extends \OxidTestCase
         $smarty = $this->getSmartyMock();
 
         $oUtilsView = oxNew('oxUtilsView');
-        $oUtilsView->setConfig($config);
+        Registry::set(Config::class, $config);
         $oUtilsView->UNITfillCommonSmartyProperties($smarty);
         $oUtilsView->UNITsmartyCompileCheck($smarty);
 
@@ -454,7 +450,7 @@ class UtilsViewTest extends \OxidTestCase
         $oSmarty->expects($this->once())->method('register_resource');
 
         $oUtilsView = oxNew('oxUtilsView');
-        $oUtilsView->setConfig($config);
+        Registry::set(Config::class, $config);
         $oUtilsView->UNITfillCommonSmartyProperties($oSmarty);
         $oUtilsView->UNITsmartyCompileCheck($oSmarty);
 
@@ -500,7 +496,7 @@ class UtilsViewTest extends \OxidTestCase
         $oSmarty->expects($this->once())->method('register_resource');
 
         $oUtilsView = oxNew('oxUtilsView');
-        $oUtilsView->setConfig($config);
+        Registry::set(Config::class, $config);
         $oUtilsView->UNITfillCommonSmartyProperties($oSmarty);
         $oUtilsView->UNITsmartyCompileCheck($oSmarty);
 
@@ -554,15 +550,15 @@ class UtilsViewTest extends \OxidTestCase
             ->with($this->equalTo('smarty_prefilter_oxblock'));
 
         $utilsView = oxNew(\OxidEsales\Eshop\Core\UtilsView::class);
-        $utilsView->setConfig($config);
+        Registry::set(Config::class, $config);
         $utilsView->UNITfillCommonSmartyProperties($smarty);
         $utilsView->UNITsmartyCompileCheck($smarty);
 
         $smarty = new \smarty();
         $mockedConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, ['isProductiveMode']);
-        $mockedConfig->expects($this->once())->method('isProductiveMode')->will($this->returnValue(true));
+        $mockedConfig->expects($this->any())->method('isProductiveMode')->will($this->returnValue(true));
         $utilsView = oxNew(\OxidEsales\Eshop\Core\UtilsView::class);
-        $utilsView->setConfig($mockedConfig);
+        Registry::set(Config::class, $mockedConfig);
         $utilsView->UNITsmartyCompileCheck($smarty);
         $this->assertFalse($smarty->compile_check);
     }
@@ -604,7 +600,7 @@ class UtilsViewTest extends \OxidTestCase
         $config = oxNew('oxConfig');
 
         $oUV = oxNew('oxUtilsView');
-        $oUV->setConfig($config);
+        Registry::set(Config::class, $config);
 
         $compileDirectory = $this->getCompileDirectory();
         $config->setConfigParam('sCompileDir', $compileDirectory);

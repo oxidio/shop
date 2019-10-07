@@ -63,7 +63,7 @@ class VoucherSerieExport extends \OxidEsales\Eshop\Application\Controller\Admin\
      */
     public function getDownloadUrl()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         // override cause of admin dir
         $sUrl = $myConfig->getConfigParam('sShopURL') . $myConfig->getConfigParam('sAdminDir');
@@ -85,7 +85,8 @@ class VoucherSerieExport extends \OxidEsales\Eshop\Application\Controller\Admin\
     {
         $sSessionFileName = \OxidEsales\Eshop\Core\Registry::getSession()->getVariable("sExportFileName");
         if (!$sSessionFileName) {
-            $sSessionFileName = md5($this->getSession()->getId() . \OxidEsales\Eshop\Core\Registry::getUtilsObject()->generateUId());
+            $session = \OxidEsales\Eshop\Core\Registry::getSession();
+            $sSessionFileName = md5($session->getId() . \OxidEsales\Eshop\Core\Registry::getUtilsObject()->generateUId());
             \OxidEsales\Eshop\Core\Registry::getSession()->setVariable("sExportFileName", $sSessionFileName);
         }
 
@@ -99,7 +100,7 @@ class VoucherSerieExport extends \OxidEsales\Eshop\Application\Controller\Admin\
      */
     protected function _getExportFilePath()
     {
-        return $this->getConfig()->getConfigParam('sShopDir') . "/export/" . $this->_getExportFileName();
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('sShopDir') . "/export/" . $this->_getExportFileName();
     }
 
     /**

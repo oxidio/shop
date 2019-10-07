@@ -17,6 +17,8 @@ use oxField;
 use oxGroups;
 use OxidEsales\Eshop\Application\Model\Order;
 use OxidEsales\Eshop\Core\Field;
+use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Application\Model\RssFeed;
 use oxLinks;
 use oxList;
@@ -1131,7 +1133,7 @@ class UtfTest extends \OxidTestCase
         $this->getConfig()->setConfigParam('bl_perfParseLongDescinSmarty', false);
 
         $rssFeed = oxNew('oxrssfeed');
-        $rssFeed->setConfig($config);
+        Registry::set(Config::class, $config);
 
         $shortDescription = 'agentūrų Литовские für';
         $longDescription = new stdClass();
@@ -1169,7 +1171,7 @@ class UtfTest extends \OxidTestCase
         $oShop->oxshops__oxname = new oxField($sValue);
         $oCfg->expects($this->any())->method('getActiveShop')->will($this->returnValue($oShop));
 
-        $oRss->setConfig($oCfg);
+        Registry::set(Config::class, $oCfg);
         $this->assertEquals($sValue . '/Test', $oRss->UNITprepareFeedName('Test'));
     }
 
@@ -1200,7 +1202,7 @@ class UtfTest extends \OxidTestCase
                 }
             )
         );
-        $rssFeedMock->setConfig($config);
+        Registry::set(Config::class, $config);
 
         $expectedSearchArticleTitle = 'Test Shop/SEARCH_FOR_PRODUCTS_CATEGORY_VENDOR_MANUFACTURERtssscat' . $value . 'man';
         $this->assertEquals($expectedSearchArticleTitle, $rssFeedMock->getSearchArticlesTitle('tsss', 'cat', $value, 'man'));
@@ -1359,8 +1361,8 @@ class UtfTest extends \OxidTestCase
     {
         $sValue = 'ūЛü';
 
-        $oValidator = $this->getMock(\OxidEsales\Eshop\Core\InputValidator::class, array("_addValidationError"));
-        $oValidator->expects($this->once())->method('_addValidationError')->with($this->equalTo("oxuser__oxpassword"));
+        $oValidator = $this->getMock(\OxidEsales\Eshop\Core\InputValidator::class, array("addValidationError"));
+        $oValidator->expects($this->once())->method('addValidationError')->with($this->equalTo("oxuser__oxpassword"));
         $oValidator->checkPassword(new oxUser(), $sValue, $sValue, true);
     }
 

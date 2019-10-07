@@ -15,26 +15,6 @@ class ClearcookiesTest extends \OxidTestCase
     protected $_oObj = null;
 
     /**
-     * Initialize the fixture.
-     *
-     * @return null
-     */
-    protected function setUp()
-    {
-        parent::setUp();
-    }
-
-    /**
-     * Tear down the fixture.
-     *
-     * @return null
-     */
-    protected function tearDown()
-    {
-        parent::tearDown();
-    }
-
-    /**
      * Test view render.
      *
      * @return null

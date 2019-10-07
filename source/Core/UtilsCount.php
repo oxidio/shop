@@ -296,7 +296,7 @@ class UtilsCount extends \OxidEsales\Eshop\Core\Base
     public function resetCatArticleCount($sCatId = null)
     {
         if (!$sCatId) {
-            $this->getConfig()->setGlobalParameter('aLocalCatCache', null);
+            \OxidEsales\Eshop\Core\Registry::getConfig()->setGlobalParameter('aLocalCatCache', null);
             \OxidEsales\Eshop\Core\Registry::getUtils()->toFileCache('aLocalCatCache', '');
         } else {
             // loading from cache
@@ -347,7 +347,7 @@ class UtilsCount extends \OxidEsales\Eshop\Core\Base
     public function resetVendorArticleCount($sVendorId = null)
     {
         if (!$sVendorId) {
-            $this->getConfig()->setGlobalParameter('aLocalVendorCache', null);
+            \OxidEsales\Eshop\Core\Registry::getConfig()->setGlobalParameter('aLocalVendorCache', null);
             \OxidEsales\Eshop\Core\Registry::getUtils()->toFileCache('aLocalVendorCache', '');
         } else {
             // loading from cache
@@ -367,7 +367,7 @@ class UtilsCount extends \OxidEsales\Eshop\Core\Base
     public function resetManufacturerArticleCount($sManufacturerId = null)
     {
         if (!$sManufacturerId) {
-            $this->getConfig()->setGlobalParameter('aLocalManufacturerCache', null);
+            \OxidEsales\Eshop\Core\Registry::getConfig()->setGlobalParameter('aLocalManufacturerCache', null);
             \OxidEsales\Eshop\Core\Registry::getUtils()->toFileCache('aLocalManufacturerCache', '');
         } else {
             // loading from cache
@@ -386,7 +386,7 @@ class UtilsCount extends \OxidEsales\Eshop\Core\Base
      */
     protected function _getCatCache()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         // first look at the local cache
         $aLocalCatCache = $myConfig->getGlobalParameter('aLocalCatCache');
@@ -412,7 +412,7 @@ class UtilsCount extends \OxidEsales\Eshop\Core\Base
      */
     protected function _setCatCache($aCache)
     {
-        $this->getConfig()->setGlobalParameter('aLocalCatCache', $aCache);
+        \OxidEsales\Eshop\Core\Registry::getConfig()->setGlobalParameter('aLocalCatCache', $aCache);
         \OxidEsales\Eshop\Core\Registry::getUtils()->toFileCache('aLocalCatCache', $aCache);
     }
 
@@ -423,7 +423,7 @@ class UtilsCount extends \OxidEsales\Eshop\Core\Base
      */
     protected function _setVendorCache($aCache)
     {
-        $this->getConfig()->setGlobalParameter('aLocalVendorCache', $aCache);
+        \OxidEsales\Eshop\Core\Registry::getConfig()->setGlobalParameter('aLocalVendorCache', $aCache);
         \OxidEsales\Eshop\Core\Registry::getUtils()->toFileCache('aLocalVendorCache', $aCache);
     }
 
@@ -434,7 +434,7 @@ class UtilsCount extends \OxidEsales\Eshop\Core\Base
      */
     protected function _setManufacturerCache($aCache)
     {
-        $this->getConfig()->setGlobalParameter('aLocalManufacturerCache', $aCache);
+        \OxidEsales\Eshop\Core\Registry::getConfig()->setGlobalParameter('aLocalManufacturerCache', $aCache);
         \OxidEsales\Eshop\Core\Registry::getUtils()->toFileCache('aLocalManufacturerCache', $aCache);
     }
 
@@ -445,7 +445,7 @@ class UtilsCount extends \OxidEsales\Eshop\Core\Base
      */
     protected function _getVendorCache()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         // first look at the local cache
         $aLocalVendorCache = $myConfig->getGlobalParameter('aLocalVendorCache');
@@ -470,7 +470,7 @@ class UtilsCount extends \OxidEsales\Eshop\Core\Base
      */
     protected function _getManufacturerCache()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         // first look at the local cache
         $aLocalManufacturerCache = $myConfig->getGlobalParameter('aLocalManufacturerCache');
@@ -503,7 +503,7 @@ class UtilsCount extends \OxidEsales\Eshop\Core\Base
 
         // loading R&R data from session
         $userSessionGroups = $this->getCurrentUserSessionGroups();
-        $this->_sUserViewId = md5($this->getConfig()->getShopID() . \OxidEsales\Eshop\Core\Registry::getLang()->getLanguageTag() . serialize($userSessionGroups) . (int) $this->isAdmin());
+        $this->_sUserViewId = md5(\OxidEsales\Eshop\Core\Registry::getConfig()->getShopID() . \OxidEsales\Eshop\Core\Registry::getLang()->getLanguageTag() . serialize($userSessionGroups) . (int) $this->isAdmin());
 
         return $this->_sUserViewId;
     }

@@ -80,14 +80,16 @@ class UserController extends \OxidEsales\Eshop\Application\Controller\FrontendCo
      */
     public function render()
     {
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         if ($this->getIsOrderStep()) {
+            $session = \OxidEsales\Eshop\Core\Registry::getSession();
+
             if ($config->getConfigParam('blPsBasketReservationEnabled')) {
-                $this->getSession()->getBasketReservations()->renewExpiration();
+                $session->getBasketReservations()->renewExpiration();
             }
 
-            $basket = $this->getSession()->getBasket();
+            $basket = $session->getBasket();
             $isPsBasketReservationsEnabled = $config->getConfigParam('blPsBasketReservationEnabled');
             if ($this->_blIsOrderStep && $isPsBasketReservationsEnabled &&
                 (!$basket || ($basket && !$basket->getProductsCount()))) {
@@ -108,7 +110,7 @@ class UserController extends \OxidEsales\Eshop\Application\Controller\FrontendCo
     public function getShowNoRegOption()
     {
         if ($this->_blShowNoRegOpt === null) {
-            $this->_blShowNoRegOpt = !$this->getConfig()->getConfigParam('blOrderDisWithoutReg');
+            $this->_blShowNoRegOpt = !\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blOrderDisWithoutReg');
         }
 
         return $this->_blShowNoRegOpt;
@@ -227,8 +229,9 @@ class UserController extends \OxidEsales\Eshop\Application\Controller\FrontendCo
      */
     public function isDownloadableProductWarning()
     {
-        $basket = $this->getSession()->getBasket();
-        if ($basket && $this->getConfig()->getConfigParam("blEnableDownloads")) {
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+        $basket = $session->getBasket();
+        if ($basket && \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam("blEnableDownloads")) {
             if ($basket->hasDownloadableProducts()) {
                 return true;
             }

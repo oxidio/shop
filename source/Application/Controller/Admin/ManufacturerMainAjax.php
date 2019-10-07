@@ -54,7 +54,7 @@ class ManufacturerMainAjax extends \OxidEsales\Eshop\Application\Controller\Admi
      */
     protected function _getQuery()
     {
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         // looking for table/view
         $articlesViewName = $this->_getViewName('oxarticles');
@@ -92,7 +92,7 @@ class ManufacturerMainAjax extends \OxidEsales\Eshop\Application\Controller\Admi
      */
     protected function _addFilter($query)
     {
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
         $articleViewName = $this->_getViewName('oxarticles');
         $query = parent::_addFilter($query);
 
@@ -107,11 +107,11 @@ class ManufacturerMainAjax extends \OxidEsales\Eshop\Application\Controller\Admi
      */
     public function removeManufacturer()
     {
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
         $articleIds = $this->_getActionIds('oxarticles.oxid');
         $manufacturerId = $config->getRequestParameter('oxid');
 
-        if ($this->getConfig()->getRequestParameter("all")) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter("all")) {
             $articleViewTable = $this->_getViewName('oxarticles');
             $articleIds = $this->_getAll($this->_addFilter("select $articleViewTable.oxid " . $this->_getQuery()));
         }
@@ -144,7 +144,7 @@ class ManufacturerMainAjax extends \OxidEsales\Eshop\Application\Controller\Admi
      */
     public function addManufacturer()
     {
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         $articleIds = $this->_getActionIds('oxarticles.oxid');
         $manufacturerId = $config->getRequestParameter('synchoxid');

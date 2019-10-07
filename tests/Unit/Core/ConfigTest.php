@@ -291,7 +291,7 @@ class ConfigTest extends \OxidTestCase
     /**
      * When a DatabaseException is thrown, method handleDatabaseException on the ExceptionHandler is called
      *
-     * @covers \OxidEsales\EshopCommunity\Core\Config::init()
+     * @covers \OxidEsales\Eshop\Core\Config::init()
      */
     public function testInitCallesExceptionHandlerOnDatabaseException()
     {
@@ -1530,17 +1530,37 @@ class ConfigTest extends \OxidTestCase
     /**
      * Testing getShopSecureHomeUrl getter
      */
-    public function testGetShopSecureHomeUrl()
+    public function testGetShopSecureHomeUrlReturnsSSLUrlIfSSLUrlIsSet()
     {
-        $sUrl = $this->shopUrl . 'index.php?';
+        $expectedUrl = $this->shopUrl . 'index.php?';
 
-        $oConfig = oxNew('oxConfig');
+        $oConfig = oxNew(Config::class);
+        $oConfig->setConfigParam('sSSLShopURL', '');
         $oConfig->setConfigParam('sShopURL', $this->shopUrl);
         $oConfig->init();
 
-        $this->setToRegistryOxUtilsUrlMock('index.php');
+        \OxidEsales\Eshop\Core\Registry::set(Config::class, $oConfig);
 
-        $this->assertEquals($sUrl, $oConfig->getShopSecureHomeUrl());
+        $this->assertEquals($expectedUrl, $oConfig->getShopSecureHomeUrl());
+    }
+
+
+    /**
+     * Testing getShopSecureHomeUrl getter
+     */
+    public function testGetShopSecureHomeUrlReturnsNonSSLUrlIfSSLUrlIsNotSet()
+    {
+        $sslUrl = 'https://www.example.com/';
+        $expectedUrl = $sslUrl . 'index.php?';
+
+        $oConfig = oxNew(Config::class);
+        $oConfig->setConfigParam('sSSLShopURL', $sslUrl);
+        $oConfig->setConfigParam('sShopURL', $this->shopUrl);
+        $oConfig->init();
+
+        \OxidEsales\Eshop\Core\Registry::set(Config::class, $oConfig);
+
+        $this->assertEquals($expectedUrl, $oConfig->getShopSecureHomeUrl());
     }
 
 
@@ -1857,25 +1877,6 @@ class ConfigTest extends \OxidTestCase
     {
         $sEdition = (new Facts())->getEdition();
         $this->assertEquals($sEdition, $this->getConfig()->getEdition());
-    }
-
-    public function testGetRevision_FileExists()
-    {
-        $oConfig = oxNew('oxConfig');
-        $sFileName = 'pkg.rev';
-        $iRevisionNum = 12345;
-        $sFilePath = $this->createFile($sFileName, $iRevisionNum);
-        $oConfig->setConfigParam('sShopDir', dirname($sFilePath));
-        $this->assertEquals($iRevisionNum, $oConfig->getRevision());
-        unlink($sFilePath);
-    }
-
-    public function testGetRevision_NoFile()
-    {
-        $oConfig = oxNew('oxConfig');
-        $sDir = $this->getConfig()->getConfigParam('sShopDir') . '/out/downloads/';
-        $oConfig->setConfigParam('sShopDir', $sDir);
-        $this->assertFalse($oConfig->getRevision());
     }
 
     public function testGetPackageInfo_FileExists()
@@ -2511,7 +2512,7 @@ class ConfigTest extends \OxidTestCase
     }
 
     /**
-     * @covers \OxidEsales\EshopCommunity\Core\Config::getExceptionHandler()
+     * @covers \OxidEsales\Eshop\Core\Config::getExceptionHandler()
      */
     public function testGetExceptionHandlerReturnsInstanceOfExceptionHandler()
     {

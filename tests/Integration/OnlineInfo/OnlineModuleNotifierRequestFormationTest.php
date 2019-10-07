@@ -20,7 +20,7 @@ use \oxSimpleXml;
 /**
  * Class Integration_OnlineInfo_FrontendServersInformationStoringTest
  *
- * @covers \OxidEsales\EshopCommunity\Core\Service\ApplicationServerService
+ * @covers \OxidEsales\Eshop\Core\Service\ApplicationServerService
  */
 class OnlineModuleNotifierRequestFormationTest extends \OxidTestCase
 {

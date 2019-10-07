@@ -84,7 +84,7 @@ class OnlineCallerTest extends \OxidTestCase
         /**
          * Although no exception is thrown, the underlying error will be logged in oxideshop.log
          */
-        $expectedExceptionClass = \OxidEsales\Eshop\Core\Exception\StandardException::class;
+        $expectedExceptionClass = Exception::class;
         $this->assertLoggedException($expectedExceptionClass);
     }
 
@@ -193,18 +193,6 @@ class OnlineCallerTest extends \OxidTestCase
         $oRequest->shopUrl = '_testUrl';
 
         return $oRequest;
-    }
-
-    /**
-     * @return string
-     */
-    private function _getResponseXML()
-    {
-        $sResultXML = '<?xml version="1.0" encoding="utf-8"?>
-<onlineRequest><clusterId>_testClusterId</clusterId><edition>_testEdition</edition><version>_testVersion</version><shopUrl>_testUrl</shopUrl><pVersion/><productId>eShop</productId></onlineRequest>
-';
-
-        return $sResultXML;
     }
 
     /**

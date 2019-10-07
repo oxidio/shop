@@ -64,11 +64,12 @@ class BasketComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     public function init()
     {
-        $oConfig = $this->getConfig();
+        $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
         if ($oConfig->getConfigParam('blPsBasketReservationEnabled')) {
-            if ($oReservations = $this->getSession()->getBasketReservations()) {
+            if ($oReservations = $session->getBasketReservations()) {
                 if (!$oReservations->getTimeLeft()) {
-                    $oBasket = $this->getSession()->getBasket();
+                    $oBasket = $session->getBasket();
                     if ($oBasket && $oBasket->getProductsCount()) {
                         $this->emptyBasket($oBasket);
                     }
@@ -84,8 +85,8 @@ class BasketComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
         parent::init();
 
         // Basket exclude
-        if ($this->getConfig()->getConfigParam('blBasketExcludeEnabled')) {
-            if ($oBasket = $this->getSession()->getBasket()) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blBasketExcludeEnabled')) {
+            if ($oBasket = $session->getBasket()) {
                 $this->getParent()->setRootCatChanged($this->isRootCatChanged() && $oBasket->getContents());
             }
         }
@@ -99,8 +100,10 @@ class BasketComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     public function render()
     {
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+
         // recalculating
-        if ($oBasket = $this->getSession()->getBasket()) {
+        if ($oBasket = $session->getBasket()) {
             $oBasket->calculateBasket(false);
         }
 
@@ -139,8 +142,8 @@ class BasketComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
         }
 
         // adding to basket is not allowed ?
-        $myConfig = $this->getConfig();
-        if (Registry::getUtils()->isSearchEngine()) {
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
+        if (\OxidEsales\Eshop\Core\Registry::getUtils()->isSearchEngine()) {
             return;
         }
 
@@ -211,12 +214,14 @@ class BasketComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
             return;
         }
 
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+
         // fetching item ID
         if (!$sProductId) {
             $sBasketItemId = Registry::getConfig()->getRequestParameter('bindex');
 
             if ($sBasketItemId) {
-                $oBasket = $this->getSession()->getBasket();
+                $oBasket = $session->getBasket();
                 //take params
                 $aBasketContents = $oBasket->getContents();
                 $oItem = $aBasketContents[$sBasketItemId];
@@ -235,7 +240,7 @@ class BasketComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
         // adding articles
         if ($aProducts = $this->_getItems($sProductId, $dAmount, $aSel, $aPersParam, $blOverride)) {
             // information that last call was changebasket
-            $oBasket = $this->getSession()->getBasket();
+            $oBasket = $session->getBasket();
             $oBasket->onUpdate();
             $this->_setLastCallFnc('changebasket');
 
@@ -286,7 +291,7 @@ class BasketComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
         $sPosition .= ($iPageNr > 0) ? 'pgNr=' . $iPageNr . '&' : '';
 
         // reload and backbutton blocker
-        if ($this->getConfig()->getConfigParam('iNewBasketItemMessage') == 3) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('iNewBasketItemMessage') == 3) {
             // saving return to shop link to session
             Registry::getSession()->setVariable('_backtoshop', $controllerId . $sPosition);
 
@@ -387,10 +392,11 @@ class BasketComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     protected function _addItems($products)
     {
-        $activeView = $this->getConfig()->getActiveView();
+        $activeView = \OxidEsales\Eshop\Core\Registry::getConfig()->getActiveView();
         $errorDestination = $activeView->getErrorDestination();
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
 
-        $basket = $this->getSession()->getBasket();
+        $basket = $session->getBasket();
         $basketInfo = $basket->getBasketSummary();
 
         $basketItemAmounts = [];
@@ -479,7 +485,8 @@ class BasketComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
     public function isRootCatChanged()
     {
         // in Basket
-        $oBasket = $this->getSession()->getBasket();
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+        $oBasket = $session->getBasket();
         if ($oBasket->showCatChangeWarning()) {
             $oBasket->setCatChangeWarningState(false);
 
@@ -517,7 +524,8 @@ class BasketComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
             return "basket";
         } else {
             // clear basket
-            $this->getSession()->getBasket()->deleteBasket();
+            $session = \OxidEsales\Eshop\Core\Registry::getSession();
+            $session->getBasket()->deleteBasket();
             $this->getParent()->setRootCatChanged(false);
         }
     }
@@ -582,7 +590,7 @@ class BasketComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
         } catch (OutOfStockException $exception) {
             $exception->setDestination($errorDestination);
             // #950 Change error destination to basket popup
-            if (!$errorDestination && $this->getConfig()->getConfigParam('iNewBasketItemMessage') == 2) {
+            if (!$errorDestination && \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('iNewBasketItemMessage') == 2) {
                 $errorDestination = 'popup';
             }
             Registry::getUtilsView()->addErrorToDisplay($exception, false, (bool) $errorDestination, $errorDestination);

@@ -31,7 +31,7 @@ class ArticleMain extends \OxidEsales\Eshop\Application\Controller\Admin\AdminDe
     {
         parent::render();
 
-        $this->getConfig()->setConfigParam('bl_perfLoadPrice', true);
+        \OxidEsales\Eshop\Core\Registry::getConfig()->setConfigParam('bl_perfLoadPrice', true);
 
         $oArticle = $this->createArticle();
         $oArticle->enablePriceLoad();
@@ -39,8 +39,8 @@ class ArticleMain extends \OxidEsales\Eshop\Application\Controller\Admin\AdminDe
         $this->_aViewData['edit'] = $oArticle;
 
         $sOxId = $this->getEditObjectId();
-        $sVoxId = $this->getConfig()->getRequestParameter("voxid");
-        $sOxParentId = $this->getConfig()->getRequestParameter("oxparentid");
+        $sVoxId = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter("voxid");
+        $sOxParentId = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter("oxparentid");
 
         // new variant ?
         if (isset($sVoxId) && $sVoxId == "-1" && isset($sOxParentId) && $sOxParentId && $sOxParentId != "-1") {
@@ -98,7 +98,7 @@ class ArticleMain extends \OxidEsales\Eshop\Application\Controller\Admin\AdminDe
             "oxarticles__oxlongdesc",
             "details.tpl.css"
         );
-        $this->_aViewData["blUseTimeCheck"] = $this->getConfig()->getConfigParam('blUseTimeCheck');
+        $this->_aViewData["blUseTimeCheck"] = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blUseTimeCheck');
 
         return "article_main.tpl";
     }
@@ -130,7 +130,7 @@ class ArticleMain extends \OxidEsales\Eshop\Application\Controller\Admin\AdminDe
         parent::save();
 
         $oDb = DatabaseProvider::getDb();
-        $oConfig = $this->getConfig();
+        $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $soxId = $this->getEditObjectId();
         $aParams = $oConfig->getRequestParameter("editval");
 
@@ -275,7 +275,7 @@ class ArticleMain extends \OxidEsales\Eshop\Application\Controller\Admin\AdminDe
      */
     public function copyArticle($sOldId = null, $sNewId = null, $sParentId = null)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         $sOldId = $sOldId ? $sOldId : $this->getEditObjectId();
         $sNewId = $sNewId ? $sNewId : \OxidEsales\Eshop\Core\Registry::getUtilsObject()->generateUID();
@@ -556,7 +556,7 @@ class ArticleMain extends \OxidEsales\Eshop\Application\Controller\Admin\AdminDe
      */
     protected function _copyStaffelpreis($sOldId, $sNewId)
     {
-        $sShopId = $this->getConfig()->getShopId();
+        $sShopId = \OxidEsales\Eshop\Core\Registry::getConfig()->getShopId();
         $oPriceList = oxNew(\OxidEsales\Eshop\Core\Model\ListModel::class);
         $oPriceList->init("oxbase", "oxprice2article");
         $sQ = "select * from oxprice2article where oxartid = :oxartid and oxshopid = :oxshopid " .

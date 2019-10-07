@@ -252,7 +252,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     protected function generateViewId()
     {
-        return parent::generateViewId() . '|' . $this->getConfig()->getRequestParameter('anid') . '|';
+        return parent::generateViewId() . '|' . \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('anid') . '|';
     }
 
     /**
@@ -268,7 +268,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     public function render()
     {
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         $article = $this->getProduct();
 
@@ -283,7 +283,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
 
         parent::render();
 
-        $renderPartial = $this->getConfig()->getRequestParameter('renderPartial');
+        $renderPartial = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('renderPartial');
         $this->addTplParam('renderPartial', $renderPartial);
 
         switch ($renderPartial) {
@@ -327,7 +327,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
         if (!$meta) {
             $article = $this->getProduct();
 
-            if ($this->getConfig()->getConfigParam('bl_perfParseLongDescinSmarty')) {
+            if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfParseLongDescinSmarty')) {
                 $meta = $article->getLongDesc();
             } else {
                 $meta = $article->getLongDescription()->value;
@@ -388,7 +388,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
         if ($this->canAcceptFormData() &&
             ($user = $this->getUser()) && ($article = $this->getProduct())
         ) {
-            $articleRating = $this->getConfig()->getRequestParameter('artrating');
+            $articleRating = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('artrating');
             if ($articleRating !== null) {
                 $articleRating = (int) $articleRating;
             }
@@ -406,7 +406,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
                 }
             }
 
-            if (($reviewText = trim(( string ) $this->getConfig()->getRequestParameter('rvw_txt', true)))) {
+            if (($reviewText = trim(( string ) \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('rvw_txt', true)))) {
                 $review = oxNew(\OxidEsales\Eshop\Application\Model\Review::class);
                 $review->oxreviews__oxobjectid = new Field($article->getId());
                 $review->oxreviews__oxtype = new Field('oxarticle');
@@ -436,8 +436,8 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
             return;
         }
 
-        $recommendationText = trim(( string ) $this->getConfig()->getRequestParameter('recomm_txt'));
-        $recommendationListId = $this->getConfig()->getRequestParameter('recomm');
+        $recommendationText = trim(( string ) \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('recomm_txt'));
+        $recommendationListId = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('recomm');
         $articleId = $this->getProduct()->getId();
 
         if ($articleId) {
@@ -466,15 +466,15 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     public function getProduct()
     {
-        $config = $this->getConfig();
-        $utils = Registry::getUtils();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
+        $utils = \OxidEsales\Eshop\Core\Registry::getUtils();
 
         if ($this->_oProduct === null) {
             //this option is only for lists and we must reset value
             //as blLoadVariants = false affect "ab price" functionality
             $config->setConfigParam('blLoadVariants', true);
 
-            $articleId = $this->getConfig()->getRequestParameter('anid');
+            $articleId = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('anid');
 
             // object is not yet loaded
             $this->_oProduct = oxNew(\OxidEsales\Eshop\Application\Model\Article::class);
@@ -484,7 +484,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
                 $utils->showMessageAndExit('');
             }
 
-            $variantSelectionId = $this->getConfig()->getRequestParameter("varselid");
+            $variantSelectionId = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter("varselid");
             $variantSelections = $this->_oProduct->getVariantSelections($variantSelectionId);
             if ($variantSelections && $variantSelections['oActiveVariant'] && $variantSelections['blPerfectFit']) {
                 $this->_oProduct = $variantSelections['oActiveVariant'];
@@ -504,8 +504,8 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     protected function _additionalChecksForArticle()
     {
-        $config = $this->getConfig();
-        $utils = Registry::getUtils();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
+        $utils = \OxidEsales\Eshop\Core\Registry::getUtils();
 
         $shouldContinue = true;
         if (!$this->_oProduct->isVisible()) {
@@ -534,7 +534,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
     public function getLinkType()
     {
         if ($this->_iLinkType === null) {
-            $listType = $this->getConfig()->getRequestParameter('listtype');
+            $listType = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('listtype');
             if ('vendor' == $listType) {
                 $this->_iLinkType = OXARTICLE_LINKTYPE_VENDOR;
             } elseif ('manufacturer' == $listType) {
@@ -633,7 +633,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
     {
         if ($this->_aSelectLists === null) {
             $this->_aSelectLists = false;
-            if ($this->getConfig()->getConfigParam('bl_perfLoadSelectLists')) {
+            if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadSelectLists')) {
                 $this->_aSelectLists = $this->getProduct()->getSelectLists();
             }
         }
@@ -650,7 +650,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
     {
         if ($this->_aReviews === null) {
             $this->_aReviews = false;
-            if ($this->getConfig()->getConfigParam('bl_perfLoadReviews')) {
+            if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadReviews')) {
                 $this->_aReviews = $this->getProduct()->getReviews();
             }
         }
@@ -807,7 +807,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     public function noIndex()
     {
-        $listType = $this->getConfig()->getRequestParameter('listtype');
+        $listType = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('listtype');
         if ($listType && ('vendor' == $listType || 'manufacturer' == $listType)) {
             return $this->_iViewIndexState = VIEW_INDEXSTATE_NOINDEXFOLLOW;
         }
@@ -887,10 +887,10 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     public function addMe()
     {
-        $config = $this->getConfig();
-        $utils = Registry::getUtils();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
+        $utils = \OxidEsales\Eshop\Core\Registry::getUtils();
 
-        $parameters = $this->getConfig()->getRequestParameter('pa');
+        $parameters = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('pa');
 
         if (!isset($parameters['email']) || !oxNew(MailValidator::class)->isValidEmail($parameters['email'])) {
             $this->_iPriceAlarmStatus = 0;
@@ -939,10 +939,10 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
         if ($this->_sBidPrice === null) {
             $this->_sBidPrice = false;
 
-            $parameters = $this->getConfig()->getRequestParameter('pa');
-            $activeCurrency = $this->getConfig()->getActShopCurrencyObject();
-            $price = Registry::getUtils()->currency2Float($parameters['price']);
-            $this->_sBidPrice = Registry::getLang()->formatCurrency($price, $activeCurrency);
+            $parameters = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('pa');
+            $activeCurrency = \OxidEsales\Eshop\Core\Registry::getConfig()->getActShopCurrencyObject();
+            $price = \OxidEsales\Eshop\Core\Registry::getUtils()->currency2Float($parameters['price']);
+            $this->_sBidPrice = \OxidEsales\Eshop\Core\Registry::getLang()->formatCurrency($price, $activeCurrency);
         }
 
         return $this->_sBidPrice;
@@ -956,7 +956,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
     public function getVariantSelections()
     {
         $article = $this->getProduct();
-        $variantSelectionListId = $this->getConfig()->getRequestParameter("varselid");
+        $variantSelectionListId = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter("varselid");
         if (($articleParent = $this->_getParentProduct($article->oxarticles__oxparentid->value))) {
             return $articleParent->getVariantSelections($variantSelectionListId, $article->getId());
         }
@@ -987,7 +987,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
     public function getSearchParamForHtml()
     {
         if ($this->_sSearchParamForHtml === null) {
-            $this->_sSearchParamForHtml = $this->getConfig()->getRequestParameter('searchparam');
+            $this->_sSearchParamForHtml = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('searchparam');
         }
 
         return $this->_sSearchParamForHtml;
@@ -1000,7 +1000,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     public function showRdfa()
     {
-        return $this->getConfig()->getConfigParam('blRDFaEmbedding');
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blRDFaEmbedding');
     }
 
     /**
@@ -1010,7 +1010,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     public function getRDFaNormalizedRating()
     {
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
         $minRating = $config->getConfigParam("iRDFaMinRating");
         $maxRating = $config->getConfigParam("iRDFaMaxRating");
 
@@ -1039,8 +1039,8 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
     {
         if ($configVariableName) {
             $validity = [];
-            $days = $this->getConfig()->getConfigParam($configVariableName);
-            $from = Registry::getUtilsDate()->getTime();
+            $days = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam($configVariableName);
+            $from = \OxidEsales\Eshop\Core\Registry::getUtilsDate()->getTime();
 
             $through = $from + ($days * 24 * 60 * 60);
             $validity["from"] = date('Y-m-d\TH:i:s', $from) . "Z";
@@ -1059,7 +1059,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     public function getRDFaBusinessFnc()
     {
-        return $this->getConfig()->getConfigParam("sRDFaBusinessFnc");
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam("sRDFaBusinessFnc");
     }
 
     /**
@@ -1069,7 +1069,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     public function getRDFaCustomers()
     {
-        return $this->getConfig()->getConfigParam("aRDFaCustomers");
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam("aRDFaCustomers");
     }
 
     /**
@@ -1079,7 +1079,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     public function getRDFaVAT()
     {
-        return $this->getConfig()->getConfigParam("iRDFaVAT");
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam("iRDFaVAT");
     }
 
     /**
@@ -1089,7 +1089,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     public function getRDFaGenericCondition()
     {
-        return $this->getConfig()->getConfigParam("iRDFaCondition");
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam("iRDFaCondition");
     }
 
     /**
@@ -1158,7 +1158,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     public function getRDFaDeliveryChargeSpecLoc()
     {
-        return $this->getConfig()->getConfigParam("sRDFaDeliveryChargeSpecLoc");
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam("sRDFaDeliveryChargeSpecLoc");
     }
 
     /**
@@ -1168,7 +1168,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     public function getRDFaPaymentChargeSpecLoc()
     {
-        return $this->getConfig()->getConfigParam("sRDFaPaymentChargeSpecLoc");
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam("sRDFaPaymentChargeSpecLoc");
     }
 
     /**
@@ -1178,7 +1178,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     public function getRDFaBusinessEntityLoc()
     {
-        return $this->getConfig()->getConfigParam("sRDFaBusinessEntityLoc");
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam("sRDFaBusinessEntityLoc");
     }
 
     /**
@@ -1188,7 +1188,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     public function showRDFaProductStock()
     {
-        return $this->getConfig()->getConfigParam("blShowRDFaProductStock");
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam("blShowRDFaProductStock");
     }
 
     /**
@@ -1208,7 +1208,7 @@ class ArticleDetailsController extends \OxidEsales\Eshop\Application\Controller\
      */
     public function isReviewActive()
     {
-        return $this->getConfig()->getConfigParam('bl_perfLoadReviews');
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadReviews');
     }
 
     /**

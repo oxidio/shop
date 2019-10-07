@@ -61,8 +61,8 @@ class PriceAlarmController extends \OxidEsales\Eshop\Application\Controller\Fron
      */
     public function addme()
     {
-        $myConfig = $this->getConfig();
-        $myUtils = Registry::getUtils();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
+        $myUtils = \OxidEsales\Eshop\Core\Registry::getUtils();
 
         $aParams = Registry::getConfig()->getRequestParameter('pa');
         if (!isset($aParams['email']) || !oxNew(MailValidator::class)->isValidEmail($aParams['email'])) {
@@ -103,9 +103,9 @@ class PriceAlarmController extends \OxidEsales\Eshop\Application\Controller\Fron
             $this->_sBidPrice = false;
 
             $aParams = $this->_getParams();
-            $oCur = $this->getConfig()->getActShopCurrencyObject();
-            $iPrice = Registry::getUtils()->currency2Float($aParams['price']);
-            $this->_sBidPrice = Registry::getLang()->formatCurrency($iPrice, $oCur);
+            $oCur = \OxidEsales\Eshop\Core\Registry::getConfig()->getActShopCurrencyObject();
+            $iPrice = \OxidEsales\Eshop\Core\Registry::getUtils()->currency2Float($aParams['price']);
+            $this->_sBidPrice = \OxidEsales\Eshop\Core\Registry::getLang()->formatCurrency($iPrice, $oCur);
         }
 
         return $this->_sBidPrice;

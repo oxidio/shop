@@ -127,7 +127,7 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     protected function _checkPsState()
     {
-        $oConfig = $this->getConfig();
+        $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         if ($this->getParent()->isEnabledPrivateSales()) {
             // load session user
             $oUser = $this->getUser();
@@ -151,7 +151,9 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     protected function _loadSessionUser()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+
         $oUser = $this->getUser();
 
         // no session user
@@ -167,7 +169,7 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
 
         // TODO: move this to a proper place
         if ($oUser->isLoadedFromCookie() && !$myConfig->getConfigParam('blPerfNoBasketSaving')) {
-            if ($oBasket = $this->getSession()->getBasket()) {
+            if ($oBasket = $session->getBasket()) {
                 $oBasket->load();
                 $oBasket->onUpdate();
             }
@@ -234,14 +236,14 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     protected function _afterLogin($oUser)
     {
-        $oSession = $this->getSession();
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
 
         // generating new session id after login
         if ($this->getLoginStatus() === USER_LOGIN_SUCCESS) {
-            $oSession->regenerateSessionId();
+            $session->regenerateSessionId();
         }
 
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         // this user is blocked, deny him
         if ($oUser->inGroup('oxidblocked')) {
@@ -250,7 +252,7 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
         }
 
         // recalc basket
-        if ($oBasket = $oSession->getBasket()) {
+        if ($oBasket = $session->getBasket()) {
             $oBasket->onUpdate();
         }
 
@@ -272,10 +274,11 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
         } else {
             $this->login();
 
-            if (!$this->isAdmin() && !$this->getConfig()->getConfigParam('blPerfNoBasketSaving')) {
+            if (!$this->isAdmin() && !\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blPerfNoBasketSaving')) {
                 //load basket from the database
                 try {
-                    if ($oBasket = $this->getSession()->getBasket()) {
+                    $session = \OxidEsales\Eshop\Core\Registry::getSession();
+                    if ($oBasket = $session->getBasket()) {
                         $oBasket->load();
                     }
                 } catch (Exception $oE) {
@@ -293,18 +296,20 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     protected function _afterLogout()
     {
-        Registry::getSession()->deleteVariable('paymentid');
-        Registry::getSession()->deleteVariable('sShipSet');
-        Registry::getSession()->deleteVariable('deladrid');
-        Registry::getSession()->deleteVariable('dynvalue');
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+
+        $session->deleteVariable('paymentid');
+        $session->deleteVariable('sShipSet');
+        $session->deleteVariable('deladrid');
+        $session->deleteVariable('dynvalue');
 
         // resetting & recalc basket
-        if (($oBasket = $this->getSession()->getBasket())) {
+        if (($oBasket = $session->getBasket())) {
             $oBasket->resetUserInfo();
             $oBasket->onUpdate();
         }
 
-        Registry::getSession()->delBasket();
+        $session->delBasket();
     }
 
     /**
@@ -317,7 +322,7 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     public function logout()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $oUser = oxNew(\OxidEsales\Eshop\Application\Model\User::class);
 
         if ($oUser->logout()) {
@@ -401,7 +406,7 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
     {
         $blActiveLogin = $this->getParent()->isEnabledPrivateSales();
 
-        $oConfig = $this->getConfig();
+        $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         if ($blActiveLogin && !$oConfig->getRequestParameter('ord_agb') && $oConfig->getConfigParam('blConfirmAGB')) {
             Registry::getUtilsView()->addErrorToDisplay('READ_AND_CONFIRM_TERMS', false, true);
@@ -468,9 +473,9 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
                 throw $exception;
             }
 
-            $sUserId = Registry::getSession()->getVariable("su");
-            $sRecEmail = Registry::getSession()->getVariable("re");
-            if ($this->getConfig()->getConfigParam('blInvitationsEnabled') && $sUserId && $sRecEmail) {
+            $sUserId = \OxidEsales\Eshop\Core\Registry::getSession()->getVariable("su");
+            $sRecEmail = \OxidEsales\Eshop\Core\Registry::getSession()->getVariable("re");
+            if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blInvitationsEnabled') && $sUserId && $sRecEmail) {
                 // setting registration credit points..
                 $oUser->setCreditPointsForRegistrant($sUserId, $sRecEmail);
             }
@@ -485,7 +490,7 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
                 $oUser->addToGroup('oxidnewsletter');
                 $this->_blNewsSubscriptionStatus = 1;
             } else {
-                $blOrderOptInEmailParam = $this->getConfig()->getConfigParam('blOrderOptInEmail');
+                $blOrderOptInEmailParam = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blOrderOptInEmail');
                 $this->_blNewsSubscriptionStatus = $oUser->setNewsSubscription($blOptin, $blOrderOptInEmailParam);
             }
 
@@ -580,12 +585,14 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     public function deleteShippingAddress()
     {
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+
         $request = oxNew(Request::class);
         $addressId = $request->getRequestParameter('oxaddressid');
 
         $address = oxNew(Address::class);
         $address->load($addressId);
-        if ($this->canUserDeleteShippingAddress($address) && $this->getSession()->checkSessionChallenge()) {
+        if ($this->canUserDeleteShippingAddress($address) && $session->checkSessionChallenge()) {
             $address->delete($addressId);
         }
     }
@@ -612,7 +619,7 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     protected function _saveInvitor()
     {
-        if ($this->getConfig()->getConfigParam('blInvitationsEnabled')) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blInvitationsEnabled')) {
             $this->getInvitor();
             $this->setRecipient();
         }
@@ -668,7 +675,9 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     protected function changeUserWithoutRedirect()
     {
-        if (!$this->getSession()->checkSessionChallenge()) {
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+
+        if (!$session->checkSessionChallenge()) {
             return;
         }
 
@@ -707,7 +716,7 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
             // check if email address changed, if so, force check newsletter subscription settings.
             $sBillingUsername = $aInvAdress['oxuser__oxusername'];
             $blForceCheckOptIn = ($sBillingUsername !== null && $sBillingUsername !== $sUserName);
-            $blEmailParam = $this->getConfig()->getConfigParam('blOrderOptInEmail');
+            $blEmailParam = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blOrderOptInEmail');
             $this->_blNewsSubscriptionStatus = $oUser->setNewsSubscription($blOptin, $blEmailParam, $blForceCheckOptIn);
         } catch (\OxidEsales\Eshop\Core\Exception\UserException $oEx) { // errors in input
             // marking error code
@@ -733,12 +742,12 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
         $sOrderRemark = Registry::getConfig()->getRequestParameter('order_remark', true);
 
         if ($sOrderRemark) {
-            Registry::getSession()->setVariable('ordrem', $sOrderRemark);
+            $session->setVariable('ordrem', $sOrderRemark);
         } else {
-            Registry::getSession()->deleteVariable('ordrem');
+            $session->deleteVariable('ordrem');
         }
 
-        if ($oBasket = $this->getSession()->getBasket()) {
+        if ($oBasket = $session->getBasket()) {
             $oBasket->setBasketUser(null);
             $oBasket->onUpdate();
         }
@@ -782,7 +791,7 @@ class UserComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     protected function _getLogoutLink()
     {
-        $oConfig = $this->getConfig();
+        $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         $sLogoutLink = $oConfig->isSsl() ? $oConfig->getShopSecureHomeUrl() : $oConfig->getShopHomeUrl();
         $sLogoutLink .= 'cl=' . $oConfig->getRequestControllerId() . $this->getParent()->getDynUrlParams();

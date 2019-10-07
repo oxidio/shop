@@ -59,7 +59,7 @@ class SettingsHandler extends \OxidEsales\Eshop\Core\Base
     protected function addModuleSettings($moduleSettings, $moduleId)
     {
         $this->removeNotUsedSettings($moduleSettings, $moduleId);
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
         $shopId = $config->getShopId();
         $moduleConfigs = $this->getModuleConfigs($moduleId);
         $db = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
@@ -154,7 +154,7 @@ class SettingsHandler extends \OxidEsales\Eshop\Core\Base
     protected function getModuleConfigs($moduleId)
     {
         $db = \OxidEsales\Eshop\Core\DatabaseProvider::getDb(\OxidEsales\Eshop\Core\DatabaseProvider::FETCH_MODE_ASSOC);
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
         $shopId = $config->getShopId();
         $module = $this->getModuleConfigId($moduleId);
 
@@ -212,7 +212,7 @@ class SettingsHandler extends \OxidEsales\Eshop\Core\Base
 
         $db->execute($deleteSql, [
             ':oxmodule' => $this->getModuleConfigId($moduleId),
-            ':oxshopid' => $this->getConfig()->getShopId(),
+            ':oxshopid' => \OxidEsales\Eshop\Core\Registry::getConfig()->getShopId(),
         ]);
     }
 

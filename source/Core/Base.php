@@ -18,24 +18,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class Base
 {
     /**
-     * oxconfig instance
-     *
-     * @deprecated since v6.3 (2018-06-04); This attribute will be removed completely at 7.0, use Registry to get config.
-     *
-     * @var \OxidEsales\Eshop\Core\Config
-     */
-    protected static $_oConfig = null;
-
-    /**
-     * oxsession instance
-     *
-     * @deprecated since v6.4.0 (2019-05-17); This attribute will be removed completely at 7.0, use Registry to get session.
-     *
-     * @var \OxidEsales\Eshop\Core\Session
-     */
-    protected static $_oSession = null;
-
-    /**
      * oxrights instance
      *
      * @var oxrights
@@ -88,62 +70,6 @@ class Base
      */
     public function __construct()
     {
-    }
-
-    /**
-     * oxConfig instance getter
-     *
-     * @deprecated since v6.4.0 (2018-10-15); This method will be removed completely. Use \OxidEsales\Eshop\Core\Registry::getConfig().
-     *
-     * @return \OxidEsales\Eshop\Core\Config
-     */
-    public function getConfig()
-    {
-        if (self::$_oConfig == null) {
-            self::$_oConfig = Registry::getConfig();
-        }
-
-        return self::$_oConfig;
-    }
-
-    /**
-     * oxConfig instance setter
-     *
-     * @param \OxidEsales\Eshop\Core\Config $config config object
-     *
-     * @deprecated since v6.4.0 (2018-10-15); This method will be removed completely. Use \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config:class, $config).
-     */
-    public function setConfig($config)
-    {
-        self::$_oConfig = $config;
-    }
-
-    /**
-     * oxSession instance getter
-     *
-     * @deprecated since v6.4.0 (2019-05-17); This method will be removed completely. Use \OxidEsales\Eshop\Core\Registry::getSession().
-     *
-     * @return \OxidEsales\Eshop\Core\Session
-     */
-    public function getSession()
-    {
-        if (self::$_oSession == null) {
-            self::$_oSession = \OxidEsales\Eshop\Core\Registry::getSession();
-        }
-
-        return self::$_oSession;
-    }
-
-    /**
-     * oxSession instance setter
-     *
-     * @deprecated since v6.4.0 (2019-05-17); This method will be removed completely. Use \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Session::class, $session).
-     *
-     * @param \OxidEsales\Eshop\Core\Session $session session object
-     */
-    public function setSession($session)
-    {
-        self::$_oSession = $session;
     }
 
     /**

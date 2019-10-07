@@ -157,7 +157,7 @@ class VatSelector extends \OxidEsales\Eshop\Core\Base
 
         stopProfile("_assignPriceInternal");
 
-        return $this->getConfig()->getConfigParam('dDefaultVAT');
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('dDefaultVAT');
     }
 
     /**
@@ -202,7 +202,7 @@ class VatSelector extends \OxidEsales\Eshop\Core\Base
      */
     protected function _getVatCountry(\OxidEsales\Eshop\Application\Model\User $oUser)
     {
-        $blUseShippingCountry = $this->getConfig()->getConfigParam("blShippingCountryVat");
+        $blUseShippingCountry = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam("blShippingCountryVat");
 
         if ($blUseShippingCountry) {
             $aAddresses = $oUser->getUserAddresses($oUser->getId());

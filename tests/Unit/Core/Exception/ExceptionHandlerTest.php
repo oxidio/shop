@@ -12,8 +12,6 @@ use Psr\Log\LoggerInterface;
 
 class ExceptionHandlerTest extends \OxidEsales\TestingLibrary\UnitTestCase
 {
-    protected $message = 'TEST_EXCEPTION';
-
     public function testCallUnExistingMethod()
     {
         $this->expectException(\OxidEsales\Eshop\Core\Exception\SystemComponentException::class);
@@ -21,19 +19,12 @@ class ExceptionHandlerTest extends \OxidEsales\TestingLibrary\UnitTestCase
         $exceptionHandler->__NotExistingFunction__();
     }
 
-    public function testSetGetFileName()
-    {
-        $oTestObject = oxNew('oxexceptionhandler');
-        $oTestObject->setLogFileName('TEST.log');
-        $this->assertEquals('TEST.log', $oTestObject->getLogFileName());
-    }
-
     /**
      * @dataProvider dataProviderExceptions Provides an OXID eShop style exception and a standard PHP Exception
      *
      * @param $exception
      */
-    public function testExceptionHandlerReportsExceptionInDebugMode($exception)
+    public function testExceptionHandlerLogExceptionInDebugMode($exception)
     {
         $this->expectException(get_class($exception));
 
@@ -53,18 +44,9 @@ class ExceptionHandlerTest extends \OxidEsales\TestingLibrary\UnitTestCase
     public function dataProviderExceptions()
     {
         return [
-            [ new StandardException($this->message) ],
-            [ new \Exception($this->message) ],
+            [ new StandardException() ],
+            [ new \Exception() ],
         ];
-    }
-
-
-    public function testSetIDebug()
-    {
-        $oTestObject = $this->getProxyClass("oxexceptionhandler");
-        $oTestObject->setIDebug(2);
-        //nothing should happen in unittests
-        $this->assertEquals(2, $oTestObject->getNonPublicVar('_iDebug'));
     }
 
     /**
@@ -83,12 +65,8 @@ class ExceptionHandlerTest extends \OxidEsales\TestingLibrary\UnitTestCase
 
     /**
      * @expectedException \Exception
-     *
-     * @dataProvider dataProviderTestHandleUncaughtExceptionDebugStatus
-     *
-     * @param $debug
      */
-    public function testHandleUncaughtExceptionWillAlwaysWriteToLogFile($debug)
+    public function testHandleUncaughtExceptionWritesToLogFile()
     {
         $logger = $this->getMockBuilder(LoggerInterface::class)->getMock();
         $logger
@@ -97,34 +75,7 @@ class ExceptionHandlerTest extends \OxidEsales\TestingLibrary\UnitTestCase
 
         Registry::set('logger', $logger);
 
-        $exceptionHandler = oxNew(ExceptionHandler::class, $debug);
-        $exceptionHandler->handleUncaughtException(new \Exception());
-    }
-
-    /**
-     * Data provider for testHandleUncaughtExceptionWillExitApplication
-     *
-     * @return array
-     */
-    public function dataProviderTestHandleUncaughtExceptionDebugStatus()
-    {
-        return [
-            ['debug' => true],
-            ['debug' => false],
-        ];
-    }
-
-    /**
-     * @covers \OxidEsales\Eshop\Core\Exception\ExceptionHandler::getLogFileName()
-     */
-    public function testGetLogFileNameReturnsBaseNameOfLogeFile()
-    {
-        /** @var ExceptionHandler $exceptionHandlerMock */
         $exceptionHandler = oxNew(ExceptionHandler::class);
-
-        $actualLogFileName = $exceptionHandler->getLogFileName();
-        $expectedLogFileName = basename($actualLogFileName);
-
-        $this->assertEquals($expectedLogFileName, $actualLogFileName, 'getLogFileName returns basename of logFile');
+        $exceptionHandler->handleUncaughtException(new \Exception());
     }
 }

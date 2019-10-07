@@ -8,6 +8,9 @@ namespace OxidEsales\EshopCommunity\Tests\Unit\Application\Controller\Admin;
 use OxidEsales\Eshop\Application\Controller\Admin\ModuleSortList;
 use OxidEsales\Eshop\Application\Model\Article;
 
+use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Registry;
+
 /**
  * Tests for Shop_Config class
  */

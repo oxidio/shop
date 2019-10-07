@@ -134,7 +134,6 @@ class UtilsDateTest extends \OxidTestCase
         $sEURDateTime = '01.08.2007 11.56.25';
 
         $sUSADateTimeAM = '08/01/2007 11:56:25 AM';
-        $sUSADateTimeAMExpected = '2007-08-01 11:56:25';
 
         $sUSADateTimePM = '08/01/2007 11:56:25 PM';
         $sUSADateTimePMStandard = '2007-08-01 23:56:25';
@@ -277,8 +276,6 @@ class UtilsDateTest extends \OxidTestCase
      */
     protected function _ConvertDBTimestampTest($sInput = "", $sExpected = "", $blToTimeStamp = false, $blSkip = false)
     {
-        $myConfig = $this->getConfig();
-
         $oConvObject = new oxField();
         if (!empty($sInput)) {
             $oConvObject = new oxField($sInput, oxField::T_RAW);

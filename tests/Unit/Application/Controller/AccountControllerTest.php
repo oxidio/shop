@@ -346,7 +346,7 @@ class AccountControllerTest extends UnitTestCase
 
         $oView = $this->getMock(\OxidEsales\Eshop\Application\Controller\AccountController::class, array('getUser', 'getConfig'));
         $oView->expects($this->once())->method('getUser')->will($this->returnValue($oUser));
-        $oView->expects($this->any())->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
 
         $this->assertEquals(Registry::getLang()->translateString('PAGE_TITLE_ACCOUNT', Registry::getLang()->getBaseLanguage(), false) . ' - "Jon"', $oView->getTitle());
     }
@@ -445,7 +445,7 @@ class AccountControllerTest extends UnitTestCase
         /** @var PHPUnit\Framework\MockObject\MockObject|Session $session */
         $session = $this->getMockBuilder(Session::class)->setMethods(['destroy'])->getMock();
         $session->expects($this->any())->method('destroy');
-        $this->getConfig()->setSession($session);
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Session::class, $session);
     }
 
     /**

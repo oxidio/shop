@@ -338,7 +338,7 @@ class Config extends \OxidEsales\Eshop\Core\Base
      * Stores config parameter value in config
      *
      * @param string $name  config parameter name
-     * @param string $value config parameter value
+     * @param mixed  $value config parameter value
      */
     public function setConfigParam($name, $value)
     {
@@ -459,7 +459,8 @@ class Config extends \OxidEsales\Eshop\Core\Base
     protected function initializeShop()
     {
         $this->_processSeoCall();
-        $this->getSession()->start();
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+        $session->start();
     }
 
     /**
@@ -782,7 +783,8 @@ class Config extends \OxidEsales\Eshop\Core\Base
      */
     public function setShopId($shopId)
     {
-        $this->getSession()->setVariable('actshop', $shopId);
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+        $session->setVariable('actshop', $shopId);
         $this->_iShopId = $shopId;
     }
 
@@ -1075,7 +1077,8 @@ class Config extends \OxidEsales\Eshop\Core\Base
     {
         if ((null === ($curr = $this->getRequestParameter('cur')))) {
             if (null === ($curr = $this->getRequestParameter('currency'))) {
-                $curr = $this->getSession()->getVariable('currency');
+                $session = \OxidEsales\Eshop\Core\Registry::getSession();
+                $curr = $session->getVariable('currency');
             }
         }
 
@@ -1111,7 +1114,8 @@ class Config extends \OxidEsales\Eshop\Core\Base
     {
         $currencies = $this->getCurrencyArray();
         if (isset($currencies[$cur])) {
-            $this->getSession()->setVariable('currency', $cur);
+            $session = \OxidEsales\Eshop\Core\Registry::getSession();
+            $session->setVariable('currency', $cur);
             $this->_oActCurrencyObject = null;
         }
     }
@@ -1507,7 +1511,7 @@ class Config extends \OxidEsales\Eshop\Core\Base
 
         if (!$finalTemplatePath) {
             $templatePathCalculator = $this->getModuleTemplatePathCalculator();
-            $templatePathCalculator->setModulesPath($this->getConfig()->getModulesDir());
+            $templatePathCalculator->setModulesPath($this->getModulesDir());
             try {
                 $finalTemplatePath = $templatePathCalculator->calculateModuleTemplatePath($templateName);
             } catch (Exception $e) {
@@ -1741,30 +1745,6 @@ class Config extends \OxidEsales\Eshop\Core\Base
     public function getVersion()
     {
         return oxNew(\OxidEsales\Eshop\Core\ShopVersion::class)->getVersion();
-    }
-
-    /**
-     * Returns build revision number or false on read error.
-     *
-     * @deprecated since v6.0.0 (2017-12-04); This functionality will be removed completely
-     *
-     * @return bool|string
-     */
-    public function getRevision()
-    {
-        $fileName = $this->getConfigParam('sShopDir') . "/pkg.rev";
-
-        $rev = false;
-
-        if (file_exists($fileName) && is_readable($fileName)) {
-            $rev = trim(file_get_contents($fileName));
-        }
-
-        if (!$rev) {
-            return false;
-        }
-
-        return $rev;
     }
 
     /**
@@ -2257,7 +2237,8 @@ class Config extends \OxidEsales\Eshop\Core\Base
         $this->_processSeoCall();
 
         //starting up the session
-        $this->getSession()->start();
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+        $session->start();
 
         // redirect to start page and display the error
         Registry::getUtilsView()->addErrorToDisplay($ex);

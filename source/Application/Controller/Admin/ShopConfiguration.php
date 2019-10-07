@@ -38,7 +38,7 @@ class ShopConfiguration extends \OxidEsales\Eshop\Application\Controller\Admin\A
      */
     public function render()
     {
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         parent::render();
 
@@ -128,7 +128,7 @@ class ShopConfiguration extends \OxidEsales\Eshop\Application\Controller\Admin\A
      */
     public function saveConfVars()
     {
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         $this->resetContentCache();
 
@@ -195,7 +195,7 @@ class ShopConfiguration extends \OxidEsales\Eshop\Application\Controller\Admin\A
      */
     public function loadConfVars($shopId, $moduleId)
     {
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
         $configurationVariables = [
             "bool"   => [],
             "str"    => [],
@@ -479,7 +479,7 @@ class ShopConfiguration extends \OxidEsales\Eshop\Application\Controller\Admin\A
     {
         $editId = parent::getEditObjectId();
         if (!$editId) {
-            return $this->getConfig()->getShopId();
+            return \OxidEsales\Eshop\Core\Registry::getConfig()->getShopId();
         }
 
         return $editId;

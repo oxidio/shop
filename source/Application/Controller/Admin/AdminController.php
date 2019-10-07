@@ -74,15 +74,6 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
     protected $_sShopVersion = null;
 
     /**
-     * Shop dynamic pages url
-     *
-     * @deprecated since v5.3 (2016-05-20); Dynpages will be removed.
-     *
-     * @var string
-     */
-    protected $_sServiceUrl = null;
-
-    /**
      * Session user rights
      *
      * @var string
@@ -115,7 +106,7 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     public function __construct()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $myConfig->setConfigParam('blAdmin', true);
         $this->setAdminMode(true);
 
@@ -136,7 +127,7 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
     protected function _getEditShop($sShopId)
     {
         if (!$this->_oEditShop) {
-            $this->_oEditShop = $this->getConfig()->getActiveShop();
+            $this->_oEditShop = \OxidEsales\Eshop\Core\Registry::getConfig()->getActiveShop();
             if ($this->_oEditShop->getId() != $sShopId) {
                 $oEditShop = oxNew(\OxidEsales\Eshop\Application\Model\Shop::class);
                 if ($oEditShop->load($sShopId)) {
@@ -182,7 +173,7 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     public function addGlobalParams($oShop = null)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $oLang = \OxidEsales\Eshop\Core\Registry::getLang();
 
         $oShop = parent::addGlobalParams($oShop);
@@ -197,12 +188,9 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
         $oViewConf = $this->getViewConfig();
         $oViewConf->setViewConfigParam('selflink', \OxidEsales\Eshop\Core\Registry::getUtilsUrl()->processUrl($sURL . 'index.php?editlanguage=' . $this->_iEditLang, false));
         $oViewConf->setViewConfigParam('ajaxlink', str_replace('&amp;', '&', \OxidEsales\Eshop\Core\Registry::getUtilsUrl()->processUrl($sURL . 'oxajax.php?editlanguage=' . $this->_iEditLang, false)));
-        $oViewConf->setViewConfigParam('sServiceUrl', $this->getServiceUrl());
 
-        // set langugae in admin
-        $iDynInterfaceLanguage = $myConfig->getConfigParam('iDynInterfaceLanguage');
-        //$this->_aViewData['adminlang'] = isset( $iDynInterfaceLanguage )?$iDynInterfaceLanguage:$myConfig->getConfigParam( 'iAdminLanguage' );
-        $this->_aViewData['adminlang'] = isset($iDynInterfaceLanguage) ? $iDynInterfaceLanguage : $oLang->getTplLanguage();
+        // set language of admin backend
+        $this->_aViewData['adminlang'] = $oLang->getTplLanguage();
         $this->_aViewData['charset'] = $this->getCharSet();
 
         //setting active currency object
@@ -218,41 +206,7 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     protected function _getServiceProtocol()
     {
-        return $this->getConfig()->isSsl() ? 'https' : 'http';
-    }
-
-    /**
-     * Returns service URL
-     *
-     * @deprecated since v5.3 (2016-05-20); Dynpages will be removed.
-     *
-     * @param string $sLangAbbr language abbr.
-     *
-     * @return string
-     */
-    public function getServiceUrl($sLangAbbr = null)
-    {
-        if ($this->_sServiceUrl === null) {
-            $sProtocol = $this->_getServiceProtocol();
-
-            $editionSelector = new EditionSelector();
-            $sUrl = $sProtocol . '://admin.oxid-esales.com/' . $editionSelector->getEdition() . '/';
-
-            $sCountry = 'international';
-
-            if (!$sLangAbbr) {
-                $oLang = \OxidEsales\Eshop\Core\Registry::getLang();
-                $sLangAbbr = $oLang->getLanguageAbbr($oLang->getTplLanguage());
-            }
-
-            if ($sLangAbbr != "de") {
-                $sLangAbbr = "en";
-            }
-
-            $this->_sServiceUrl = $sUrl . $this->_getShopVersionNr() . "/{$sCountry}/{$sLangAbbr}/";
-        }
-
-        return $this->_sServiceUrl;
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->isSsl() ? 'https' : 'http';
     }
 
     /**
@@ -327,7 +281,7 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
     {
         $sReturn = parent::render();
 
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $oLang = \OxidEsales\Eshop\Core\Registry::getLang();
 
         // sets up navigation data
@@ -420,7 +374,7 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     public function resetContentCache($blForceReset = null)
     {
-        $blDeleteCacheOnLogout = $this->getConfig()->getConfigParam('blClearCacheOnLogout');
+        $blDeleteCacheOnLogout = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blClearCacheOnLogout');
         if (!$blDeleteCacheOnLogout || $blForceReset) {
             \OxidEsales\Eshop\Core\Registry::getUtils()->oxResetFileCache();
         }
@@ -435,7 +389,7 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     public function resetCounter($sCounterType, $sValue = null)
     {
-        $blDeleteCacheOnLogout = $this->getConfig()->getConfigParam('blClearCacheOnLogout');
+        $blDeleteCacheOnLogout = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blClearCacheOnLogout');
         $myUtilsCount = \OxidEsales\Eshop\Core\Registry::getUtilsCount();
 
         if (!$blDeleteCacheOnLogout) {
@@ -523,8 +477,9 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     protected function _authorize()
     {
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
         return ( bool ) (
-            $this->getSession()->checkSessionChallenge()
+            $session->checkSessionChallenge()
             && count(\OxidEsales\Eshop\Core\Registry::getUtilsServer()->getOxCookie())
             && \OxidEsales\Eshop\Core\Registry::getUtils()->checkAccessRights()
         );

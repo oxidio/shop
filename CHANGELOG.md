@@ -4,6 +4,81 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+### Changed
+
+- source/Application/views/admin/tpl/shop_license.tpl
+
+### Deprecated
+- `\OxidEsales\EshopCommunity\Core\Controller\BaseController::getConfig`
+- `\OxidEsales\EshopCommunity\Core\ViewConfig::getConfig`
+
+### Removed
+- \OxidEsales\EshopCommunity\Application\Controller\Admin\AdminController::getServiceUrl()
+- class \OxidEsales\EshopCommunity\Application\Controller\Admin\DynEconda
+- class \OxidEsales\EshopCommunity\Application\Controller\Admin\DynamicInterface
+- class \OxidEsales\EshopCommunity\Application\Controller\Admin\DynamicScreenController
+- class \OxidEsales\EshopCommunity\Application\Controller\Admin\DynamicScreenList
+- class \OxidEsales\EshopCommunity\Application\Controller\Admin\DynamicScreenLocal
+- \OxidEsales\EshopCommunity\Application\Controller\Admin\NavigationTree::_addDynLinks()
+- \OxidEsales\EshopCommunity\Application\Controller\Admin\NavigationTree::_checkDynFile()
+- \OxidEsales\EshopCommunity\Application\Controller\Admin\NavigationTree::_getDynMenuLang()
+- \OxidEsales\EshopCommunity\Application\Controller\Admin\NavigationTree::_getDynMenuUrl()
+- \OxidEsales\EshopCommunity\Application\Component\Widget::getCompareItemsCnt()
+- \OxidEsales\EshopCommunity\Core\Config::getRevision()
+- \OxidEsales\EshopCommunity\Core\Controller\BaseController::getRevision()
+- template source/Application/views/admin/tpl/dyn_econda.tpl
+- template source/Application/views/admin/tpl/dynscreen.tpl
+- template source/Application/views/admin/tpl/dynscreen_list.tpl
+- template source/Application/views/admin/tpl/dynscreen_local.tpl
+- template source/Application/views/admin/tpl/version_checker_result.tpl
+- `sOXIDPHP` parameter in `config.inc.php`
+- `blDoNotDisableModuleOnError` parameter in `config.inc.php`
+- \OxidEsales\EshopCommunity\Core\Exception\ExceptionHandler::writeExceptionToLog
+- \OxidEsales\EshopCommunity\Core\Exception\ExceptionHandler::displayOfflinePage
+- \OxidEsales\EshopCommunity\Core\Exception\ExceptionHandler::setLogFileName
+- \OxidEsales\EshopCommunity\Core\Exception\ExceptionHandler::getLogFileName
+- \OxidEsales\EshopCommunity\Core\Exception\ExceptionHandler::setIDebug
+- \OxidEsales\EshopCommunity\Core\Exception\ExceptionHandler::$_sFileName
+- \OxidEsales\EshopCommunity\Core\Exception\StandardException::debugOut
+- \OxidEsales\EshopCommunity\Core\Exception\StandardException::setLogFileName
+- \OxidEsales\EshopCommunity\Core\Exception\StandardException::getLogFileName
+- \OxidEsales\EshopCommunity\Core\Exception\StandardException::$_sFileName
+- \OxidEsales\EshopCommunity\Core\OnlineCaller::_castExceptionAndWriteToLog
+- \OxidEsales\EshopCommunity\Core\Utils::writeToLog
+- `writeToLog` in `bootstrap.php`
+- \OxidEsales\EshopCommunity\Core\Base::$_oConfig
+- \OxidEsales\EshopCommunity\Core\Base::$_oSession
+- class `\OxidEsales\Eshop\Application\Model\FileChecker`
+- class `\OxidEsales\Eshop\Application\Model\FileCheckerResult`
+- class `\OxidEsales\EshopCommunity\Application\Model\FileChecker`
+- class `\OxidEsales\EshopCommunity\Application\Model\FileCheckerResult`
+- `\OxidEsales\EshopCommunity\Application\Controller\Admin\DiagnosticsMain::_checkOxidFiles`
+- `\OxidEsales\EshopCommunity\Application\Controller\Admin\DiagnosticsMain::_getFileCheckReport`
+- `\OxidEsales\EshopCommunity\Application\Controller\Admin\DiagnosticsMain::_getFilesToCheck`
+- `\OxidEsales\EshopCommunity\Application\Model\Diagnostics::$_aFileCheckerExtensionList`
+- `\OxidEsales\EshopCommunity\Application\Model\Diagnostics::$_aFileCheckerPathList`
+- `\OxidEsales\EshopCommunity\Application\Model\Diagnostics::getFileCheckerExtensionList`
+- `\OxidEsales\EshopCommunity\Application\Model\Diagnostics::getFileCheckerPathList`
+- `\OxidEsales\EshopCommunity\Application\Model\Diagnostics::setFileCheckerExtensionList`
+- `\OxidEsales\EshopCommunity\Application\Model\Diagnostics::setFileCheckerPathList`
+- `\OxidEsales\EshopCommunity\Core\Base::setConfig`
+- `\OxidEsales\EshopCommunity\Core\Base::getConfig`
+- `\OxidEsales\EshopCommunity\Core\Email::$_oConfig`
+- `\OxidEsales\EshopCommunity\Core\Email::setConfig`
+- `\OxidEsales\EshopCommunity\Core\Email::getConfig`
+- `\OxidEsales\EshopCommunity\Core\SystemRequirements::getConfig`
+- `\OxidEsales\EshopCommunity\Core\Module::getConfigBlDoNotDisableModuleOnError`
+- `\OxidEsales\EshopCommunity\Application\Model\OrderArticle::$_aOrderCache`
+- Removed deprecated getSession and setSession usages around the code
+
+### Fixed
+
+### Security
+
 ## [6.5.0] - Unreleased
 
 ### Added

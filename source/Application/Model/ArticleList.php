@@ -79,7 +79,8 @@ class ArticleList extends \OxidEsales\Eshop\Core\Model\ListModel
      */
     public function getHistoryArticles()
     {
-        if ($aArticlesIds = $this->getSession()->getVariable('aHistoryArticles')) {
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+        if ($aArticlesIds = $session->getVariable('aHistoryArticles')) {
             return $aArticlesIds;
         } elseif ($sArticlesIds = \OxidEsales\Eshop\Core\Registry::getUtilsServer()->getOxCookie('aHistoryArticles')) {
             return explode('|', $sArticlesIds);
@@ -93,8 +94,9 @@ class ArticleList extends \OxidEsales\Eshop\Core\Model\ListModel
      */
     public function setHistoryArticles($aArticlesIds)
     {
-        if ($this->getSession()->getId()) {
-            \OxidEsales\Eshop\Core\Registry::getSession()->setVariable('aHistoryArticles', $aArticlesIds);
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+        if ($session->getId()) {
+            $session->setVariable('aHistoryArticles', $aArticlesIds);
             // clean cookie, if session started
             \OxidEsales\Eshop\Core\Registry::getUtilsServer()->setOxCookie('aHistoryArticles', '');
         } else {
@@ -187,7 +189,7 @@ class ArticleList extends \OxidEsales\Eshop\Core\Model\ListModel
     public function loadNewestArticles($iLimit = null)
     {
         //has module?
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         if (!$myConfig->getConfigParam('bl_perfLoadPriceForAddList')) {
             $this->getBaseObject()->disablePriceLoad();
@@ -229,7 +231,7 @@ class ArticleList extends \OxidEsales\Eshop\Core\Model\ListModel
     public function loadTop5Articles($iLimit = null)
     {
         //has module?
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         if (!$myConfig->getConfigParam('bl_perfLoadPriceForAddList')) {
             $this->getBaseObject()->disablePriceLoad();
@@ -274,7 +276,7 @@ class ArticleList extends \OxidEsales\Eshop\Core\Model\ListModel
             return;
         }
 
-        $sShopID = $this->getConfig()->getShopId();
+        $sShopID = Registry::getConfig()->getShopId();
         $sActionID = strtolower($sActionID);
 
         //echo $sSelect;
@@ -312,7 +314,7 @@ class ArticleList extends \OxidEsales\Eshop\Core\Model\ListModel
      */
     public function loadArticleCrossSell($sArticleId)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         // Performance
         if (!$myConfig->getConfigParam('bl_perfLoadCrossselling')) {
@@ -364,7 +366,7 @@ class ArticleList extends \OxidEsales\Eshop\Core\Model\ListModel
      */
     public function loadArticleAccessoires($sArticleId)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         // Performance
         if (!$myConfig->getConfigParam('bl_perfLoadAccessoires')) {
@@ -762,7 +764,7 @@ class ArticleList extends \OxidEsales\Eshop\Core\Model\ListModel
             $iTimeToUpdate = $iNextUpdateTime;
         }
 
-        $this->getConfig()->saveShopConfVar("num", "iTimeToUpdatePrices", $iTimeToUpdate);
+        \OxidEsales\Eshop\Core\Registry::getConfig()->saveShopConfVar("num", "iTimeToUpdatePrices", $iTimeToUpdate);
 
         return $iTimeToUpdate;
     }
@@ -1002,7 +1004,7 @@ class ArticleList extends \OxidEsales\Eshop\Core\Model\ListModel
         }
 
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $sArticleTable = $this->getBaseObject()->getViewName();
 
         $aSearch = explode(' ', $sSearchString);
@@ -1135,7 +1137,7 @@ class ArticleList extends \OxidEsales\Eshop\Core\Model\ListModel
      */
     protected function _canUpdatePrices()
     {
-        $oConfig = $this->getConfig();
+        $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $blCan = false;
 
         // crontab is off?
@@ -1237,7 +1239,7 @@ class ArticleList extends \OxidEsales\Eshop\Core\Model\ListModel
     {
         $table = Registry::get(\OxidEsales\Eshop\Core\TableViewNameGenerator::class)->getViewName('oxarticles');
         $descriptionJoin = '';
-        $searchColumns = $this->getConfig()->getConfigParam('aSearchCols');
+        $searchColumns = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('aSearchCols');
 
         if (is_array($searchColumns) && in_array('oxlongdesc', $searchColumns)) {
             $viewName = getViewName('oxartextends');

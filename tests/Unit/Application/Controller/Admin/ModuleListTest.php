@@ -12,6 +12,8 @@ use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Bridge\Sho
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ModuleConfiguration;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Install\DataObject\OxidEshopPackage;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Install\Service\ModuleInstallerInterface;
+use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Registry;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class ModuleListTest extends \OxidTestCase
@@ -51,7 +53,7 @@ class ModuleListTest extends \OxidTestCase
         );
 
         $oView = oxNew('Module_List');
-        $oView->setConfig($config);
+        Registry::set(Config::class, $config);
         $this->assertEquals('module_list.tpl', $oView->render());
 
         $aViewData = $oView->getViewData();

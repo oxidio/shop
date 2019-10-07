@@ -30,98 +30,9 @@ class Diagnostics
     /**
      * Revision of THIS OXID eShop
      *
-     * @deprecated since v6.0.0 (2017-12-04); This functionality will be removed completely
-     *
-     * @var string
-     */
-    protected $_sRevision = "";
-
-    /**
-     * Revision of THIS OXID eShop
-     *
      * @var string
      */
     protected $_sShopLink = "";
-
-    /**
-     * Array of all files and folders in shop root folder which are to be checked
-     *
-     * @deprecated since v6.3 (2018-06-04); This functionality will be removed completely.
-     *
-     * @var array
-     */
-    protected $_aFileCheckerPathList = [
-        'bootstrap.php',
-        'index.php',
-        'oxid.php',
-        'oxseo.php',
-        'admin/',
-        'Application/',
-        'bin/',
-        'Core/',
-        'modules/',
-    ];
-
-    /**
-     * Array of file extensions which are to be checked
-     *
-     * @deprecated since v6.3 (2018-06-04); This functionality will be removed completely.
-     *
-     * @var array
-     */
-    protected $_aFileCheckerExtensionList = ['php', 'tpl'];
-
-    /**
-     * Setter for list of files and folders to check
-     *
-     * @param array $aPathList Path list.
-     *
-     * @deprecated since v6.3 (2018-06-04); This functionality will be removed completely.
-     *
-     */
-    public function setFileCheckerPathList($aPathList)
-    {
-        $this->_aFileCheckerPathList = $aPathList;
-    }
-
-    /**
-     * getter for list of files and folders to check
-     *
-     * @return array
-     *
-     * @deprecated since v6.3 (2018-06-04); This functionality will be removed completely.
-     *
-     */
-    public function getFileCheckerPathList()
-    {
-        return $this->_aFileCheckerPathList;
-    }
-
-    /**
-     * Setter for extensions of files to check
-     *
-     * @param array $aExtList List of extensions.
-     *
-     * @deprecated since v6.3 (2018-06-04); This functionality will be removed completely.
-     *
-     */
-    public function setFileCheckerExtensionList($aExtList)
-    {
-        $this->_aFileCheckerExtensionList = $aExtList;
-    }
-
-    /**
-     * getter for extensions of files to check
-     *
-     * @deprecated since v6.3 (2018-06-04); This functionality will be removed completely.
-     *
-     * @return array
-     */
-    public function getFileCheckerExtensionList()
-    {
-        return $this->_aFileCheckerExtensionList;
-    }
-
 
     /**
      * Version setter
@@ -168,33 +79,6 @@ class Diagnostics
     }
 
     /**
-     * Revision setter
-     *
-     * @deprecated since v6.0.0 (2017-12-04); This functionality will be removed completely
-     *
-     * @param string $sRevision revision.
-     */
-    public function setRevision($sRevision)
-    {
-        if (!empty($sRevision)) {
-            $this->_sRevision = $sRevision;
-        }
-    }
-
-    /**
-     * Revision getter
-     *
-     * @deprecated since v6.0.0 (2017-12-04); This functionality will be removed completely
-     *
-     * @return bool|string
-     */
-    public function getRevision()
-    {
-        return $this->_sRevision;
-    }
-
-
-    /**
      * ShopLink setter
      *
      * @param string $sShopLink Shop link.
@@ -228,7 +112,6 @@ class Diagnostics
             'URL'                 => $this->getShopLink(),
             'Edition'             => $this->getEdition(),
             'Version'             => $this->getVersion(),
-            'Revision'            => $this->getRevision(),
             'Subshops (Total)'    => $this->_countRows('oxshops', true),
             'Subshops (Active)'   => $this->_countRows('oxshops', false),
             'Categories (Total)'  => $this->_countRows('oxcategories', true),

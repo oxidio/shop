@@ -8,7 +8,8 @@ namespace OxidEsales\EshopCommunity\Tests\Unit\Application\Controller;
 
 use Exception;
 use modDB;
-use oxException;
+use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Core\Exception\ConnectionException;
 use OxidEsales\EshopCommunity\Core\Exception\ExceptionToDisplay;
 use OxidEsales\EshopCommunity\Core\Output;
@@ -17,6 +18,8 @@ use oxOutput;
 use oxRegistry;
 use oxSystemComponentException;
 use oxTestModules;
+use Psr\Log\LoggerInterface;
+use Psr\Container\ContainerInterface;
 
 // Force autoloading of Smarty class, so that mocking would work correctly.
 class_exists('Smarty');
@@ -39,7 +42,7 @@ class ShopControlTest extends \OxidTestCase
         $oConfig->expects($this->never())->method('getShopHomeUrl');
 
         $oControl = $this->getMock(\OxidEsales\Eshop\Core\ShopControl::class, array("getConfig", "_runOnce", "isAdmin", "_process"), array(), '', false);
-        $oControl->expects($this->any())->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
         $oControl->expects($this->once())->method('_runOnce');
         $oControl->expects($this->any())->method('isAdmin')->will($this->returnValue(false));
         $oControl->expects($this->once())->method('_process')->with($this->equalTo(\OxidEsales\Eshop\Application\Controller\StartController::class), $this->equalTo("testFnc"));
@@ -67,7 +70,7 @@ class ShopControlTest extends \OxidTestCase
         $oConfig->expects($this->never())->method('getShopHomeUrl');
 
         $oControl = $this->getMock(\OxidEsales\Eshop\Core\ShopControl::class, array("getConfig", "_runOnce", "isAdmin", "_process"), array(), '', false);
-        $oControl->expects($this->any())->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
         $oControl->expects($this->once())->method('_runOnce');
         $oControl->expects($this->once())->method('isAdmin')->will($this->returnValue(true));
         $oControl->expects($this->once())->method('_process')->with($this->equalTo(\OxidEsales\Eshop\Application\Controller\Admin\LoginController::class), $this->equalTo("testFnc"));
@@ -100,10 +103,16 @@ class ShopControlTest extends \OxidTestCase
      */
     public function testStartSystemComponentExceptionHandled_NotDebugMode()
     {
-        oxRegistry::get("oxConfigFile")->setVar('iDebug', 0);
+        $logger = $this->getMock(LoggerInterface::class);
+        $logger
+            ->expects($this->once())
+            ->method('error');
 
-        $componentException = $this->getMock(oxSystemComponentException::class, ['debugOut']);
-        $componentException->expects($this->atLeastOnce())->method('debugOut');
+        Registry::set('logger', $logger);
+
+        Registry::get("oxConfigFile")->setVar('iDebug', 0);
+
+        $componentException = $this->getMock(oxSystemComponentException::class);
 
         $oxUtils = $this->getMock(\OxidEsales\Eshop\Core\Utils::class, array("redirect"));
         $oxUtils->expects($this->atLeastOnce())->method("redirect");
@@ -127,10 +136,12 @@ class ShopControlTest extends \OxidTestCase
      */
     public function testStartSystemComponentExceptionHandled_onlyInDebugMode()
     {
+        $logger = $this->getMock(LoggerInterface::class);
+        Registry::set('logger', $logger);
+
         oxRegistry::get("oxConfigFile")->setVar('iDebug', -1);
 
-        $componentException = $this->getMock(\OxidEsales\Eshop\Core\Exception\SystemComponentException::class, ['debugOut']);
-        $componentException->expects($this->any())->method('debugOut');
+        $componentException = $this->getMock(\OxidEsales\Eshop\Core\Exception\SystemComponentException::class);
 
         $oxUtils = $this->getMock(\OxidEsales\Eshop\Core\Utils::class, array("redirect"));
         $oxUtils->expects($this->never())->method("redirect");
@@ -151,60 +162,6 @@ class ShopControlTest extends \OxidTestCase
     }
 
     /**
-     * Test unhandled exception with Debug ON
-     *
-     * @return null
-     */
-    public function testStartExceptionWithDebug()
-    {
-        $this->expectException('oxException');
-        $this->expectExceptionMessage('log debug');
-
-        $this->setRequestParameter('cl', 'basket');
-
-        $oUtilsView = $this->getMock(\OxidEsales\Eshop\Core\UtilsView::class, array('addErrorToDisplay'), array(), '', false);
-        $oUtilsView->expects($this->any())->method('addErrorToDisplay');
-
-        $oMockEx = $this->getMock(\OxidEsales\Eshop\Core\Exception\StandardException::class, array('debugOut'));
-        $oMockEx->expects($this->once())->method('debugOut')->will($this->throwException(new oxException('log debug')));
-
-        $oControl = $this->getMock(\OxidEsales\Eshop\Core\ShopControl::class, array("getConfig", "_runOnce", "isAdmin", "_process", "_isDebugMode", 'getStartControllerKey'), array(), '', false, false, true);
-        $oControl->expects($this->any())->method('getConfig');
-        $oControl->expects($this->any())->method('_runOnce');
-        $oControl->expects($this->once())->method('getStartControllerKey')->will($this->returnValue('basket'));
-        $oControl->expects($this->any())->method('_process')->with($this->equalTo(\OxidEsales\Eshop\Application\Controller\BasketController::class))->will($this->throwException($oMockEx));
-        $oControl->expects($this->any())->method('_isDebugMode')->will($this->returnValue(true));
-
-        $oControl->start();
-    }
-
-    /**
-     * Test unhandled exception with debug OFF
-     *
-     * @return null
-     */
-    public function testStartExceptionNoDebug()
-    {
-        $this->expectException('oxException');
-        $this->expectExceptionMessage('log debug');
-
-        $this->setRequestParameter('cl', 'testClassId');
-        $this->setRequestParameter('fnc', 'testFnc');
-
-        $oMockEx = $this->getMock(\OxidEsales\Eshop\Core\Exception\StandardException::class, array('debugOut'));
-        $oMockEx->expects($this->once())->method('debugOut')->will($this->throwException(new oxException('log debug')));
-
-        $oControl = $this->getMock(\OxidEsales\Eshop\Core\ShopControl::class, array("getConfig", "_runOnce", "_process", "_isDebugMode", 'getStartControllerKey'), array(), '', false, false, true);
-        $oControl->expects($this->any())->method('getConfig');
-        $oControl->expects($this->any())->method('_runOnce');
-        $oControl->expects($this->once())->method('getStartControllerKey')->will($this->returnValue('testClass'));
-        $oControl->expects($this->once())->method('_process')->with($this->equalTo("testClass"), $this->equalTo("testFnc"))->will($this->throwException($oMockEx));
-        $oControl->expects($this->any())->method('_isDebugMode')->will($this->returnValue(false));
-
-        $oControl->start();
-    }
-
-    /**
      * Testing oxShopControl::start()
      *
      * @return null
@@ -213,8 +170,7 @@ class ShopControlTest extends \OxidTestCase
     {
         $this->getSession()->setVariable('actshop', null);
 
-        $componentException = $this->getMock(\OxidEsales\Eshop\Core\Exception\CookieException::class, ['debugOut']);
-        $componentException->expects($this->any())->method('debugOut');
+        $componentException = $this->getMock(\OxidEsales\Eshop\Core\Exception\CookieException::class);
 
         $oxUtils = $this->getMock(\OxidEsales\Eshop\Core\Utils::class, array("redirect"));
         $oxUtils->expects($this->atLeastOnce())->method("redirect");
@@ -224,13 +180,13 @@ class ShopControlTest extends \OxidTestCase
         $oxUtilsView->expects($this->never())->method("addErrorToDisplay")->with($componentException);
         oxTestModules::addModuleObject("oxUtilsView", $oxUtilsView);
 
-        $oConfig = $this->getMock("StdClass", array("isMall", "getConfigParam", "getShopId", "getShopHomeUrl"));
+        $oConfig = $this->getMock(Config::class, array("isMall", "getConfigParam", "getShopId", "getShopHomeUrl"));
         $oConfig->expects($this->any())->method('isMall')->will($this->returnValue(true));
         $oConfig->expects($this->any())->method('getShopId')->will($this->returnValue(999));
         $oConfig->expects($this->any())->method('getShopHomeUrl');
 
         $oControl = $this->getMock(\OxidEsales\Eshop\Core\ShopControl::class, array("getConfig", "_runOnce", "isAdmin", "_process", "_isDebugMode"), array(), '', false);
-        $oControl->expects($this->any())->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
         $oControl->expects($this->any())->method('_runOnce');
         $oControl->expects($this->any())->method('isAdmin')->will($this->returnValue(false));
         $oControl->expects($this->any())->method('_process')->will($this->throwException($componentException));
@@ -247,8 +203,7 @@ class ShopControlTest extends \OxidTestCase
      */
     public function testStartCookieExceptionHandled_onlyInDebugMode()
     {
-        $componentException = $this->getMock(\OxidEsales\Eshop\Core\Exception\CookieException::class, ['debugOut']);
-        $componentException->expects($this->any())->method('debugOut');
+        $componentException = $this->getMock(\OxidEsales\Eshop\Core\Exception\CookieException::class);
 
         $oxUtils = $this->getMock(\OxidEsales\Eshop\Core\Utils::class, array("redirect"));
         $oxUtils->expects($this->atLeastOnce())->method("redirect");
@@ -273,8 +228,14 @@ class ShopControlTest extends \OxidTestCase
      */
     public function testStartConnectionExceptionHandled()
     {
-        $exceptionMock = $this->getMock(ConnectionException::class, ['debugOut']);
-        $exceptionMock->expects($this->any())->method('debugOut');
+        $logger = $this->getMock(LoggerInterface::class);
+        $logger
+            ->expects($this->once())
+            ->method('error');
+
+        Registry::set('logger', $logger);
+
+        $exceptionMock = $this->getMock(ConnectionException::class);
 
         $oxUtils = $this->getMock(\OxidEsales\Eshop\Core\Utils::class, array("redirect"));
         $oxUtils->expects($this->never())->method("redirect");
@@ -352,15 +313,7 @@ class ShopControlTest extends \OxidTestCase
         oxTestModules::addFunction('oxUtils', 'isSearchEngine', '{ return false; }');
         oxTestModules::addFunction('oxUtils', 'setHeader', '{}');
 
-        $sTplPath = $this->getConfig()->getConfigParam('sShopDir') . "/Application/views/";
-        $sTplPath .= $this->getConfig()->getConfigParam('sTheme') . "/tpl/page/checkout/basket.tpl";
-
-        $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array("getTemplatePath", "getConfigParam", "pageClose"));
-        $map = [['blLogging', null, true]];
-        $oConfig->expects($this->any())->method('getConfigParam')->will($this->returnValueMap($map));
-        $oConfig->expects($this->any())->method('getTemplatePath')->will($this->returnValue($sTplPath));
-
-        $aTasks = array("isAdmin", "_log", "_startMonitor", "getConfig", "_stopMonitor", '_getOutputManager', '_executeMaintenanceTasks');
+        $aTasks = array("isAdmin", "_log", "_startMonitor", "_stopMonitor", '_getOutputManager', '_executeMaintenanceTasks');
 
         $oOut = $this->getMock(\OxidEsales\Eshop\Core\Output::class, array('output', 'flushOutput', 'sendHeaders'));
         $oOut->expects($this->once())->method('output')->with($this->equalTo($controllerClassName));
@@ -374,7 +327,6 @@ class ShopControlTest extends \OxidTestCase
         oxTestModules::addModuleObject("oxUtilsView", $oUtilsView);
 
         $oControl = $this->getMock(\OxidEsales\Eshop\Core\ShopControl::class, $aTasks, array(), '', false);
-        $oControl->expects($this->any())->method('getConfig')->will($this->returnValue($oConfig));
         $oControl->expects($this->any())->method('isAdmin')->will($this->returnValue(false));
         $oControl->expects($this->any())->method('_getOutputManager')->will($this->returnValue($oOut));
         $oControl->expects($this->atLeastOnce())->method('_executeMaintenanceTasks');
@@ -397,15 +349,7 @@ class ShopControlTest extends \OxidTestCase
 
         $this->setRequestParameter('renderPartial', 'asd');
 
-        $sTplPath = $this->getConfig()->getConfigParam('sShopDir') . "/Application/views/";
-        $sTplPath .= $this->getConfig()->getConfigParam('sTheme') . "/tpl/page/checkout/basket.tpl";
-
-        $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array("getTemplatePath", "getConfigParam", "pageClose"));
-        $map = [['blLogging', null, true]];
-        $oConfig->expects($this->any())->method('getConfigParam')->will($this->returnValueMap($map));
-        $oConfig->expects($this->any())->method('getTemplatePath')->will($this->returnValue($sTplPath));
-
-        $aTasks = array("isAdmin", "_log", "_startMonitor", "getConfig", "_stopMonitor", '_getOutputManager', '_getErrors', '_executeMaintenanceTasks');
+        $aTasks = array("isAdmin", "_log", "_startMonitor", "_stopMonitor", '_getOutputManager', '_getErrors', '_executeMaintenanceTasks');
 
         $oOut = $this->getMock(\OxidEsales\Eshop\Core\Output::class, array('output', 'flushOutput', 'sendHeaders', 'setOutputFormat'));
         $oOut->expects($this->at(0))->method('setOutputFormat')->with($this->equalTo(oxOutput::OUTPUT_FORMAT_JSON));
@@ -420,7 +364,6 @@ class ShopControlTest extends \OxidTestCase
         oxTestModules::addModuleObject("oxUtilsView", $oUtilsView);
 
         $oControl = $this->getMock(\OxidEsales\Eshop\Core\ShopControl::class, $aTasks, array(), '', false);
-        $oControl->expects($this->any())->method('getConfig')->will($this->returnValue($oConfig));
         $oControl->expects($this->any())->method('isAdmin')->will($this->returnValue(false));
         $oControl->expects($this->any())->method('_getOutputManager')->will($this->returnValue($oOut));
         $oControl->expects($this->any())->method('_getErrors')->will($this->returnValue(array()));
@@ -447,9 +390,7 @@ class ShopControlTest extends \OxidTestCase
         $sTplPath = $this->getConfig()->getConfigParam('sShopDir') . "/Application/views/";
         $sTplPath .= $this->getConfig()->getConfigParam('sTheme') . "/tpl/page/checkout/basket.tpl";
 
-        $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array("getTemplatePath", "getConfigParam", "pageClose"));
-        $map = [['blLogging', null, true]];
-        $oConfig->expects($this->any())->method('getConfigParam')->will($this->returnValueMap($map));
+        $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array("getTemplatePath", "pageClose"));
         $oConfig->expects($this->any())->method('getTemplatePath')->will($this->returnValue($sTplPath));
 
         $aTasks = array("isAdmin", "_log", "_startMonitor", "getConfig", "_stopMonitor", '_getOutputManager', '_getErrors', '_executeMaintenanceTasks');
@@ -469,14 +410,14 @@ class ShopControlTest extends \OxidTestCase
         $oOut->expects($this->at(3))->method('output')->with($this->equalTo($controllerClassName), $this->anything());
         $oOut->expects($this->at(4))->method('flushOutput')->will($this->returnValue(null));
 
-        $oSmarty = $this->getSmartyMock($this->getTemplateName($controllerClassName));
+        $oSmarty = $this->getSmartyMock('page/info/content.tpl');
 
         $oUtilsView = $this->getMock(\OxidEsales\Eshop\Core\UtilsView::class, array('getSmarty'));
         $oUtilsView->expects($this->any())->method('getSmarty')->will($this->returnValue($oSmarty));
         oxTestModules::addModuleObject("oxUtilsView", $oUtilsView);
 
         $oControl = $this->getMock(\OxidEsales\Eshop\Core\ShopControl::class, $aTasks, array(), '', false);
-        $oControl->expects($this->any())->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
         $oControl->expects($this->any())->method('isAdmin')->will($this->returnValue(false));
         $oControl->expects($this->any())->method('_getOutputManager')->will($this->returnValue($oOut));
         $oControl->expects($this->atLeastOnce())->method('_executeMaintenanceTasks');

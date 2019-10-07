@@ -50,7 +50,7 @@ class CurrencyComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
     public function init()
     {
         // Performance
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         if (!$myConfig->getConfigParam('bl_perfLoadCurrency')) {
             //#861C -  show first currency
             $aCurrencies = $myConfig->getCurrencyArray();
@@ -60,6 +60,8 @@ class CurrencyComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
         }
 
         $iCur = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('cur');
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+
         if (isset($iCur)) {
             $aCurrencies = $myConfig->getCurrencyArray();
             if (!isset($aCurrencies[$iCur])) {
@@ -70,7 +72,7 @@ class CurrencyComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
             $myConfig->setActShopCurrency($iCur);
 
             // recalc basket
-            $oBasket = $this->getSession()->getBasket();
+            $oBasket = $session->getBasket();
             $oBasket->onUpdate();
         }
 
@@ -81,7 +83,7 @@ class CurrencyComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
 
         //setting basket currency (M:825)
         if (!isset($oBasket)) {
-            $oBasket = $this->getSession()->getBasket();
+            $oBasket = $session->getBasket();
         }
         $oBasket->setBasketCurrency($this->_oActCur);
         parent::init();
@@ -103,9 +105,9 @@ class CurrencyComponent extends \OxidEsales\Eshop\Core\Controller\BaseController
         $oParentView->setActCurrency($this->_oActCur);
 
         $oUrlUtils = \OxidEsales\Eshop\Core\Registry::getUtilsUrl();
-        $sUrl = $oUrlUtils->cleanUrl($this->getConfig()->getTopActiveView()->getLink(), ["cur"]);
+        $sUrl = $oUrlUtils->cleanUrl(\OxidEsales\Eshop\Core\Registry::getConfig()->getTopActiveView()->getLink(), ["cur"]);
 
-        if ($this->getConfig()->getConfigParam('bl_perfLoadCurrency')) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadCurrency')) {
             reset($this->aCurrencies);
             foreach ($this->aCurrencies as $oItem) {
                 $oItem->link = $oUrlUtils->processUrl($sUrl, true, ["cur" => $oItem->id]);

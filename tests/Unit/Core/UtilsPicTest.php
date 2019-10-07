@@ -152,7 +152,7 @@ class UtilsPicTest extends \OxidTestCase
         $oConfig = $this->getMock('oxconfig');
 
         $oUtilsPic = $this->getMock(\OxidEsales\Eshop\Core\UtilsPic::class, array('getConfig'));
-        $oUtilsPic->expects($this->once())->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
 
         $this->assertFalse($oUtilsPic->UNITdeletePicture('xxx', 'yyy'));
     }
@@ -165,7 +165,7 @@ class UtilsPicTest extends \OxidTestCase
         $oConfig = $this->getMock('oxconfig');
 
         $oUtilsPic = $this->getMock(\OxidEsales\Eshop\Core\UtilsPic::class, array('getConfig'));
-        $oUtilsPic->expects($this->exactly(2))->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
 
         $this->assertFalse($oUtilsPic->UNITdeletePicture('nopic.jpg', 'yyy'));
         $this->assertFalse($oUtilsPic->UNITdeletePicture('nopic_ico.jpg', 'yyy'));
@@ -179,7 +179,7 @@ class UtilsPicTest extends \OxidTestCase
         $oConfig = $this->getMock('oxconfig');
 
         $oUtilsPic = $this->getMock(\OxidEsales\Eshop\Core\UtilsPic::class, array('getConfig'));
-        $oUtilsPic->expects($this->once())->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
 
         $this->assertFalse($oUtilsPic->UNITdeletePicture(time(), 'yyy'));
     }
@@ -288,7 +288,7 @@ class UtilsPicTest extends \OxidTestCase
         $oObject = new stdclass();
         $oObject->oxtbl__oxpic = new oxField('testPictureName', oxField::T_RAW);
 
-        $blTrue = $oUtilsPic->overwritePic($oObject, 'oxtbl', 'oxpic', 'testType', 'testPath', array('oxtbl__oxpic' => 'xxx'), 'testAbsPath');
+        $oUtilsPic->overwritePic($oObject, 'oxtbl', 'oxpic', 'testType', 'testPath', array('oxtbl__oxpic' => 'xxx'), 'testAbsPath');
     }
 
     /**

@@ -506,17 +506,6 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     }
 
     /**
-     * Sets article parameter
-     *
-     * @param string $sName  name of parameter to set
-     * @param mixed  $sValue parameter value
-     */
-    public function __set($sName, $sValue)
-    {
-        parent::__set($sName, $sValue);
-    }
-
-    /**
      * @param \OxidEsales\Eshop\Application\Model\AmountPriceList $amountPriceList
      */
     public function setAmountPriceList($amountPriceList)
@@ -579,7 +568,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
         $sQ .= " and $sTable.oxhidden = 0 ";
 
         // enabled time range check ?
-        if ($this->getConfig()->getConfigParam('blUseTimeCheck')) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blUseTimeCheck')) {
             $sQ = $this->addSqlActiveRangeSnippet($sQ, $sTable);
         }
 
@@ -601,7 +590,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     public function getStockCheckQuery($blForceCoreTable = null)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $sTable = $this->getViewName($blForceCoreTable);
 
         $sQ = "";
@@ -639,7 +628,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
         $sQ = " and $sTable.oxparentid = '" . $this->getId() . "' ";
 
         //checking if variant is active and stock status
-        if ($this->getConfig()->getConfigParam('blUseStock')) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blUseStock')) {
             $sQ .= " and ( $sTable.oxstock > 0 or ( $sTable.oxstock <= 0 and $sTable.oxstockflag != 2 ";
             if ($blRemoveNotOrderables) {
                 $sQ .= " and $sTable.oxstockflag != 3 ";
@@ -895,7 +884,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     public function getUnitPrice()
     {
         // Performance
-        if (!$this->getConfig()->getConfigParam('bl_perfLoadPrice') || !$this->_blLoadPrice) {
+        if (!\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadPrice') || !$this->_blLoadPrice) {
             return;
         }
 
@@ -951,7 +940,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     public function getVarMinPrice()
     {
-        if (!$this->getConfig()->getConfigParam('bl_perfLoadPrice') || !$this->_blLoadPrice) {
+        if (!\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadPrice') || !$this->_blLoadPrice) {
             return;
         }
 
@@ -985,7 +974,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     public function getMinPrice()
     {
-        if (!$this->getConfig()->getConfigParam('bl_perfLoadPrice') || !$this->_blLoadPrice) {
+        if (!\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadPrice') || !$this->_blLoadPrice) {
             return;
         }
 
@@ -1079,10 +1068,11 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
         }
 
         // stock flags
-        if ($this->getConfig()->getConfigParam('blUseStock') && $this->oxarticles__oxstockflag->value == 2) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blUseStock') && $this->oxarticles__oxstockflag->value == 2) {
             $iOnStock = $this->oxarticles__oxstock->value + $this->oxarticles__oxvarstock->value;
-            if ($this->getConfig()->getConfigParam('blPsBasketReservationEnabled')) {
-                $iOnStock += $this->getSession()->getBasketReservations()->getReservedAmount($this->getId());
+            if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blPsBasketReservationEnabled')) {
+                $session = \OxidEsales\Eshop\Core\Registry::getSession();
+                $iOnStock += $session->getBasketReservations()->getReservedAmount($this->getId());
             }
             if ($iOnStock <= 0) {
                 return false;
@@ -1305,7 +1295,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
         }
 
         // showing variant reviews ..
-        if ($this->getConfig()->getConfigParam('blShowVariantReviews')) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blShowVariantReviews')) {
             $aAdd = $this->getVariantIds();
             if (is_array($aAdd)) {
                 $aIds = array_merge($aIds, $aAdd);
@@ -1344,7 +1334,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     public function getAccessoires()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         // Performance
         if (!$myConfig->getConfigParam('bl_perfLoadAccessoires')) {
@@ -1368,7 +1358,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     public function getSimilarProducts()
     {
         // Performance
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         if (!$myConfig->getConfigParam('bl_perfLoadSimilar')) {
             return;
         }
@@ -1416,7 +1406,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     public function getCustomerAlsoBoughtThisProducts()
     {
         // Performance
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         if (!$myConfig->getConfigParam('bl_perfLoadCustomerWhoBoughtThis')) {
             return;
         }
@@ -1440,7 +1430,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     public function loadAmountPriceInfo()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         if (!$myConfig->getConfigParam('bl_perfLoadPrice') || !$this->_blLoadPrice || !$this->_blCalcPrice || !$this->hasAmountPrice()) {
             return [];
         }
@@ -1704,7 +1694,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
             $oVariants->selectString($sSql, [':oxparentid' => $sId]);
 
             //if we have variants then depending on config option the parent may be non buyable
-            if (!$this->getConfig()->getConfigParam('blVariantParentBuyable') && ($oVariants->count() > 0)) {
+            if (!\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blVariantParentBuyable') && ($oVariants->count() > 0)) {
                 //$this->blNotBuyable = true;
                 $this->_blNotBuyableParent = true;
             }
@@ -1872,7 +1862,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
         }
 
         if ($sManufacturerId && $oManufacturer->load($sManufacturerId)) {
-            if (!$this->getConfig()->getConfigParam('bl_perfLoadManufacturerTree')) {
+            if (!\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadManufacturerTree')) {
                 $oManufacturer->setReadOnly(true);
             }
             $oManufacturer = $oManufacturer->oxmanufacturers__oxactive->value ? $oManufacturer : null;
@@ -1920,7 +1910,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
         }
 
         // maybe this category is price category ?
-        if ($this->getConfig()->getConfigParam('bl_perfLoadPrice') && $this->_blLoadPrice) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadPrice') && $this->_blLoadPrice) {
             $dPriceFromTo = $this->getPrice()->getBruttoPrice();
             if ($dPriceFromTo > 0) {
                 $sSelect = $this->_generateSelectCatStr($sOXID, $sCatId, $dPriceFromTo);
@@ -1942,7 +1932,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     public function getTPrice()
     {
-        if (!$this->getConfig()->getConfigParam('bl_perfLoadPrice') || !$this->_blLoadPrice) {
+        if (!\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadPrice') || !$this->_blLoadPrice) {
             return;
         }
 
@@ -2041,7 +2031,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
         // for diff. user groups.
 
         // Performance
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         if (!$myConfig->getConfigParam('bl_perfLoadPrice') || !$this->_blLoadPrice) {
             return;
         }
@@ -2073,7 +2063,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     public function getPrice($dAmount = 1)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         // Performance
         if (!$myConfig->getConfigParam('bl_perfLoadPrice') || !$this->_blLoadPrice) {
             return;
@@ -2335,7 +2325,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     public function getPictureGallery()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         //initialize
         $blMorePic = false;
@@ -2425,7 +2415,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     public function onChange($action = null, $articleId = null, $parentArticleId = null)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         if (!isset($articleId)) {
             if ($this->getId()) {
@@ -2503,7 +2493,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     public function checkForStock($dAmount, $dArtStockAmount = 0, $selectForUpdate = false)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         if (!$myConfig->getConfigParam('blUseStock')) {
             return true;
         }
@@ -2539,8 +2529,9 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
                 $iOnStock = floor($iOnStock);
             }
         }
-        if ($this->getConfig()->getConfigParam('blPsBasketReservationEnabled')) {
-            $iOnStock += $this->getSession()->getBasketReservations()->getReservedAmount($this->getId());
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blPsBasketReservationEnabled')) {
+            $session = \OxidEsales\Eshop\Core\Registry::getSession();
+            $iOnStock += $session->getBasketReservations()->getReservedAmount($this->getId());
         }
         if ($iOnStock >= $dAmount) {
             return true;
@@ -2793,7 +2784,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
         $sUrl = '';
         if ($blFull) {
             //always returns shop url, not admin
-            $sUrl = $this->getConfig()->getShopUrl($iLang, false);
+            $sUrl = \OxidEsales\Eshop\Core\Registry::getConfig()->getShopUrl($iLang, false);
         }
 
         $sUrl .= "index.php?cl=details" . ($blAddId ? "&amp;anid=" . $this->getId() : "");
@@ -2862,7 +2853,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     public function getDispSelList()
     {
         if ($this->_aDispSelList === null) {
-            if ($this->getConfig()->getConfigParam('bl_perfLoadSelectLists') && $this->getConfig()->getConfigParam('bl_perfLoadSelectListsInAList')) {
+            if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadSelectLists') && \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadSelectListsInAList')) {
                 $this->_aDispSelList = $this->getSelectLists();
             }
         }
@@ -2879,7 +2870,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     {
         if ($this->_sMoreDetailLink == null) {
             // and assign special article values
-            $this->_sMoreDetailLink = $this->getConfig()->getShopHomeUrl() . 'cl=moredetails';
+            $this->_sMoreDetailLink = \OxidEsales\Eshop\Core\Registry::getConfig()->getShopHomeUrl() . 'cl=moredetails';
 
             // not always it is okey, as not all the time active category is the same as primary article cat.
             if ($sActCat = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('cnid')) {
@@ -2899,7 +2890,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     public function getToBasketLink()
     {
         if ($this->_sToBasketLink == null) {
-            $myConfig = $this->getConfig();
+            $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
             if (\OxidEsales\Eshop\Core\Registry::getUtils()->isSearchEngine()) {
                 $this->_sToBasketLink = $this->getLink();
@@ -3090,7 +3081,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
                 $sImgName = basename($this->{"oxarticles__oxpic$iIndex"}->value);
             }
 
-            $sSize = $this->getConfig()->getConfigParam('aDetailImageSizes');
+            $sSize = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('aDetailImageSizes');
 
             return \OxidEsales\Eshop\Core\Registry::getPictureHandler()
                 ->getProductPicUrl("product/{$iIndex}/", $sImgName, $sSize, 'oxpic' . $iIndex);
@@ -3119,7 +3110,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
             $sImgName = basename($this->oxarticles__oxpic1->value);
         }
 
-        $sSize = $this->getConfig()->getConfigParam('sIconsize');
+        $sSize = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('sIconsize');
 
         $sIconUrl = \OxidEsales\Eshop\Core\Registry::getPictureHandler()->getProductPicUrl($sDirname, $sImgName, $sSize, $iIndex);
 
@@ -3144,7 +3135,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
             $sImgName = basename($this->oxarticles__oxpic1->value);
         }
 
-        $sSize = $this->getConfig()->getConfigParam('sThumbnailsize');
+        $sSize = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('sThumbnailsize');
 
         return \OxidEsales\Eshop\Core\Registry::getPictureHandler()->getProductPicUrl($sDirname, $sImgName, $sSize, 0, $bSsl);
     }
@@ -3161,7 +3152,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
         $iIndex = (int) $iIndex;
         if ($iIndex > 0 && !$this->_isFieldEmpty("oxarticles__oxpic" . $iIndex)) {
             $sImgName = basename($this->{"oxarticles__oxpic" . $iIndex}->value);
-            $sSize = $this->getConfig()->getConfigParam("sZoomImageSize");
+            $sSize = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam("sZoomImageSize");
 
             return \OxidEsales\Eshop\Core\Registry::getPictureHandler()->getProductPicUrl(
                 "product/{$iIndex}/",
@@ -3452,7 +3443,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
         $sPicName = basename($this->{"oxarticles__oxpic" . $iIndex}->value);
 
         if ($sPicName && $sPicName != "nopic.jpg") {
-            $sPicUrl = $this->getConfig()->getPictureUrl("master/product/" . $iIndex . "/" . $sPicName);
+            $sPicUrl = \OxidEsales\Eshop\Core\Registry::getConfig()->getPictureUrl("master/product/" . $iIndex . "/" . $sPicName);
             if (!$sPicUrl || basename($sPicUrl) == "nopic.jpg") {
                 $sPicUrl = false;
             }
@@ -3487,7 +3478,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
 
             $sQ = "SELECT * FROM `oxfiles` WHERE `oxartid` = :oxartid";
 
-            if (!$this->getConfig()->getConfigParam('blVariantParentBuyable') && $blAddFromParent) {
+            if (!Registry::getConfig()->getConfigParam('blVariantParentBuyable') && $blAddFromParent) {
                 $sQ .= " OR `oxartId` = :oxparentid";
             }
 
@@ -3550,7 +3541,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
             //do not load me as a parent later
             self::$_aLoadedParents[$articleId . "_" . $this->getLanguage()] = $this;
 
-            $config = $this->getConfig();
+            $config = \OxidEsales\Eshop\Core\Registry::getConfig();
 
             if (!$this->_blLoadVariants ||
                 (!$this->isAdmin() && !$config->getConfigParam('blLoadVariants')) ||
@@ -3691,7 +3682,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     protected function _calculatePrice($oPrice, $dVat = null)
     {
         // apply VAT only if configuration requires it
-        if (isset($dVat) || !$this->getConfig()->getConfigParam('bl_perfCalcVatOnlyForBasketOrder')) {
+        if (isset($dVat) || !\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfCalcVatOnlyForBasketOrder')) {
             $this->_applyVAT($oPrice, isset($dVat) ? $dVat : $this->getArticleVat());
         }
 
@@ -3722,7 +3713,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     protected function _hasAnyVariant($blForceCoreTable = null)
     {
         if (($sId = $this->getId())) {
-            if ($this->oxarticles__oxshopid->value == $this->getConfig()->getShopId()) {
+            if ($this->oxarticles__oxshopid->value == \OxidEsales\Eshop\Core\Registry::getConfig()->getShopId()) {
                 return (bool) $this->oxarticles__oxvarcount->value;
             }
             $sArticleTable = $this->getViewName($blForceCoreTable);
@@ -3862,7 +3853,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
         $dPrice = $this->$sVarName->value;
 
         // #1437/1436C - added config option, and check for zero A,B,C price values
-        if ($this->getConfig()->getConfigParam('blOverrideZeroABCPrices') && (double) $dPrice == 0) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blOverrideZeroABCPrices') && (double) $dPrice == 0) {
             $dPrice = $this->oxarticles__oxprice->value;
         }
 
@@ -3907,7 +3898,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     protected function _modifySelectListPrice($dPrice, $aChosenList = null)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         // #690
         if ($myConfig->getConfigParam('bl_perfLoadSelectLists') && $myConfig->getConfigParam('bl_perfUseSelectlistPrice')) {
             $aSelLists = $this->getSelectLists();
@@ -4043,7 +4034,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     protected function _applyCurrency(\OxidEsales\Eshop\Core\Price $oPrice, $oCur = null)
     {
         if (!$oCur) {
-            $oCur = $this->getConfig()->getActShopCurrencyObject();
+            $oCur = \OxidEsales\Eshop\Core\Registry::getConfig()->getActShopCurrencyObject();
         }
 
         $oPrice->multiply($oCur->rate);
@@ -4087,7 +4078,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     protected function _getSimList($sAttributeSql, $iCnt)
     {
         // #523A
-        $iAttrPercent = $this->getConfig()->getConfigParam('iAttributesPercent') / 100;
+        $iAttrPercent = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('iAttributesPercent') / 100;
         // 70% same attributes
         if (!$iAttrPercent || $iAttrPercent < 0 || $iAttrPercent > 1) {
             $iAttrPercent = 0.70;
@@ -4123,7 +4114,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     protected function _generateSimListSearchStr($sArticleTable, $aList)
     {
         $sFieldList = $this->getSelectFields();
-        $aList = array_slice($aList, 0, $this->getConfig()->getConfigParam('iNrofSimilarArticles'));
+        $aList = array_slice($aList, 0, \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('iNrofSimilarArticles'));
 
         $sSearch = "select $sFieldList from $sArticleTable where " . $this->getSqlActiveSnippet() . "  and $sArticleTable.oxissearch = 1 and $sArticleTable.oxid in ( ";
 
@@ -4196,7 +4187,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
             }
         }
 
-        $iLimit = (int) $this->getConfig()->getConfigParam('iNrofCustomerWhoArticles');
+        $iLimit = (int) \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('iNrofCustomerWhoArticles');
         $iLimit = $iLimit ? ($iLimit * 10) : 50;
 
         // building sql (optimized)
@@ -4426,7 +4417,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     protected function _assignNotBuyableParent()
     {
-        if (!$this->getConfig()->getConfigParam('blVariantParentBuyable') &&
+        if (!\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blVariantParentBuyable') &&
             ($this->_blHasVariants || $this->oxarticles__oxvarstock->value || $this->oxarticles__oxvarcount->value)
         ) {
             $this->_blNotBuyableParent = true;
@@ -4438,7 +4429,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     protected function _assignStock()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         // -----------------------------------
         // stock
         // -----------------------------------
@@ -4475,8 +4466,11 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
         // stock
         if ($myConfig->getConfigParam('blUseStock') && ($this->oxarticles__oxstockflag->value == 3 || $this->oxarticles__oxstockflag->value == 2)) {
             $iOnStock = $this->oxarticles__oxstock->value;
-            if ($this->getConfig()->getConfigParam('blPsBasketReservationEnabled')) {
-                $iOnStock += $this->getSession()->getBasketReservations()->getReservedAmount($this->getId());
+            if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blPsBasketReservationEnabled')) {
+                $session = \OxidEsales\Eshop\Core\Registry::getSession();
+                if ($reservations = $session->getBasketReservations()){
+                    $iOnStock += $reservations->getReservedAmount($this->getId());
+                }
             }
             if ($iOnStock <= 0) {
                 $this->setBuyableState(false);
@@ -4522,7 +4516,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     protected function _assignDynImageDir()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         $sThisShop = $this->oxarticles__oxshopid->value;
 
@@ -4691,7 +4685,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     protected function _deletePics()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $oPictureHandler = \OxidEsales\Eshop\Core\Registry::getPictureHandler();
 
         //deleting custom main icon
@@ -4787,7 +4781,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     protected function _onChangeStockResetCount($sOxid)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         if ($myConfig->getConfigParam('blUseStock') && $this->oxarticles__oxstockflag->value == 2 &&
             ($this->oxarticles__oxstock->value + $this->oxarticles__oxvarstock->value) <= 0
@@ -4893,7 +4887,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
 
         $sMasterPic = 'product/' . $iIndex . "/" . $sPicName;
 
-        if ($this->getConfig()->getMasterPicturePath($sMasterPic)) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getMasterPicturePath($sMasterPic)) {
             return true;
         }
 
@@ -4908,7 +4902,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      */
     protected function _isPriceViewModeNetto()
     {
-        $blResult = (bool) $this->getConfig()->getConfigParam('blShowNetPrice');
+        $blResult = (bool) \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blShowNetPrice');
         $oUser = $this->getArticleUser();
         if ($oUser) {
             $blResult = $oUser->isPriceViewModeNetto();
@@ -4977,9 +4971,9 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
             $blCalculationModeNetto = $this->_isPriceViewModeNetto();
         }
 
-        $oCurrency = $this->getConfig()->getActShopCurrencyObject();
+        $oCurrency = \OxidEsales\Eshop\Core\Registry::getConfig()->getActShopCurrencyObject();
 
-        $blEnterNetPrice = $this->getConfig()->getConfigParam('blEnterNetPrice');
+        $blEnterNetPrice = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blEnterNetPrice');
         if ($blCalculationModeNetto && !$blEnterNetPrice) {
             $dPrice = round(\OxidEsales\Eshop\Core\Price::brutto2Netto($dPrice, $dVat), $oCurrency->decimal);
         } elseif (!$blCalculationModeNetto && $blEnterNetPrice) {
@@ -5024,7 +5018,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
         if ($sPriceSuffix === '') {
             $dPrice = $this->oxarticles__oxprice->value;
         } else {
-            if ($this->getConfig()->getConfigParam('blOverrideZeroABCPrices')) {
+            if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blOverrideZeroABCPrices')) {
                 $dPrice = ($this->{'oxarticles__oxprice' . $sPriceSuffix}->value != 0) ? $this->{'oxarticles__oxprice' . $sPriceSuffix}->value : $this->oxarticles__oxprice->value;
             } else {
                 $dPrice = $this->{'oxarticles__oxprice' . $sPriceSuffix}->value;
@@ -5050,7 +5044,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
                     $dPrice = $this->oxarticles__oxvarminprice->value;
                 } else {
                     $sSql = 'SELECT ';
-                    if ($this->getConfig()->getConfigParam('blOverrideZeroABCPrices')) {
+                    if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blOverrideZeroABCPrices')) {
                         $sSql .= 'MIN( IF(`oxprice' . $sPriceSuffix . '` = 0, `oxprice`, `oxprice' . $sPriceSuffix . '`) ) AS `varminprice` ';
                     } else {
                         $sSql .= 'MIN(`oxprice' . $sPriceSuffix . '`) AS `varminprice` ';
@@ -5088,7 +5082,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
                     $dPrice = $this->oxarticles__oxvarmaxprice->value;
                 } else {
                     $sSql = 'SELECT ';
-                    if ($this->getConfig()->getConfigParam('blOverrideZeroABCPrices')) {
+                    if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blOverrideZeroABCPrices')) {
                         $sSql .= 'MAX( IF(`oxprice' . $sPriceSuffix . '` = 0, `oxprice`, `oxprice' . $sPriceSuffix . '`) ) AS `varmaxprice` ';
                     } else {
                         $sSql .= 'MAX(`oxprice' . $sPriceSuffix . '`) AS `varmaxprice` ';

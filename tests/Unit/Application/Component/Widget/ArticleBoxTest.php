@@ -5,6 +5,8 @@
  */
 namespace OxidEsales\EshopCommunity\Tests\Unit\Application\Component\Widget;
 
+use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\EshopCommunity\Application\Model\Category;
 
 /**
@@ -112,7 +114,7 @@ class ArticleBoxTest extends \OxidTestCase
         $oSearch = oxNew('Search');
         $oConfig->expects($this->any())->method('getTopActiveView')->will($this->returnValue($oSearch));
 
-        $oArticleBox->setConfig($oConfig);
+        Registry::set(Config::class, $oConfig);
         $sLinkUrl .= "?listtype=search&amp;searchparam=1126";
 
 
@@ -233,7 +235,7 @@ class ArticleBoxTest extends \OxidTestCase
         $oConfig->expects($this->any())->method('getTopActiveView')->will($this->returnValue($oList));
 
         $oArticleBox = $this->getMock(\OxidEsales\Eshop\Application\Component\Widget\ArticleBox::class, array('getConfig'));
-        $oArticleBox->expects($this->any())->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
 
         $this->assertTrue($oArticleBox->getActiveCategory() instanceof Category);
         $this->assertEquals('943a9ba3050e78b443c16e043ae60ef3', $oArticleBox->getActiveCategory()->getId());
@@ -255,7 +257,7 @@ class ArticleBoxTest extends \OxidTestCase
         $oConfig->expects($this->any())->method('getTopActiveView')->will($this->returnValue($oList));
 
         $oArticleBox = $this->getMock(\OxidEsales\Eshop\Application\Component\Widget\ArticleBox::class, array('getConfig'));
-        $oArticleBox->expects($this->any())->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
 
         $this->assertTrue($oArticleBox->getActiveCategory() instanceof Category);
         $this->assertEquals(null, $oArticleBox->getActiveCategory()->getId());

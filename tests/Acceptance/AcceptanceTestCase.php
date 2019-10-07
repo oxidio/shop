@@ -78,7 +78,5 @@ abstract class AcceptanceTestCase extends \OxidEsales\TestingLibrary\AcceptanceT
     {
         $config = Registry::getConfig();
         $config->reinitialize();
-        /** Reset static variable in oxSuperCfg class, which is base class for every class. */
-        $config->setConfig($config);
     }
 }

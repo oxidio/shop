@@ -63,7 +63,7 @@ class NewsController extends \OxidEsales\Eshop\Application\Controller\FrontendCo
         if ($this->_oNewsList === null) {
             $this->_oNewsList = false;
 
-            $iPerPage = (int) $this->getConfig()->getConfigParam('iNrofCatArticles');
+            $iPerPage = (int) \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('iNrofCatArticles');
             $iPerPage = $iPerPage ? $iPerPage : 10;
 
             $oActNews = oxNew(\OxidEsales\Eshop\Application\Model\NewsList::class);
@@ -93,7 +93,7 @@ class NewsController extends \OxidEsales\Eshop\Application\Controller\FrontendCo
         $iBaseLanguage = $oLang->getBaseLanguage();
         $sTranslatedString = $oLang->translateString('LATEST_NEWS_AND_UPDATES_AT', $iBaseLanguage, false);
 
-        $aPath['title'] = $sTranslatedString . ' ' . $this->getConfig()->getActiveShop()->oxshops__oxname->value;
+        $aPath['title'] = $sTranslatedString . ' ' . \OxidEsales\Eshop\Core\Registry::getConfig()->getActiveShop()->oxshops__oxname->value;
         $aPath['link'] = $this->getLink();
 
         $aPaths[] = $aPath;
@@ -127,6 +127,6 @@ class NewsController extends \OxidEsales\Eshop\Application\Controller\FrontendCo
         $iBaseLanguage = $oLang->getBaseLanguage();
         $sTranslatedString = $oLang->translateString('LATEST_NEWS_AND_UPDATES_AT', $iBaseLanguage, false);
 
-        return $sTranslatedString . ' ' . $this->getConfig()->getActiveShop()->oxshops__oxname->value;
+        return $sTranslatedString . ' ' . \OxidEsales\Eshop\Core\Registry::getConfig()->getActiveShop()->oxshops__oxname->value;
     }
 }

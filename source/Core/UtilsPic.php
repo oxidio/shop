@@ -36,7 +36,7 @@ class UtilsPic extends \OxidEsales\Eshop\Core\Base
     public function resizeImage($sSrc, $sTarget, $iDesiredWidth, $iDesiredHeight)
     {
         if (file_exists($sSrc) && ($aImageInfo = @getimagesize($sSrc))) {
-            $myConfig = $this->getConfig();
+            $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
             list($iWidth, $iHeight) = calcImageSize($iDesiredWidth, $iDesiredHeight, $aImageInfo[0], $aImageInfo[1]);
 
             return $this->_resize($aImageInfo, $sSrc, null, $sTarget, $iWidth, $iHeight, getGdVersion(), $myConfig->getConfigParam('blDisableTouch'), $myConfig->getConfigParam('sDefaultImageQuality'));
@@ -76,7 +76,7 @@ class UtilsPic extends \OxidEsales\Eshop\Core\Base
     protected function _deletePicture($sPicName, $sAbsDynImageDir)
     {
         $blDeleted = false;
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         if (!$myConfig->isDemoShop() && (strpos($sPicName, 'nopic.jpg') === false ||
                                          strpos($sPicName, 'nopic_ico.jpg') === false)

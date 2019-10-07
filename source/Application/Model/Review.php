@@ -130,7 +130,7 @@ class Review extends \OxidEsales\Eshop\Core\Model\BaseModel
             $sSelect .= ' and oxreviews.oxtext != "" ';
         }
 
-        if ($this->getConfig()->getConfigParam('blGBModerate')) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blGBModerate')) {
             $sSelect .= ' and ( oxreviews.oxactive = "1" ';
 
             if ($oUser = $this->getUser()) {

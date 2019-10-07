@@ -58,7 +58,7 @@ class UtilsServer extends \OxidEsales\Eshop\Core\Base
             // do NOT set cookies in php unit or in cli because it would issue warnings
             return;
         }
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
         //if shop runs in https only mode we can set secure flag to all cookies
         $blSecure = $blSecure || ($config->isSsl() && $config->getSslShopUrl() == $config->getShopUrl());
         return setcookie(
@@ -84,7 +84,7 @@ class UtilsServer extends \OxidEsales\Eshop\Core\Base
         if ($this->_blSaveToSession === null) {
             $this->_blSaveToSession = false;
 
-            $myConfig = $this->getConfig();
+            $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
             if ($sSslUrl = $myConfig->getSslShopUrl()) {
                 $sUrl = $myConfig->getShopUrl();
 
@@ -111,7 +111,7 @@ class UtilsServer extends \OxidEsales\Eshop\Core\Base
      */
     protected function _getSessionCookieKey($blGet)
     {
-        $blSsl = $this->getConfig()->isSsl();
+        $blSsl = \OxidEsales\Eshop\Core\Registry::getConfig()->isSsl();
         $sKey = $blSsl ? 'nossl' : 'ssl';
 
         if ($blGet) {
@@ -175,9 +175,9 @@ class UtilsServer extends \OxidEsales\Eshop\Core\Base
      */
     protected function _getCookiePath($sPath)
     {
-        if ($aCookiePaths = $this->getConfig()->getConfigParam('aCookiePaths')) {
+        if ($aCookiePaths = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('aCookiePaths')) {
             // in case user wants to have shop specific setup
-            $sShopId = $this->getConfig()->getShopId();
+            $sShopId = \OxidEsales\Eshop\Core\Registry::getConfig()->getShopId();
             $sPath = isset($aCookiePaths[$sShopId]) ? $aCookiePaths[$sShopId] : $sPath;
         }
 
@@ -202,9 +202,9 @@ class UtilsServer extends \OxidEsales\Eshop\Core\Base
         // on special cases, like separate domain for SSL, cookies must be defined on domain specific path
         // please have a look at
         if (!$sDomain) {
-            if ($aCookieDomains = $this->getConfig()->getConfigParam('aCookieDomains')) {
+            if ($aCookieDomains = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('aCookieDomains')) {
                 // in case user wants to have shop specific setup
-                $sShopId = $this->getConfig()->getShopId();
+                $sShopId = \OxidEsales\Eshop\Core\Registry::getConfig()->getShopId();
                 $sDomain = isset($aCookieDomains[$sShopId]) ? $aCookieDomains[$sShopId] : $sDomain;
             }
         }
@@ -285,7 +285,7 @@ class UtilsServer extends \OxidEsales\Eshop\Core\Base
      */
     public function setUserCookie($userName, $passwordHash, $shopId = null, $timeout = 31536000, $salt = User::USER_COOKIE_SALT)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $shopId = $shopId ?? $myConfig->getShopId();
         $sSslUrl = $myConfig->getSslShopUrl();
         if (stripos($sSslUrl, 'https') === 0) {
@@ -306,8 +306,8 @@ class UtilsServer extends \OxidEsales\Eshop\Core\Base
      */
     public function deleteUserCookie($sShopId = null)
     {
-        $myConfig = $this->getConfig();
-        $sShopId = (!$sShopId) ? $this->getConfig()->getShopId() : $sShopId;
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
+        $sShopId = (!$sShopId) ? \OxidEsales\Eshop\Core\Registry::getConfig()->getShopId() : $sShopId;
         $sSslUrl = $myConfig->getSslShopUrl();
         if (stripos($sSslUrl, 'https') === 0) {
             $blSsl = true;
@@ -329,7 +329,7 @@ class UtilsServer extends \OxidEsales\Eshop\Core\Base
      */
     public function getUserCookie($sShopId = null)
     {
-        $myConfig = parent::getConfig();
+        $myConfig = Registry::getConfig();
         $sShopId = (!$sShopId) ? $myConfig->getShopId() : $sShopId;
         // check for SSL connection
         if (!$myConfig->isSsl() && $this->getOxCookie('oxid_' . $sShopId . '_autologin') == '1') {
@@ -355,7 +355,7 @@ class UtilsServer extends \OxidEsales\Eshop\Core\Base
     public function isTrustedClientIp()
     {
         $blTrusted = false;
-        $aTrustedIPs = ( array ) $this->getConfig()->getConfigParam("aTrustedIPs");
+        $aTrustedIPs = ( array ) \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam("aTrustedIPs");
         if (count($aTrustedIPs)) {
             $blTrusted = in_array($this->getRemoteAddress(), $aTrustedIPs);
         }

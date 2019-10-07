@@ -6,6 +6,8 @@
 namespace OxidEsales\EshopCommunity\Tests\Unit\Application\Controller;
 
 use OxidEsales\Eshop\Application\Controller\FrontendController;
+use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Registry;
 use oxUBaseHelper;
 use \stdClass;
 use \oxField;
@@ -68,8 +70,8 @@ class UBaseTest extends \OxidTestCase
 
         oxDb::getDb()->execute('delete from oxcontents where oxloadid = "_testKeywordsIdentId" ');
 
-        $oUBase = oxNew('oxUbase');
-        $oUBase->getSession()->setBasket(null);
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+        $session->setBasket(null);
 
         oxUBaseHelper::resetComponentNames();
 
@@ -852,7 +854,7 @@ class UBaseTest extends \OxidTestCase
         $myConfig->expects($this->once())
             ->method('getActiveView')
             ->will($this->returnValue($oView));
-        $oView->setConfig($myConfig);
+        Registry::set(Config::class, $myConfig);
         $oView->getAdditionalParams();
 
         $sAdditionalParams = '';
@@ -895,7 +897,7 @@ class UBaseTest extends \OxidTestCase
         $oConfig->expects($this->once())->method('getActiveShop')->will($this->returnValue($oShop));
 
         $oView = $this->getMock(\OxidEsales\Eshop\Application\Controller\FrontendController::class, array('getConfig'));
-        $oView->expects($this->once())->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
         $this->assertEquals('testsuffix', $oView->getTitleSuffix());
     }
 
@@ -910,7 +912,7 @@ class UBaseTest extends \OxidTestCase
         $oConfig->expects($this->once())->method('getActiveShop')->will($this->returnValue($oShop));
 
         $oView = $this->getMock(\OxidEsales\Eshop\Application\Controller\FrontendController::class, array('getConfig'));
-        $oView->expects($this->once())->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
         $this->assertEquals('testsuffix', $oView->getTitlePrefix());
     }
 
@@ -1195,7 +1197,7 @@ class UBaseTest extends \OxidTestCase
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('getActiveView'));
         $oConfig->expects($this->once())->method('getActiveView')->will($this->returnValue($oActiveView));
         $oView = $this->getMock(\OxidEsales\Eshop\Application\Controller\FrontendController::class, array('getConfig'));
-        $oView->expects($this->once())->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
         $this->assertEquals('Links', $oView->getTitle());
     }
 
@@ -1461,7 +1463,7 @@ class UBaseTest extends \OxidTestCase
         $userBase->expects($this->any())->method('_canRedirect')->will($this->returnValue(false));
         $userBase->expects($this->any())->method('isAdmin')->will($this->returnValue(false));
         $userBase->expects($this->once())->method('_forceNoIndex');
-        $userBase->expects($this->any())->method('getConfig')->will($this->returnValue($config));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $config);
 
         $userBase->UNITprocessRequest();
 
@@ -1490,7 +1492,7 @@ class UBaseTest extends \OxidTestCase
         $oUBase->expects($this->any())->method('_canRedirect')->will($this->returnValue(false));
         $oUBase->expects($this->any())->method('isAdmin')->will($this->returnValue(false));
         $oUBase->expects($this->once())->method('_forceNoIndex');
-        $oUBase->expects($this->any())->method('getConfig')->will($this->returnValue($config));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $config);
 
         $oUBase->UNITprocessRequest();
 
@@ -1508,9 +1510,10 @@ class UBaseTest extends \OxidTestCase
         $oBasket = $this->getMock(\OxidEsales\Eshop\Application\Model\Basket::class, array('isBelowMinOrderPrice'));
         $oBasket->expects($this->once())->method('isBelowMinOrderPrice')->will($this->returnValue(true));
 
-        $oUBase = oxNew('oxUBase');
-        $oUBase->getSession()->setBasket($oBasket);
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+        $session->setBasket($oBasket);
 
+        $oUBase = oxNew('oxUBase');
         $oUBase->isLowOrderPrice();
         $this->assertTrue($oUBase->isLowOrderPrice());
     }
@@ -1979,7 +1982,7 @@ class UBaseTest extends \OxidTestCase
     public function testGetCatMoreUrl()
     {
         $oUBase = oxNew('oxUBase');
-        $this->assertEquals($oUBase->getConfig()->getShopHomeURL() . 'cnid=oxmore', $oUBase->getCatMoreUrl());
+        $this->assertEquals(Registry::getConfig()->getShopHomeURL() . 'cnid=oxmore', $oUBase->getCatMoreUrl());
     }
 
     /*

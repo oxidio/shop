@@ -5,6 +5,7 @@
  */
 namespace OxidEsales\EshopCommunity\Tests\Unit\Core;
 
+use OxidEsales\Eshop\Core\Registry;
 use \oxObjectException;
 
 use Exception;
@@ -34,20 +35,6 @@ class _oxBase extends oxBase
         //$this->_sCacheKey = (rand(0, pow(10,10)));
         parent::__construct();
         $this->_sCacheKey = null;
-    }
-
-    /**
-     * Sets the names to main and view tables, loads metadata of each table.
-     *
-     * @param string $sTableName       Name of DB object table
-     * @param bool   $blForceAllFields Forces initialisation of all fields overriding lazy loading functionality
-     *
-     * @return null
-     */
-    public function init($sTableName = null, $blForceAllFields = false)
-    {
-        //$this->_sCacheKey = null;
-        return parent::init($sTableName, $blForceAllFields);
     }
 
     /**
@@ -307,7 +294,7 @@ class BaseTest extends \OxidTestCase
         $oConfig->expects($this->any())->method('getShopId')->will($this->returnValue(null));
 
         $oBase = $this->getMock(\OxidEsales\Eshop\Core\Model\BaseModel::class, array('getConfig', 'getShopId'), array(), '', false);
-        $oBase->expects($this->any())->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
         $oBase->expects($this->any())->method('getShopId')->will($this->returnValue(null));
 
         $this->assertNull($oBase->isDerived());
@@ -326,7 +313,7 @@ class BaseTest extends \OxidTestCase
         $oConfig->expects($this->any())->method('getShopId')->will($this->returnValue('xxx'));
 
         $oBase = $this->getMock(\OxidEsales\Eshop\Core\Model\BaseModel::class, array('getConfig', 'getShopId'), array(), '', false);
-        $oBase->expects($this->any())->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
         $oBase->expects($this->any())->method('getShopId')->will($this->returnValue('xxx'));
 
         $this->assertSame($expected, $oBase->isDerived());
@@ -345,7 +332,7 @@ class BaseTest extends \OxidTestCase
         $oConfig->expects($this->any())->method('getShopId')->will($this->returnValue('xxx'));
 
         $oBase = $this->getMock(\OxidEsales\Eshop\Core\Model\BaseModel::class, array('getConfig', 'getShopId'), array(), '', false);
-        $oBase->expects($this->any())->method('getConfig')->will($this->returnValue($oConfig));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config::class, $oConfig);
         $oBase->expects($this->any())->method('getShopId')->will($this->returnValue('yyy'));
 
         $this->assertSame($expected, $oBase->isDerived());
@@ -516,7 +503,7 @@ class BaseTest extends \OxidTestCase
     public function testMagicGetLazyLoadingNonExistingFieldWithDebug()
     {
         $oBase = new _oxBase();
-        $oBase->getConfig()->setConfigParam('iDebug', -1);
+        Registry::getConfig()->setConfigParam('iDebug', -1);
         $oBase->setClassVar("_blUseLazyLoading", true);
         $oBase->init("oxarticles");
         $oBase->setId("2000");
@@ -532,7 +519,7 @@ class BaseTest extends \OxidTestCase
     public function testMagicGetLazyLoadingNonExistingFieldWithoutDebug()
     {
         $oBase = new _oxBase();
-        $oBase->getConfig()->setConfigParam('iDebug', 0);
+        Registry::getConfig()->setConfigParam('iDebug', 0);
         $oBase->setClassVar("_blUseLazyLoading", true);
         $oBase->init("oxarticles");
         $oBase->setId("2000");

@@ -380,7 +380,7 @@ class Discount extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
         if ($this->oxdiscount__oxaddsumtype->value == '%') {
             return $dPrice * ($this->oxdiscount__oxaddsum->value / 100);
         } else {
-            $oCur = $this->getConfig()->getActShopCurrencyObject();
+            $oCur = \OxidEsales\Eshop\Core\Registry::getConfig()->getActShopCurrencyObject();
 
             return $this->oxdiscount__oxaddsum->value * $dAmount * $oCur->rate;
         }
@@ -411,7 +411,7 @@ class Discount extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
     public function getAddSum()
     {
         if ($this->oxdiscount__oxaddsumtype->value == 'abs') {
-            $oCur = $this->getConfig()->getActShopCurrencyObject();
+            $oCur = \OxidEsales\Eshop\Core\Registry::getConfig()->getActShopCurrencyObject();
 
             return $this->oxdiscount__oxaddsum->value * $oCur->rate;
         } else {

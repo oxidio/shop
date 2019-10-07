@@ -125,7 +125,7 @@ class ModuleList extends \OxidEsales\Eshop\Core\Base
      */
     public function getModuleVersions()
     {
-        return $this->getConfig()->getConfigParam('aModuleVersions');
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('aModuleVersions');
     }
 
     /**
@@ -182,7 +182,7 @@ class ModuleList extends \OxidEsales\Eshop\Core\Base
      */
     public function getModulePaths()
     {
-        return $this->getConfig()->getConfigParam('aModulePaths');
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('aModulePaths');
     }
 
     /**
@@ -192,7 +192,7 @@ class ModuleList extends \OxidEsales\Eshop\Core\Base
      */
     public function getModuleEvents()
     {
-        return (array) $this->getConfig()->getConfigParam('aModuleEvents');
+        return (array) \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('aModuleEvents');
     }
 
     /**
@@ -224,7 +224,7 @@ class ModuleList extends \OxidEsales\Eshop\Core\Base
      */
     public function getModuleFiles()
     {
-        return (array) $this->getConfig()->getConfigParam('aModuleFiles');
+        return (array) \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('aModuleFiles');
     }
 
     /**
@@ -234,7 +234,7 @@ class ModuleList extends \OxidEsales\Eshop\Core\Base
      */
     public function getModuleTemplates()
     {
-        return $this->getConfig()->getConfigParam('aModuleTemplates');
+        return \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('aModuleTemplates');
     }
 
     /**
@@ -412,7 +412,7 @@ class ModuleList extends \OxidEsales\Eshop\Core\Base
      */
     public function getModuleConfigParametersByKey($key)
     {
-        return (array) $this->getConfig()->getConfigParam('aModule' . $key);
+        return (array) \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('aModule' . $key);
     }
 
     /**
@@ -586,7 +586,7 @@ class ModuleList extends \OxidEsales\Eshop\Core\Base
      */
     private function backwardsCompatibleGetInvalidExtensions($moduleClass, &$invalidModuleClasses, $extendedShopClass)
     {
-        $moduleClassFile = $this->getConfig()->getModulesDir() . $moduleClass . '.php';
+        $moduleClassFile = \OxidEsales\Eshop\Core\Registry::getConfig()->getModulesDir() . $moduleClass . '.php';
         if (!is_readable($moduleClassFile)) {
             $invalidModuleClasses[$extendedShopClass][] = $moduleClass;
         }

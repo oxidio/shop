@@ -81,7 +81,7 @@ class InviteController extends \OxidEsales\Eshop\Application\Controller\AccountC
      */
     public function render()
     {
-        $oConfig = $this->getConfig();
+        $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         if (!$oConfig->getConfigParam("blInvitationsEnabled")) {
             Registry::getUtils()->redirect($oConfig->getShopHomeUrl());
@@ -100,7 +100,7 @@ class InviteController extends \OxidEsales\Eshop\Application\Controller\AccountC
      */
     public function send()
     {
-        $oConfig = $this->getConfig();
+        $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         if (!$oConfig->getConfigParam("blInvitationsEnabled")) {
             Registry::getUtils()->redirect($oConfig->getShopHomeUrl());

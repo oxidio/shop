@@ -7,6 +7,7 @@ namespace OxidEsales\EshopCommunity\Tests\Unit\Application\Model;
 
 use OxidEsales\Eshop\Application\Model\Order;
 use OxidEsales\Eshop\Application\Model\OrderArticle;
+use OxidEsales\Eshop\Core\Field;
 use OxidEsales\EshopCommunity\Application\Model\Article;
 use OxidEsales\EshopCommunity\Application\Model\Wrapping;
 
@@ -105,14 +106,14 @@ class OrderarticleTest extends \OxidTestCase
 
         $oBR = $this->getMock(\OxidEsales\Eshop\Application\Model\BasketReservation::class, array('commitArticleReservation'));
         $oBR->expects($this->once())->method('commitArticleReservation')->with($this->equalTo('asd'), $this->equalTo(20));
-        $oS = $this->getMock(\OxidEsales\Eshop\Core\Session::class, array('getBasketReservations'));
-        $oS->expects($this->once())->method('getBasketReservations')->will($this->returnValue($oBR));
+        $session = $this->getMock(\OxidEsales\Eshop\Core\Session::class, array('getBasketReservations'));
+        $session->expects($this->once())->method('getBasketReservations')->will($this->returnValue($oBR));
+        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Session::class, $session);
 
-        $oOrderArticle = $this->getMock(\OxidEsales\Eshop\Application\Model\OrderArticle::class, array("updateArticleStock", "isNewOrderItem", "setIsNewOrderItem", 'getSession'));
+        $oOrderArticle = $this->getMock(\OxidEsales\Eshop\Application\Model\OrderArticle::class, array("updateArticleStock", "isNewOrderItem", "setIsNewOrderItem"));
         $oOrderArticle->expects($this->never())->method('updateArticleStock');
         $oOrderArticle->expects($this->once())->method('isNewOrderItem')->will($this->returnValue(true));
         $oOrderArticle->expects($this->once())->method('setIsNewOrderItem')->with($this->equalTo(false));
-        $oOrderArticle->expects($this->once())->method('getSession')->will($this->returnValue($oS));
         $oOrderArticle->oxorderarticles__oxstorno = new oxField(0);
         $oOrderArticle->oxorderarticles__oxamount = new oxField(999);
         $oOrderArticle->oxorderarticles__oxartid = new oxField('asd');
@@ -747,18 +748,31 @@ class OrderarticleTest extends \OxidTestCase
      */
     public function testGetOrder()
     {
-        // oxOrderArticle instance
+        $orderArticle = oxNew(OrderArticle::class);
+        $orderArticle->oxorderarticles__oxorderid = new Field('test');
+        $this->assertNull($orderArticle->getOrder());
 
-        $oOrderArticle = $this->getProxyClass('oxOrderArticle');
+        $order = oxNew(Order::class);
+        $order->setId('test');
+        $order->save();
+        $this->assertInstanceOf(Order::class, $orderArticle->getOrder());
+    }
 
-        // checking if function returns NULL
-        // when it's impossible to get the order object
-        $oOrderArticle->oxorderarticles__oxorderid = new oxField('test');
-        $this->assertNull($oOrderArticle->getOrder());
+    public function testGetOrderLazyLoadingWhenOrderIdWasChanged()
+    {
+        $originalOrderId = 'test';
+        $this->makeOrder($originalOrderId);
+        $orderArticle = oxNew(OrderArticle::class);
+        $orderArticle->oxorderarticles__oxorderid = new Field($originalOrderId);
+        $orderArticle->save();
+        $orderArticle->getOrder();
 
-        // checking if method returns the result from cache
-        $oOrderArticle->setNonPublicVar('_aOrderCache', array('test' => 'result'));
-        $this->assertEquals('result', $oOrderArticle->getOrder());
+        $newOrderId = 'test2';
+        $this->makeOrder($newOrderId);
+        $orderArticle->oxorderarticles__oxorderid = new Field($newOrderId);
+        $orderArticle->save();
+
+        $this->assertSame($newOrderId, $orderArticle->getOrder()->getId());
     }
 
     /**
@@ -789,5 +803,15 @@ class OrderarticleTest extends \OxidTestCase
         $oOrderArticle->setArticle($oArticle);
 
         $this->assertEquals($oArticle, $oOrderArticle->getArticle());
+    }
+
+    /**
+     * @param string $id
+     */
+    private function makeOrder(string $id)
+    {
+        $originalOrder = oxNew(Order::class);
+        $originalOrder->setId($id);
+        $originalOrder->save();
     }
 }

@@ -202,7 +202,7 @@ class AccountController extends \OxidEsales\Eshop\Application\Controller\Fronten
         if (($sourceClass = Registry::getConfig()->getRequestParameter("sourcecl")) &&
             $this->_oaComponents['oxcmp_user']->getLoginStatus() === USER_LOGIN_SUCCESS
         ) {
-            $redirectUrl = $this->getConfig()->getShopUrl() . 'index.php?cl=' . rawurlencode($sourceClass);
+            $redirectUrl = \OxidEsales\Eshop\Core\Registry::getConfig()->getShopUrl() . 'index.php?cl=' . rawurlencode($sourceClass);
 
             // building redirect link
             foreach ($this->getNavigationParams() as $key => $value) {
@@ -347,9 +347,9 @@ class AccountController extends \OxidEsales\Eshop\Application\Controller\Fronten
     {
         $title = parent::getTitle();
 
-        if ($this->getConfig()->getActiveView()->getClassName() == 'account') {
-            $baseLanguageId = Registry::getLang()->getBaseLanguage();
-            $title = Registry::getLang()->translateString('PAGE_TITLE_ACCOUNT', $baseLanguageId, false);
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getActiveView()->getClassName() == 'account') {
+            $baseLanguageId = \OxidEsales\Eshop\Core\Registry::getLang()->getBaseLanguage();
+            $title = \OxidEsales\Eshop\Core\Registry::getLang()->translateString('PAGE_TITLE_ACCOUNT', $baseLanguageId, false);
             if ($user = $this->getUser()) {
                 $username = $user->oxuser__oxusername->value;
                 $title .= ' - "' . $username . '"';
@@ -371,14 +371,14 @@ class AccountController extends \OxidEsales\Eshop\Application\Controller\Fronten
          * Setting derived to false allows mall users to delete their account being in a different shop as the shop
          * the account was originally created in.
          */
-        if ($this->getConfig()->getConfigParam('blMallUsers')) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blMallUsers')) {
             $user->setIsDerived(false);
         }
 
         if ($this->canUserAccountBeDeleted() && $user->delete()) {
             $this->accountDeletionStatus = true;
             $user->logout();
-            $session = $this->getSession();
+            $session = \OxidEsales\Eshop\Core\Registry::getSession();
             $session->destroy();
         }
     }
@@ -390,9 +390,7 @@ class AccountController extends \OxidEsales\Eshop\Application\Controller\Fronten
      */
     public function isUserAllowedToDeleteOwnAccount()
     {
-        $allowUsersToDeleteTheirAccount = $this
-            ->getConfig()
-            ->getConfigParam('blAllowUsersToDeleteTheirAccount');
+        $allowUsersToDeleteTheirAccount = Registry::getConfig()->getConfigParam('blAllowUsersToDeleteTheirAccount');
 
         $user = $this->getUser();
 
@@ -416,6 +414,7 @@ class AccountController extends \OxidEsales\Eshop\Application\Controller\Fronten
      */
     private function canUserAccountBeDeleted()
     {
-        return $this->getSession()->checkSessionChallenge() && $this->isUserAllowedToDeleteOwnAccount();
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+        return $session->checkSessionChallenge() && $this->isUserAllowedToDeleteOwnAccount();
     }
 }

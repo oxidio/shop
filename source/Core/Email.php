@@ -286,13 +286,6 @@ class Email extends PHPMailer
     protected $_sCharSet = null;
 
     /**
-     * @var \OxidEsales\Eshop\Core\Config
-     *
-     * @deprecated since v6.4.0 (2018-10-15); This property will be removed completely. Use \OxidEsales\Eshop\Core\Registry::getConfig().
-     */
-    protected $_oConfig = null;
-
-    /**
      * Class constructor.
      */
     public function __construct()
@@ -300,7 +293,7 @@ class Email extends PHPMailer
         //enabling exception handling in phpMailer class
         parent::__construct(true);
 
-        $myConfig = $this->getConfig();
+        $myConfig = Registry::getConfig();
 
         $this->setSmtp();
 
@@ -342,35 +335,6 @@ class Email extends PHPMailer
 
         throw new SystemComponentException("Function '$method' does not exist or is not accessible! (" . get_class($this) . ")" . PHP_EOL);
     }
-
-    /**
-     * oxConfig instance getter
-     *
-     * @deprecated since v6.4.0 (2018-10-15); This method will be removed completely. Use \OxidEsales\Eshop\Core\Registry::getConfig().
-     *
-     * @return \OxidEsales\Eshop\Core\Config
-     */
-    public function getConfig()
-    {
-        if ($this->_oConfig == null) {
-            $this->_oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
-        }
-
-        return $this->_oConfig;
-    }
-
-    /**
-     * oxConfig instance setter
-     *
-     * @param \OxidEsales\Eshop\Core\Config $config config object
-     *
-     * @deprecated since v6.4.0 (2018-10-15); This method will be removed completely. Use \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config:class, $config).
-     */
-    public function setConfig($config)
-    {
-        $this->_oConfig = $config;
-    }
-
 
     /**
      * Smarty instance getter, assigns this oxEmail instance to "oEmailView" variable
@@ -423,7 +387,7 @@ class Email extends PHPMailer
             return false;
         }
 
-        $myConfig = $this->getConfig();
+        $myConfig = Registry::getConfig();
         $this->setCharSet();
 
         if ($this->_getUseInlineImages()) {
@@ -501,7 +465,7 @@ class Email extends PHPMailer
      */
     public function setSmtp($shop = null)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = Registry::getConfig();
         $shop = ($shop) ? $shop : $this->_getShop();
 
         $smtpUrl = $this->_setSmtpProtocol($shop->oxshops__oxsmtp->value);
@@ -616,7 +580,7 @@ class Email extends PHPMailer
      */
     public function sendOrderEmailToOwner($order, $subject = null)
     {
-        $config = $this->getConfig();
+        $config = Registry::getConfig();
 
         $shop = $this->_getShop();
 
@@ -884,7 +848,7 @@ class Email extends PHPMailer
      */
     protected function _getNewsSubsLink($id, $confirmCode = null)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = Registry::getConfig();
         $actShopLang = $myConfig->getActiveShop()->getLanguage();
 
         $url = $myConfig->getShopHomeUrl() . 'cl=newsletter&amp;fnc=addme&amp;uid=' . $id;
@@ -942,7 +906,7 @@ class Email extends PHPMailer
      */
     public function sendSuggestMail($user, $product)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = Registry::getConfig();
 
         //sets language of shop
         $currLang = $myConfig->getActiveShop()->getLanguage();
@@ -999,7 +963,7 @@ class Email extends PHPMailer
      */
     public function sendInviteMail($user)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = Registry::getConfig();
 
         //sets language of shop
         $currLang = $myConfig->getActiveShop()->getLanguage();
@@ -1064,7 +1028,7 @@ class Email extends PHPMailer
      */
     public function sendSendedNowMail($order, $subject = null)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = Registry::getConfig();
 
         $orderLang = (int) (isset($order->oxorder__oxlang->value) ? $order->oxorder__oxlang->value : 0);
 
@@ -1127,7 +1091,7 @@ class Email extends PHPMailer
      */
     public function sendDownloadLinksMail($order, $subject = null)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = Registry::getConfig();
 
         $orderLang = (int) (isset($order->oxorder__oxlang->value) ? $order->oxorder__oxlang->value : 0);
 
@@ -1297,7 +1261,7 @@ class Email extends PHPMailer
 
             $this->setRecipient($shop->oxshops__oxowneremail->value, $shop->oxshops__oxname->getRawValue());
             $this->setFrom($shop->oxshops__oxowneremail->value, $shop->oxshops__oxname->getRawValue());
-            $this->setBody($renderer->renderTemplate($this->getConfig()->getTemplatePath($this->_sReminderMailTemplate, false), $this->getViewData()));
+            $this->setBody($renderer->renderTemplate(Registry::getConfig()->getTemplatePath($this->_sReminderMailTemplate, false), $this->getViewData()));
             $this->setAltBody("");
             $this->setSubject(($subject !== null) ? $subject : $lang->translateString('STOCK_LOW'));
 
@@ -2022,11 +1986,11 @@ class Email extends PHPMailer
             if (isset($this->_oShop)) {
                 return $this->_oShop;
             } else {
-                return $this->_oShop = $this->getConfig()->getActiveShop();
+                return $this->_oShop = Registry::getConfig()->getActiveShop();
             }
         }
 
-        $myConfig = $this->getConfig();
+        $myConfig = Registry::getConfig();
 
         $shop = oxNew(\OxidEsales\Eshop\Application\Model\Shop::class);
         if ($shopId !== null) {
@@ -2091,7 +2055,7 @@ class Email extends PHPMailer
             if ($this->isDebugModeEnabled()) {
                 throw $ex;
             } else {
-                $ex->debugOut();
+                \OxidEsales\Eshop\Core\Registry::getLogger()->error($ex->getMessage(), [$ex]);
             }
         }
 
@@ -2152,7 +2116,7 @@ class Email extends PHPMailer
      */
     public function getViewConfig()
     {
-        return $this->getConfig()->getActiveView()->getViewConfig();
+        return Registry::getConfig()->getActiveView()->getViewConfig();
     }
 
     /**
@@ -2162,7 +2126,7 @@ class Email extends PHPMailer
      */
     public function getView()
     {
-        return $this->getConfig()->getActiveView();
+        return Registry::getConfig()->getActiveView();
     }
 
     /**
@@ -2260,7 +2224,7 @@ class Email extends PHPMailer
      */
     private function _clearSidFromBody($altBody)
     {
-        return Str::getStr()->preg_replace('/(\?|&(amp;)?)(force_)?(admin_)?sid=[A-Z0-9\.]+/i', '\1shp=' . $this->getConfig()->getShopId(), $altBody);
+        return Str::getStr()->preg_replace('/(\?|&(amp;)?)(force_)?(admin_)?sid=[A-Z0-9\.]+/i', '\1shp=' . Registry::getConfig()->getShopId(), $altBody);
     }
 
     /**
@@ -2278,7 +2242,7 @@ class Email extends PHPMailer
      */
     private function isDebugModeEnabled()
     {
-        return $this->getConfig()->getConfigParam('iDebug') != 0;
+        return Registry::getConfig()->getConfigParam('iDebug') != 0;
     }
 
     /**
@@ -2294,7 +2258,7 @@ class Email extends PHPMailer
           WHERE `OXACTIVE` = 1 
           AND `OXUSERNAME` = :oxusername 
           AND `OXPASSWORD` != ''";
-        if ($this->getConfig()->getConfigParam('blMallUsers')) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blMallUsers')) {
             $select .= " ORDER BY OXSHOPID = :oxshopid DESC";
         } else {
             $select .= " AND OXSHOPID = :oxshopid";

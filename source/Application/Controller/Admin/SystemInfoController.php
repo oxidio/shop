@@ -24,7 +24,7 @@ class SystemInfoController extends \OxidEsales\Eshop\Application\Controller\Admi
      */
     public function render()
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         parent::render();
 

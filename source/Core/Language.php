@@ -151,7 +151,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
     public function getBaseLanguage()
     {
         if ($this->_iBaseLanguageId === null) {
-            $myConfig = $this->getConfig();
+            $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
             $blAdmin = $this->isAdmin();
 
             // languages and search engines
@@ -263,7 +263,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
                 $iLang = null;
                 // choosing language ident
                 // check if we really need to set the new language
-                if ("saveinnlang" == $this->getConfig()->getActiveView()->getFncName()) {
+                if ("saveinnlang" == \OxidEsales\Eshop\Core\Registry::getConfig()->getActiveView()->getFncName()) {
                     $iLang = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter("new_lang");
                 }
                 $iLang = ($iLang === null) ? \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('editlanguage') : $iLang;
@@ -292,7 +292,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
      */
     public function getLanguageArray($iLanguage = null, $blOnlyActive = false, $blSort = false)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         if (is_null($iLanguage)) {
             $iLanguage = $this->_iBaseLanguageId;
@@ -348,7 +348,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
     public function getAdminTplLanguageArray()
     {
         if ($this->_aAdminTplLanguageArray === null) {
-            $config = $this->getConfig();
+            $config = \OxidEsales\Eshop\Core\Registry::getConfig();
 
             $langArray = $this->getLanguageArray();
             $this->_aAdminTplLanguageArray = [];
@@ -404,7 +404,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
      */
     public function getLanguageNames()
     {
-        $aConfLanguages = $this->getConfig()->getConfigParam('aLanguages');
+        $aConfLanguages = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('aLanguages');
         $aLangIds = $this->getLanguageIds();
         $aLanguages = [];
         foreach ($aLangIds as $iId => $sValue) {
@@ -527,7 +527,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
     public function formatCurrency($dValue, $oActCur = null)
     {
         if (!$oActCur) {
-            $oActCur = $this->getConfig()->getActShopCurrencyObject();
+            $oActCur = \OxidEsales\Eshop\Core\Registry::getConfig()->getActShopCurrencyObject();
         }
         $sValue = \OxidEsales\Eshop\Core\Registry::getUtils()->fRound($dValue, $oActCur);
 
@@ -552,7 +552,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
             $iDecPos = $oStr->strlen($oStr->substr($sValue, $iDotPos + 1));
         }
 
-        $oActCur = $oActCur ? $oActCur : $this->getConfig()->getActShopCurrencyObject();
+        $oActCur = $oActCur ? $oActCur : \OxidEsales\Eshop\Core\Registry::getConfig()->getActShopCurrencyObject();
         $iDecPos = ($iDecPos < $oActCur->decimal) ? $iDecPos : $oActCur->decimal;
 
         return number_format((double) $dValue, $iDecPos, $oActCur->dec, $oActCur->thousand);
@@ -720,7 +720,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
      */
     protected function _getLangFilesPathArray($iLang)
     {
-        $oConfig = $this->getConfig();
+        $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $aLangFiles = [];
 
         $sAppDir = $oConfig->getAppDir();
@@ -762,7 +762,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
      */
     protected function getCustomThemeLanguageFiles($language)
     {
-        $oConfig = $this->getConfig();
+        $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $sCustomTheme = $oConfig->getConfigParam("sCustomTheme");
         $sAppDir = $oConfig->getAppDir();
         $sLang = \OxidEsales\Eshop\Core\Registry::getLang()->getLanguageAbbr($language);
@@ -786,7 +786,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
      */
     protected function _getAdminLangFilesPathArray($activeLanguage)
     {
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
         $langFiles = [];
 
         $appDirectory = $config->getAppDir();
@@ -861,7 +861,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
             $adminThemeName = $this->getContainer()->get(AdminThemeBridgeInterface::class)->getActiveTheme();
             $languageFiles[] = $this->getCustomFilePath($language, $adminThemeName);
         } else {
-            $config = $this->getConfig();
+            $config = \OxidEsales\Eshop\Core\Registry::getConfig();
             if ($config->getConfigParam("sTheme")) {
                 $languageFiles[] = $this->getCustomFilePath($language, $config->getConfigParam("sTheme"));
             }
@@ -881,7 +881,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
      */
     private function getCustomFilePath($language, $themeName)
     {
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
         return $config->getAppDir() .
             'views' . DIRECTORY_SEPARATOR .
             $themeName . DIRECTORY_SEPARATOR  .
@@ -928,7 +928,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
      */
     protected function _getLangFileCacheName($blAdmin, $iLang, $aLangFiles = null)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $sLangFilesIdent = '_default';
         if (is_array($aLangFiles) && $aLangFiles) {
             $sLangFilesIdent = '_' . md5(implode('+', $aLangFiles));
@@ -1006,7 +1006,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
         $key = $language . ((int) $isAdmin);
         if (!isset($this->_aLangMap[$key])) {
             $this->_aLangMap[$key] = [];
-            $config = $this->getConfig();
+            $config = \OxidEsales\Eshop\Core\Registry::getConfig();
 
             $mapFile = '';
             $parentThemeDirectory = $this->getRealThemeName($config->getConfigParam("sTheme"), $isAdmin);
@@ -1038,7 +1038,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
      */
     private function getLanguageMappingFilePath($language, $themeName)
     {
-        $config = $this->getConfig();
+        $config = \OxidEsales\Eshop\Core\Registry::getConfig();
         return $config->getAppDir() . DIRECTORY_SEPARATOR .
             'views' . DIRECTORY_SEPARATOR .
             $themeName . DIRECTORY_SEPARATOR .
@@ -1241,7 +1241,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
                          "oxvendor", "oxmanufacturers", "oxmediaurls",
                          "oxstates"];
 
-        $aMultiLangTables = $this->getConfig()->getConfigParam('aMultiLangTables');
+        $aMultiLangTables = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('aMultiLangTables');
 
         if (is_array($aMultiLangTables)) {
             $aTables = array_merge($aTables, $aMultiLangTables);
@@ -1329,7 +1329,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
      */
     public function getLanguageIds($iShopId = null)
     {
-        if (empty($iShopId) || $iShopId == $this->getConfig()->getShopId()) {
+        if (empty($iShopId) || $iShopId == \OxidEsales\Eshop\Core\Registry::getConfig()->getShopId()) {
             $aLanguages = $this->getActiveShopLanguageIds();
         } else {
             $aLanguages = $this->_getLanguageIdsFromDatabase($iShopId);
@@ -1345,7 +1345,7 @@ class Language extends \OxidEsales\Eshop\Core\Base
      */
     public function getActiveShopLanguageIds()
     {
-        $oConfig = $this->getConfig();
+        $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         //if exists language parameters array, extract lang id's from there
         $aLangParams = $oConfig->getConfigParam('aLanguageParams');

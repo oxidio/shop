@@ -55,7 +55,8 @@ class WrappingController extends \OxidEsales\Eshop\Application\Controller\Fronte
             $this->_aBasketItemList = false;
 
             // passing basket articles
-            if ($oBasket = $this->getSession()->getBasket()) {
+            $session = \OxidEsales\Eshop\Core\Registry::getSession();
+            if ($oBasket = $session->getBasket()) {
                 $this->_aBasketItemList = $oBasket->getBasketArticles();
             }
         }
@@ -117,7 +118,8 @@ class WrappingController extends \OxidEsales\Eshop\Application\Controller\Fronte
         $aWrapping = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('wrapping');
 
         if ($this->getViewConfig()->getShowGiftWrapping()) {
-            $oBasket = $this->getSession()->getBasket();
+            $session = \OxidEsales\Eshop\Core\Registry::getSession();
+            $oBasket = $session->getBasket();
             // setting wrapping info
             if (is_array($aWrapping) && count($aWrapping)) {
                 foreach ($oBasket->getContents() as $sKey => $oBasketItem) {

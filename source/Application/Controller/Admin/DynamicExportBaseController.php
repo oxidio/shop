@@ -118,7 +118,7 @@ class DynamicExportBaseController extends \OxidEsales\Eshop\Application\Controll
         parent::__construct();
 
         // set generic frame template
-        $this->_sFilePath = $this->getConfig()->getConfigParam('sShopDir') . "/" . $this->sExportPath . $this->sExportFileName . "." . $this->sExportFileType;
+        $this->_sFilePath = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('sShopDir') . "/" . $this->sExportPath . $this->sExportFileName . "." . $this->sExportFileType;
     }
 
     /**
@@ -138,7 +138,7 @@ class DynamicExportBaseController extends \OxidEsales\Eshop\Application\Controll
         }
 
         $this->_aViewData['sOutputFile'] = $this->_sFilePath;
-        $this->_aViewData['sDownloadFile'] = $this->getConfig()->getConfigParam('sShopURL') . $this->sExportPath . $this->sExportFileName . "." . $this->sExportFileType;
+        $this->_aViewData['sDownloadFile'] = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('sShopURL') . $this->sExportPath . $this->sExportFileName . "." . $this->sExportFileType;
 
         return $this->_sThisTemplate;
     }
@@ -293,7 +293,8 @@ class DynamicExportBaseController extends \OxidEsales\Eshop\Application\Controll
      */
     public function removeSid($sInput)
     {
-        $sSid = $this->getSession()->getId();
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+        $sSid = $session->getId();
 
         // remove sid from link
         $sOutput = str_replace("sid={$sSid}/", "", $sInput);
@@ -497,7 +498,7 @@ class DynamicExportBaseController extends \OxidEsales\Eshop\Application\Controll
      */
     public function getOneArticle($iCnt, &$blContinue)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
 
         //[Alfonsas 2006-05-31] setting specific parameter
         //to be checked in oxarticle.php init() method
@@ -560,7 +561,8 @@ class DynamicExportBaseController extends \OxidEsales\Eshop\Application\Controll
     protected function _getHeapTableName()
     {
         // table name must not start with any digit
-        return "tmp_" . str_replace("0", "", md5($this->getSession()->getId()));
+        $session = \OxidEsales\Eshop\Core\Registry::getSession();
+        return "tmp_" . str_replace("0", "", md5($session->getId()));
     }
 
     /**
@@ -681,7 +683,7 @@ class DynamicExportBaseController extends \OxidEsales\Eshop\Application\Controll
         }
 
         // add minimum stock value
-        if ($this->getConfig()->getConfigParam('blUseStock') && ($dMinStock = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter("sExportMinStock"))) {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blUseStock') && ($dMinStock = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter("sExportMinStock"))) {
             $dMinStock = str_replace([";", " ", "/", "'"], "", $dMinStock);
             $insertQuery .= " and {$sArticleTable}.oxstock >= " . $oDB->quote($dMinStock);
         }

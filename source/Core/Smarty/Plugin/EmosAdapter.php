@@ -145,7 +145,7 @@ class EmosAdapter extends \OxidEsales\Eshop\Core\Base
             $this->_oEmos->addLangId(\OxidEsales\Eshop\Core\Registry::getLang()->getBaseLanguage());
 
             // set site ID
-            $this->_oEmos->addSiteId($this->getConfig()->getShopId());
+            $this->_oEmos->addSiteId(\OxidEsales\Eshop\Core\Registry::getConfig()->getShopId());
         }
 
         return $this->_oEmos;
@@ -177,7 +177,7 @@ class EmosAdapter extends \OxidEsales\Eshop\Core\Base
      */
     protected function _getScriptPath()
     {
-        $sShopUrl = $this->getConfig()->getCurrentShopUrl();
+        $sShopUrl = \OxidEsales\Eshop\Core\Registry::getConfig()->getCurrentShopUrl();
 
         return "{$sShopUrl}modules/econda/out/";
     }
@@ -203,7 +203,7 @@ class EmosAdapter extends \OxidEsales\Eshop\Core\Base
      */
     protected function _convertToUtf($sContent)
     {
-        $myConfig = $this->getConfig();
+        $myConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         if (!$myConfig->isUtf()) {
             $sContent = iconv(\OxidEsales\Eshop\Core\Registry::getLang()->translateString('charset'), 'UTF-8', $sContent);
         }
@@ -247,7 +247,7 @@ class EmosAdapter extends \OxidEsales\Eshop\Core\Base
         $oItem->productName = $this->_prepareProductTitle($oProduct);
 
         // #810A
-        $oCur = $this->getConfig()->getActShopCurrencyObject();
+        $oCur = \OxidEsales\Eshop\Core\Registry::getConfig()->getActShopCurrencyObject();
         $oItem->price = $oProduct->getPrice()->getBruttoPrice() * (1 / $oCur->rate);
         $oItem->productGroup = "{$sCatPath}/{$oProduct->oxarticles__oxtitle->value}";
         $oItem->quantity = $iQty;
@@ -278,7 +278,7 @@ class EmosAdapter extends \OxidEsales\Eshop\Core\Base
      */
     protected function _getEmosCl()
     {
-        $oActView = $this->getConfig()->getActiveView();
+        $oActView = \OxidEsales\Eshop\Core\Registry::getConfig()->getActiveView();
         // showLogin function is deprecated, but just in case if it is called
         if (strcasecmp('showLogin', (string)$oActView->getFncName()) == 0) {
             $sCl = 'account';
@@ -299,7 +299,7 @@ class EmosAdapter extends \OxidEsales\Eshop\Core\Base
         // #4016: econda: json function returns null if title has an umlaut
         if ($this->_sEmosCatPath === null) {
             $aCatTitle = [];
-            if ($aCatPath = $this->getConfig()->getActiveView()->getBreadCrumb()) {
+            if ($aCatPath = \OxidEsales\Eshop\Core\Registry::getConfig()->getActiveView()->getBreadCrumb()) {
                 foreach ($aCatPath as $aCatPathParts) {
                     $aCatTitle[] = $aCatPathParts['title'];
                 }
@@ -357,8 +357,8 @@ class EmosAdapter extends \OxidEsales\Eshop\Core\Base
      */
     protected function _getEmosPageId($sTplName)
     {
-        $sPageId = $this->getConfig()->getShopId() .
-            $this->_getEmosCl() .
+        $sPageId = \OxidEsales\Eshop\Core\Registry::getConfig()->getShopId() .
+                   $this->_getEmosCl() .
             $sTplName .
             \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('cnid') .
             \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('anid') .
@@ -376,7 +376,7 @@ class EmosAdapter extends \OxidEsales\Eshop\Core\Base
     {
         if (!($sCurrTpl = basename(( string )\OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('tpl')))) {
             // in case template was not defined in request
-            $sCurrTpl = $this->getConfig()->getActiveView()->getTemplateName();
+            $sCurrTpl = \OxidEsales\Eshop\Core\Registry::getConfig()->getActiveView()->getTemplateName();
         }
 
         return $sCurrTpl;
@@ -415,7 +415,7 @@ class EmosAdapter extends \OxidEsales\Eshop\Core\Base
         $aContent = $this->_getPagesContent();
         $aOrderSteps = $this->_getOrderStepNames();
 
-        $oConfig = $this->getConfig();
+        $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $oCurrentView = $oConfig->getActiveView();
         $sFunction = $oCurrentView->getFncName();
         /** @var \OxidEsales\Eshop\Core\StrRegular $oStr */
@@ -430,8 +430,10 @@ class EmosAdapter extends \OxidEsales\Eshop\Core\Base
 
         switch ($sControllerName) {
             case 'user':
-                $sOption = $this->getConfig()->getRequestParameter('option');
-                $sOption = (isset($sOption)) ? $sOption : $this->getSession()->getVariable('option');
+                $session = \OxidEsales\Eshop\Core\Registry::getSession();
+
+                $sOption = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('option');
+                $sOption = (isset($sOption)) ? $sOption : $session->getVariable('option');
 
                 if (isset($sOption) && array_key_exists('user_' . $sOption, $aContent)) {
                     $aContent['user'] = $aContent['user_' . $sOption];
@@ -442,7 +444,7 @@ class EmosAdapter extends \OxidEsales\Eshop\Core\Base
                 }
                 break;
             case 'payment':
-                if ($this->getConfig()->getRequestParameter('new_user')) {
+                if (\OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('new_user')) {
                     $this->_setUserRegistration($oEmos, $oUser);
                 }
                 break;
@@ -533,7 +535,7 @@ class EmosAdapter extends \OxidEsales\Eshop\Core\Base
      */
     private function _setSearchInformation($oEmos, $oSmarty)
     {
-        $iPage = $this->getConfig()->getRequestParameter('pgNr');
+        $iPage = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('pgNr');
         if (!$iPage) {
             $sSearchParamForLink = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('searchparam', true);
             $iSearchCount = 0;
@@ -555,7 +557,7 @@ class EmosAdapter extends \OxidEsales\Eshop\Core\Base
      */
     private function _setBasketInformation($oEmos, $oUser, $oOrder, $oBasket)
     {
-        $oConfig = $this->getConfig();
+        $oConfig = \OxidEsales\Eshop\Core\Registry::getConfig();
         $oCur = $oConfig->getActShopCurrencyObject();
 
         $oEmos->addEmosBillingPageArray(

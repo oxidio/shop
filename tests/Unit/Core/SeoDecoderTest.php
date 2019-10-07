@@ -6,6 +6,7 @@
 namespace OxidEsales\EshopCommunity\Tests\Unit\Core;
 
 use \exception;
+use OxidEsales\Eshop\Core\Registry;
 use \PHPUnit\Framework\AssertionFailedError;
 use \oxDb;
 use \oxRegistry;
@@ -378,7 +379,7 @@ class SeoDecoderTest extends \OxidTestCase
     public function testProcessSeoCallUsingStatus301ForRedirectsOldUrl()
     {
         $encoder = $this->getMock(\OxidEsales\Eshop\Core\SeoDecoder::class, array('_getParams', 'decodeUrl', '_decodeOldUrl', '_decodeSimpleUrl'));
-        $shopUrl = $encoder->getConfig()->getShopURL();
+        $shopUrl = Registry::getConfig()->getShopURL();
         $parameters = 'en/Kiteboarding/Kites/Kite-CORE-GTS.html';
         $decodedOldUrlPart = 'en/Something/else/entirely.html';
         $redirectOldUrl = rtrim($shopUrl, '/') . '/' . $decodedOldUrlPart;
@@ -401,7 +402,7 @@ class SeoDecoderTest extends \OxidTestCase
     public function testProcessSeoCallUsingStatus301ForRedirectsSimpleUrl()
     {
         $encoder = $this->getMock(\OxidEsales\Eshop\Core\SeoDecoder::class, array('_getParams', 'decodeUrl', '_decodeOldUrl', '_decodeSimpleUrl'));
-        $shopUrl = $encoder->getConfig()->getShopURL();
+        $shopUrl = Registry::getConfig()->getShopURL();
         $parameters = 'en/Kiteboarding/Kites/Kite-CORE-GTS.html';
         $decodedSimpleUrlPart = 'en/Something/really/simple.html';
         $redirectSimpleUrl = rtrim($shopUrl, '/') . '/' . $decodedSimpleUrlPart;

@@ -7,9 +7,12 @@ namespace OxidEsales\EshopCommunity\Tests\Unit\Core;
 
 use oxDb;
 use oxException;
+use OxidEsales\Eshop\Core\Config;
+use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\TestingLibrary\UnitTestCase;
 use oxUtilsView;
 use PHPUnit\Framework\MockObject\MockObject;
+use Psr\Log\LoggerInterface;
 
 class oxUtilsViewGetTemplateBlocksTest extends UnitTestCase
 {
@@ -207,17 +210,23 @@ class oxUtilsViewGetTemplateBlocksTest extends UnitTestCase
      */
     public function testGetTemplateBlocksLogsExceptions()
     {
+        $logger = $this->getMock(LoggerInterface::class);
+        $logger
+            ->expects($this->once())
+            ->method('error');
+
+        Registry::set('logger', $logger);
+
         $config = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('getShopId', 'init'));
         $config->expects($this->atLeastOnce())->method('getShopId')->will($this->returnValue('15'));
         $aInfo = array('module1' => 'module1', 'module2' => 'module2');
 
         /** @var oxException|PHPUnit\Framework\MockObject\MockObject $exception */
-        $exception = $this->getMock(\OxidEsales\Eshop\Core\Exception\StandardException::class, array('debugOut'));
-        $exception->expects($this->once())->method('debugOut');
+        $exception = $this->getMockBuilder(\OxidEsales\Eshop\Core\Exception\StandardException::class)->getMock();
 
         /** @var oxUtilsView|PHPUnit\Framework\MockObject\MockObject $utilsView */
-        $utilsView = $this->getMock(\OxidEsales\Eshop\Core\UtilsView::class, array('getConfig', '_getActiveModuleInfo', '_getTemplateBlock'));
-        $utilsView->expects($this->any())->method('getConfig')->will($this->returnValue($config));
+        $utilsView = $this->getMock(\OxidEsales\Eshop\Core\UtilsView::class, array( '_getActiveModuleInfo', '_getTemplateBlock'));
+        Registry::set(Config::class, $config);
         $utilsView->expects($this->any())->method('_getActiveModuleInfo')->will($this->returnValue($aInfo));
 
         $utilsView->expects($this->any())->method('_getTemplateBlock')->will($this->returnCallback(
