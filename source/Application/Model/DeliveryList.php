@@ -227,6 +227,7 @@ class DeliveryList extends \OxidEsales\Eshop\Core\Model\ListModel
     {
         // ids of deliveries that does not fit for us to skip double check
         $aSkipDeliveries = [];
+        $aFittingDelSets = [];
         $aDelSetList = \OxidEsales\Eshop\Core\Registry::get(\OxidEsales\Eshop\Application\Model\DeliverySetList::class)->getDeliverySetList($oUser, $sDelCountry, $sDelSet);
 
         // must choose right delivery set to use its delivery list
@@ -358,25 +359,28 @@ class DeliveryList extends \OxidEsales\Eshop\Core\Model\ListModel
      */
     public function loadDeliveryListForProduct($oProduct)
     {
-        $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $dPrice = $oDb->quote($oProduct->getPrice()->getBruttoPrice());
-        $dSize = $oDb->quote($oProduct->getSize());
-        $dWeight = $oDb->quote($oProduct->getWeight());
+        $dPrice = $oProduct->getPrice()->getBruttoPrice();
+        $dSize = $oProduct->getSize();
+        $dWeight = $oProduct->getWeight();
 
         $sTable = getViewName('oxdelivery');
+        $params = [];
 
         $sQ = "select $sTable.* from $sTable";
         $sQ .= " where " . $this->getBaseObject()->getSqlActiveSnippet();
         $sQ .= " and ($sTable.oxdeltype != 'a' || ( $sTable.oxparam <= 1 && $sTable.oxparamend >= 1))";
         if ($dPrice) {
-            $sQ .= " and ($sTable.oxdeltype != 'p' || ( $sTable.oxparam <= $dPrice && $sTable.oxparamend >= $dPrice))";
+            $sQ .= " and ($sTable.oxdeltype != 'p' || ( $sTable.oxparam <= :dprice && $sTable.oxparamend >= :dprice))";
+            $params[':dprice'] = $dPrice;
         }
         if ($dSize) {
-            $sQ .= " and ($sTable.oxdeltype != 's' || ( $sTable.oxparam <= $dSize && $sTable.oxparamend >= $dSize))";
+            $sQ .= " and ($sTable.oxdeltype != 's' || ( $sTable.oxparam <= :dsize && $sTable.oxparamend >= :dsize))";
+            $params[':dsize'] = $dSize;
         }
         if ($dWeight) {
-            $sQ .= " and ($sTable.oxdeltype != 'w' || ( $sTable.oxparam <= $dWeight && $sTable.oxparamend >= $dWeight))";
+            $sQ .= " and ($sTable.oxdeltype != 'w' || ( $sTable.oxparam <= :dweight && $sTable.oxparamend >= :dweight))";
+            $params[':dweight'] = $dWeight;
         }
-        $this->selectString($sQ);
+        $this->selectString($sQ, $params);
     }
 }

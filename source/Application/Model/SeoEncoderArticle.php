@@ -201,12 +201,10 @@ class SeoEncoderArticle extends \OxidEsales\Eshop\Core\SeoEncoder
         //load details link from DB
         if ($blRegenerate || !($sSeoUri = $this->_loadFromDb('oxarticle', $oArticle->getId(), $iLang, null, $sActCatId, true))) {
             if ($oActCat) {
-                $blInCat = false;
-                if ($oActCat->isPriceCategory()) {
-                    $blInCat = $oArticle->inPriceCategory($sActCatId);
-                } else {
-                    $blInCat = $oArticle->inCategory($sActCatId);
-                }
+                $blInCat = $oActCat->isPriceCategory()
+                    ? $oArticle->inPriceCategory($sActCatId)
+                    : $oArticle->inCategory($sActCatId);
+
                 if ($blInCat) {
                     $sSeoUri = $this->_createArticleCategoryUri($oArticle, $oActCat, $iLang);
                 }
@@ -257,12 +255,16 @@ class SeoEncoderArticle extends \OxidEsales\Eshop\Core\SeoEncoder
         }
 
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
+        $categoryViewName = getViewName("oxobject2category");
+
         // add main category caching;
-        $sQ = "select oxcatnid from " . getViewName("oxobject2category") . " where oxobjectid = " . $oDb->quote($sArtId) . " order by oxtime";
-        $sIdent = md5($sQ);
+        $sQ = "select oxcatnid from " . $categoryViewName . " where oxobjectid = :oxobjectid order by oxtime";
+        $sIdent = md5($categoryViewName . $sArtId);
 
         if (($sMainCatId = $this->_loadFromCache($sIdent, "oxarticle")) === false) {
-            $sMainCatId = $oDb->getOne($sQ);
+            $sMainCatId = $oDb->getOne($sQ, [
+                ':oxobjectid' => $sArtId
+            ]);
             // storing in cache
             $this->_saveInCache($sIdent, $sMainCatId, "oxarticle");
         }
@@ -331,8 +333,6 @@ class SeoEncoderArticle extends \OxidEsales\Eshop\Core\SeoEncoder
      */
     protected function _prepareArticleTitle($oArticle)
     {
-        $sTitle = '';
-
         // create title part for uri
         if (!($sTitle = $oArticle->oxarticles__oxtitle->value)) {
             // taking parent article title
@@ -340,8 +340,10 @@ class SeoEncoderArticle extends \OxidEsales\Eshop\Core\SeoEncoder
                 // looking in cache ..
                 if (!isset(self::$_aTitleCache[$sParentId])) {
                     $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-                    $sQ = "select oxtitle from " . $oArticle->getViewName() . " where oxid = " . $oDb->quote($sParentId);
-                    self::$_aTitleCache[$sParentId] = $oDb->getOne($sQ);
+                    $sQ = "select oxtitle from " . $oArticle->getViewName() . " where oxid = :oxid";
+                    self::$_aTitleCache[$sParentId] = $oDb->getOne($sQ, [
+                        ':oxid' => $sParentId
+                    ]);
                 }
                 $sTitle = self::$_aTitleCache[$sParentId];
             }
@@ -581,10 +583,15 @@ class SeoEncoderArticle extends \OxidEsales\Eshop\Core\SeoEncoder
     public function onDeleteArticle($oArticle)
     {
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sIdQuoted = $oDb->quote($oArticle->getId());
-        $oDb->execute("delete from oxseo where oxobjectid = $sIdQuoted and oxtype = 'oxarticle'");
-        $oDb->execute("delete from oxobject2seodata where oxobjectid = $sIdQuoted");
-        $oDb->execute("delete from oxseohistory where oxobjectid = $sIdQuoted");
+        $oDb->execute("delete from oxseo where oxobjectid = :oxobjectid and oxtype = 'oxarticle'", [
+            ':oxobjectid' => $oArticle->getId()
+        ]);
+        $oDb->execute("delete from oxobject2seodata where oxobjectid = :oxobjectid", [
+            ':oxobjectid' => $oArticle->getId()
+        ]);
+        $oDb->execute("delete from oxseohistory where oxobjectid = :oxobjectid", [
+            ':oxobjectid' => $oArticle->getId()
+        ]);
     }
 
     /**

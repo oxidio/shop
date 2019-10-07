@@ -12,7 +12,7 @@ use OxidEsales\Eshop\Core\Registry;
 use OxidEsales\Eshop\Core\Session;
 use OxidEsales\TestingLibrary\UnitTestCase;
 use \oxTestModules;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Tests for Account class
@@ -233,7 +233,8 @@ class AccountControllerTest extends UnitTestCase
         $oUser->oxuser__oxpassword = new Field(1);
 
         $oView = $this->getMock(
-            "account", array("redirectAfterLogin",
+            "account",
+            array("redirectAfterLogin",
                              "getUser", "isEnabledPrivateSales")
         );
 
@@ -258,7 +259,8 @@ class AccountControllerTest extends UnitTestCase
         $oUser->oxuser__oxpassword = new Field(1);
 
         $oView = $this->getMock(
-            "account", array("redirectAfterLogin",
+            "account",
+            array("redirectAfterLogin",
                              "getUser", 'isActive')
         );
 
@@ -440,7 +442,7 @@ class AccountControllerTest extends UnitTestCase
 
     private function stubSessionDestroyMethod()
     {
-        /** @var PHPUnit_Framework_MockObject_MockObject|Session $session */
+        /** @var PHPUnit\Framework\MockObject\MockObject|Session $session */
         $session = $this->getMockBuilder(Session::class)->setMethods(['destroy'])->getMock();
         $session->expects($this->any())->method('destroy');
         $this->getConfig()->setSession($session);
@@ -455,7 +457,7 @@ class AccountControllerTest extends UnitTestCase
     }
 
     /**
-     * @return PHPUnit_Framework_MockObject_MockObject|User
+     * @return PHPUnit\Framework\MockObject\MockObject|User
      */
     private function getUserMockForDeletion()
     {

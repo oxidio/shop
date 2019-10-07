@@ -186,25 +186,37 @@ class SeoEncoderCategory extends \OxidEsales\Eshop\Core\SeoEncoder
     public function markRelatedAsExpired($oCategory)
     {
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sIdQuoted = $oDb->quote($oCategory->getId());
 
         // select it from table instead of using object carrying value
         // this is because this method is usually called inside update,
         // where object may already be carrying changed id
-        $aCatInfo = $oDb->getAll("select oxrootid, oxleft, oxright from oxcategories where oxid = $sIdQuoted limit 1");
-        $sCatRootIdQuoted = $oDb->quote($aCatInfo[0][0]);
+        $aCatInfo = $oDb->getAll("select oxrootid, oxleft, oxright from oxcategories where oxid = :oxid limit 1", [
+            ':oxid' => $oCategory->getId()
+        ]);
 
         // update sub cats
-        $sQ = "update oxseo as seo1, (select oxid from oxcategories where oxrootid={$sCatRootIdQuoted} and oxleft > " . ((int) $aCatInfo[0][1]) . " and oxright < " . ((int) $aCatInfo[0][2]) . ") as seo2 set seo1.oxexpired = '1' where seo1.oxtype = 'oxcategory' and seo1.oxobjectid = seo2.oxid";
-        $oDb->execute($sQ);
+        $sQ = "update oxseo as seo1, (select oxid from oxcategories 
+            where oxrootid = :oxrootid 
+            and oxleft > :oxleft 
+            and oxright < :oxright ) as seo2 
+                set seo1.oxexpired = '1' where seo1.oxtype = 'oxcategory' and seo1.oxobjectid = seo2.oxid";
+        $oDb->execute($sQ, [
+            ':oxrootid' => $aCatInfo[0][0],
+            ':oxleft' => (int) $aCatInfo[0][1],
+            ':oxright' => (int) $aCatInfo[0][2]
+        ]);
 
         // update subarticles
-        $sQ = "update oxseo as seo1, (select o2c.oxobjectid as id from oxcategories as cat left join oxobject2category"
-              ." as o2c on o2c.oxcatnid=cat.oxid where cat.oxrootid={$sCatRootIdQuoted} and cat.oxleft >= "
-              .((int) $aCatInfo[0][1] )." and cat.oxright <= ".((int) $aCatInfo[0][2] ).") as seo2 "
+        $sQ = "update oxseo as seo1, (select o2c.oxobjectid as id from oxcategories as cat left join oxobject2category "
+              ."as o2c on o2c.oxcatnid=cat.oxid where cat.oxrootid = :oxrootid and cat.oxleft >= :oxleft "
+              ."and cat.oxright <= :oxright) as seo2 "
               ."set seo1.oxexpired = '1' where seo1.oxtype = 'oxarticle' and seo1.oxobjectid = seo2.id "
               ."and seo1.oxfixed = 0";
-        $oDb->execute($sQ);
+        $oDb->execute($sQ, [
+            ':oxrootid' => $aCatInfo[0][0],
+            ':oxleft' => (int) $aCatInfo[0][1],
+            ':oxright' => (int) $aCatInfo[0][2]
+        ]);
     }
 
     /**
@@ -215,12 +227,23 @@ class SeoEncoderCategory extends \OxidEsales\Eshop\Core\SeoEncoder
     public function onDeleteCategory($oCategory)
     {
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sIdQuoted = $oDb->quote($oCategory->getId());
-        $oDb->execute("update oxseo, (select oxseourl from oxseo where oxobjectid = $sIdQuoted and oxtype = 'oxcategory') as test set oxseo.oxexpired=1 where oxseo.oxseourl like concat(test.oxseourl, '%') and (oxtype = 'oxcategory' or oxtype = 'oxarticle')");
-        $oDb->execute("delete from oxseo where oxseo.oxtype = 'oxarticle' and oxseo.oxparams = $sIdQuoted");
-        $oDb->execute("delete from oxseo where oxobjectid = $sIdQuoted and oxtype = 'oxcategory'");
-        $oDb->execute("delete from oxobject2seodata where oxobjectid = $sIdQuoted");
-        $oDb->execute("delete from oxseohistory where oxobjectid = $sIdQuoted");
+        $params = [
+            ':oxobjectid' => $oCategory->getId()
+        ];
+
+        $oDb->execute("update oxseo, (select oxseourl from oxseo where oxobjectid = :oxobjectid and oxtype = 'oxcategory') as test set oxseo.oxexpired=1 where oxseo.oxseourl like concat(test.oxseourl, '%') and (oxtype = 'oxcategory' or oxtype = 'oxarticle')", $params);
+        $oDb->execute("delete from oxseo where oxseo.oxtype = 'oxarticle' and oxseo.oxparams = :oxparams", [
+            ':oxparams' => $oCategory->getId()
+        ]);
+        $oDb->execute("delete from oxseo where oxobjectid = :oxobjectid and oxtype = 'oxcategory'", [
+            ':oxobjectid' => $oCategory->getId()
+        ]);
+        $oDb->execute("delete from oxobject2seodata where oxobjectid = :oxobjectid", [
+            ':oxobjectid' => $oCategory->getId()
+        ]);
+        $oDb->execute("delete from oxseohistory where oxobjectid = :oxobjectid", [
+            ':oxobjectid' => $oCategory->getId()
+        ]);
     }
 
     /**

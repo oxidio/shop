@@ -7,12 +7,15 @@
 namespace OxidEsales\EshopCommunity\Core;
 
 use Exception;
-use oxConnectionException;
 use OxidEsales\Eshop\Application\Controller\OxidStartController;
 use OxidEsales\Eshop\Application\Model\Shop;
 use OxidEsales\Eshop\Core\Module\ModuleTemplatePathCalculator;
+use OxidEsales\EshopCommunity\Internal\Framework\Theme\Bridge\AdminThemeBridgeInterface;
 use stdClass;
 use OxidEsales\Eshop\Application\Controller\FrontendController;
+use OxidEsales\EshopCommunity\Internal\Framework\Config\Event\ShopConfigurationChangedEvent;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Setting\Event\SettingChangedEvent;
+use OxidEsales\EshopCommunity\Internal\Framework\Theme\Event\ThemeSettingChangedEvent;
 
 //max integer
 define('MAX_64BIT_INTEGER', '18446744073709551615');
@@ -360,9 +363,55 @@ class Config extends \OxidEsales\Eshop\Core\Base
     }
 
     /**
+     * Initialize configuration variables
+     *
+     * @throws \OxidEsales\Eshop\Core\Exception\DatabaseException
+     * @param int $shopID
+     */
+    public function initVars($shopID)
+    {
+        $this->_loadVarsFromFile();
+
+        $this->_setDefaults();
+
+        $configLoaded = $this->_loadVarsFromDb($shopID);
+        // loading shop config
+        if (empty($shopID) || !$configLoaded) {
+            // if no config values where loaded (some problems with DB), throwing an exception
+            $exception = new \OxidEsales\Eshop\Core\Exception\DatabaseException(
+                "Unable to load shop config values from database",
+                0,
+                new \Exception()
+            );
+            throw $exception;
+        }
+
+        // loading theme config options
+        $this->_loadVarsFromDb($shopID, null, Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sTheme'));
+
+        // checking if custom theme (which has defined parent theme) config options should be loaded over parent theme (#3362)
+        if ($this->getConfigParam('sCustomTheme')) {
+            $this->_loadVarsFromDb($shopID, null, Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sCustomTheme'));
+        }
+
+        // loading modules config
+        $this->_loadVarsFromDb($shopID, null, Config::OXMODULE_MODULE_PREFIX);
+
+        $this->loadAdditionalConfiguration();
+
+        // Admin handling
+        $this->setConfigParam('blAdmin', isAdmin());
+
+        if (defined('OX_ADMIN_DIR')) {
+            $this->setConfigParam('sAdminDir', OX_ADMIN_DIR);
+        }
+
+        $this->_loadVarsFromFile();
+    }
+
+    /**
      * Starts session manager
      *
-     * @throws oxConnectionException
      * @return null
      */
     public function init()
@@ -373,49 +422,12 @@ class Config extends \OxidEsales\Eshop\Core\Base
         }
         $this->_blInit = true;
 
-        $this->_loadVarsFromFile();
-
-        $this->_setDefaults();
-
         try {
-            $shopID = $this->getShopId();
-            $configLoaded = $this->_loadVarsFromDb($shopID);
-            // loading shop config
-            if (empty($shopID) || !$configLoaded) {
-                // if no config values where loaded (some problems with DB), throwing an exception
-                $exception = new \OxidEsales\Eshop\Core\Exception\DatabaseException(
-                    "Unable to load shop config values from database",
-                    0,
-                    new \Exception()
-                );
-                throw $exception;
-            }
+            // config params initialization
+            $this->initVars($this->getShopId());
 
-            // loading theme config options
-            $this->_loadVarsFromDb($shopID, null, Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sTheme'));
-
-            // checking if custom theme (which has defined parent theme) config options should be loaded over parent theme (#3362)
-            if ($this->getConfigParam('sCustomTheme')) {
-                $this->_loadVarsFromDb($shopID, null, Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sCustomTheme'));
-            }
-
-            // loading modules config
-            $this->_loadVarsFromDb($shopID, null, Config::OXMODULE_MODULE_PREFIX);
-
-            $this->loadAdditionalConfiguration();
-
+            // application initialization
             $this->initializeShop();
-
-            // Admin handling
-            $this->setConfigParam('blAdmin', isAdmin());
-
-            if (defined('OX_ADMIN_DIR')) {
-                $this->setConfigParam('sAdminDir', OX_ADMIN_DIR);
-            }
-
-            $this->_loadVarsFromFile();
-
-            //application initialization
             $this->_oStart = oxNew(\OxidEsales\Eshop\Application\Controller\OxidStartController::class);
             $this->_oStart->appInit();
         } catch (\OxidEsales\Eshop\Core\Exception\DatabaseException $exception) {
@@ -498,7 +510,7 @@ class Config extends \OxidEsales\Eshop\Core\Base
 
         // #1173M  for EE - not all pic are deleted
         if (is_null($this->getConfigParam('iPicCount'))) {
-            $this->setConfigParam('iPicCount', 7);
+            $this->setConfigParam('iPicCount', 12);
         }
 
         if (is_null($this->getConfigParam('iZoomPicCount'))) {
@@ -536,15 +548,24 @@ class Config extends \OxidEsales\Eshop\Core\Base
     {
         $db = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
 
-        $moduleSql = $module ? " oxmodule LIKE " . $db->quote($module . "%") : " oxmodule='' ";
-        $onlyVarsSql = $this->_getConfigParamsSelectSnippet($onlyVars);
-
+        $params = [
+          ':oxshopid' => $shopID
+        ];
         $select = "select
                         oxvarname, oxvartype, " . $this->getDecodeValueQuery() . " as oxvarvalue
                     from oxconfig
-                    where oxshopid = '$shopID' and " . $moduleSql . $onlyVarsSql;
+                    where oxshopid = :oxshopid and ";
 
-        $result = $db->getAll($select);
+        if ($module) {
+            $select .= " oxmodule LIKE :oxmodule";
+            $params[':oxmodule'] = $module . "%";
+        } else {
+            $select .= "oxmodule = ''";
+        }
+
+        $select .= $this->_getConfigParamsSelectSnippet($onlyVars);
+
+        $result = $db->getAll($select, $params);
 
         foreach ($result as $value) {
             $varName = $value[0];
@@ -1214,7 +1235,7 @@ class Config extends \OxidEsales\Eshop\Core\Base
         }
 
         if ($admin) {
-            $theme = 'admin';
+            $theme = $this->getContainer()->get(AdminThemeBridgeInterface::class)->getActiveTheme();
         }
 
         if ($dir != $this->_sTemplateDir) {
@@ -1838,20 +1859,28 @@ class Config extends \OxidEsales\Eshop\Core\Base
         }
 
         $db = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $shopIdQuoted = $db->quote($shopId);
-        $moduleQuoted = $db->quote($module);
-        $varNameQuoted = $db->quote($varName);
-        $varTypeQuoted = $db->quote($varType);
-        $varValueQuoted = $db->quote($value);
-        $configKeyQuoted = $db->quote($this->getConfigParam('sConfigKey'));
-        $newOXIDdQuoted = $db->quote(\OxidEsales\Eshop\Core\Registry::getUtilsObject()->generateUID());
+        $newOXID = \OxidEsales\Eshop\Core\Registry::getUtilsObject()->generateUID();
 
-        $query = "delete from oxconfig where oxshopid = $shopIdQuoted and oxvarname = $varNameQuoted and oxmodule = $moduleQuoted";
-        $db->execute($query);
+        $query = "delete from oxconfig where oxshopid = :oxshopid and oxvarname = :oxvarname and oxmodule = :oxmodule";
+        $db->execute($query, [
+            ':oxshopid' => $shopId,
+            ':oxvarname' => $varName,
+            ':oxmodule' => $module ?: ''
+        ]);
 
         $query = "insert into oxconfig (oxid, oxshopid, oxmodule, oxvarname, oxvartype, oxvarvalue)
-               values($newOXIDdQuoted, $shopIdQuoted, $moduleQuoted, $varNameQuoted, $varTypeQuoted, ENCODE( $varValueQuoted, $configKeyQuoted) )";
-        $db->execute($query);
+                  values (:oxid, :oxshopid, :oxmodule, :oxvarname, :oxvartype, ENCODE(:value, :key))";
+        $db->execute($query, [
+            ':oxid' => $newOXID,
+            ':oxshopid' => $shopId,
+            ':oxmodule' => $module ?: '',
+            ':oxvarname' => $varName,
+            ':oxvartype' => $varType,
+            ':value' => $value ?? '',
+            ':key' => $this->getConfigParam('sConfigKey'),
+        ]);
+
+        $this->informServicesAfterConfigurationChanged($varName, $shopId, $module);
     }
 
     /**
@@ -1878,8 +1907,12 @@ class Config extends \OxidEsales\Eshop\Core\Base
 
         $db = \OxidEsales\Eshop\Core\DatabaseProvider::getDb(\OxidEsales\Eshop\Core\DatabaseProvider::FETCH_MODE_ASSOC);
 
-        $query = "select oxvartype, " . $this->getDecodeValueQuery() . " as oxvarvalue from oxconfig where oxshopid = '{$shopId}' and oxmodule = '{$module}' and oxvarname = " . $db->quote($varName);
-        $rs = $db->select($query);
+        $query = "select oxvartype, " . $this->getDecodeValueQuery() . " as oxvarvalue from oxconfig where oxshopid = :oxshopid and oxmodule = :oxmodule and oxvarname = :oxvarname";
+        $rs = $db->select($query, [
+            ':oxshopid' => $shopId,
+            ':oxmodule' => $module,
+            ':oxvarname' => $varName
+        ]);
 
         if ($rs != false && $rs->count() > 0) {
             return $this->decodeValue($rs->fields['oxvartype'], $rs->fields['oxvarvalue']);
@@ -1931,8 +1964,10 @@ class Config extends \OxidEsales\Eshop\Core\Base
     {
         $productive = $this->getConfigParam('blProductive');
         if (!isset($productive)) {
-            $query = 'select oxproductive from oxshops where oxid = "' . $this->getShopId() . '"';
-            $productive = ( bool ) \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->getOne($query);
+            $query = 'select oxproductive from oxshops where oxid = :oxid';
+            $productive = ( bool ) \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->getOne($query, [
+                ':oxid' => $this->getShopId()
+            ]);
             $this->setConfigParam('blProductive', $productive);
         }
 
@@ -2295,5 +2330,23 @@ class Config extends \OxidEsales\Eshop\Core\Base
         $exceptionHandler = new \OxidEsales\Eshop\Core\Exception\ExceptionHandler();
 
         return $exceptionHandler;
+    }
+
+    /**
+     * Inform respective services if shop/module/theme related configuration data was changed in database.
+     *
+     * @param string  $varName   Variable name
+     * @param integer $shopId    Shop id
+     * @param string  $extension Module or theme name in case of extension config change
+     */
+    protected function informServicesAfterConfigurationChanged($varName, $shopId, $extension = '')
+    {
+        if (empty($extension)) {
+            $this->dispatchEvent(new ShopConfigurationChangedEvent($varName, (int) $shopId));
+        } elseif (false !== strpos($extension, self::OXMODULE_MODULE_PREFIX)) {
+            $this->dispatchEvent(new SettingChangedEvent($varName, (int) $shopId, $extension));
+        } elseif (false !== strpos($extension, self::OXMODULE_THEME_PREFIX)) {
+            $this->dispatchEvent(new ThemeSettingChangedEvent($varName, (int) $shopId, $extension));
+        }
     }
 }

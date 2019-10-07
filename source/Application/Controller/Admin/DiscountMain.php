@@ -25,7 +25,6 @@ class DiscountMain extends \OxidEsales\Eshop\Application\Controller\Admin\AdminD
      */
     public function render()
     {
-        $myConfig = $this->getConfig();
         parent::render();
 
         $sOxId = $this->_aViewData["oxid"] = $this->getEditObjectId();
@@ -97,8 +96,10 @@ class DiscountMain extends \OxidEsales\Eshop\Application\Controller\Admin\AdminD
             $database = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
             $sQ = "select concat( $sViewName.oxartnum, ' ', $sViewName.oxtitle ) from oxdiscount
                    left join $sViewName on $sViewName.oxid=oxdiscount.oxitmartid
-                   where oxdiscount.oxitmartid != '' and oxdiscount.oxid=" . $database->quote($sOxId);
-            $sTitle = $database->getOne($sQ);
+                   where oxdiscount.oxitmartid != '' and oxdiscount.oxid = :oxid";
+            $sTitle = $database->getOne($sQ, [
+                ':oxid' => $sOxId
+            ]);
         }
 
         return $sTitle ? $sTitle : " -- ";

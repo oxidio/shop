@@ -9,11 +9,14 @@ use OxidEsales\Eshop\Application\Controller\FrontendController;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Exception\RoutingException;
 use OxidEsales\Eshop\Core\Exception\StandardException;
-use OxidEsales\Eshop\Core\Cache\DynamicContent\ContentCache;
+use OxidEsales\EshopCommunity\Internal\Framework\Templating\TemplateRendererBridgeInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Templating\TemplateRendererInterface;
 use oxOutput;
 use oxSystemComponentException;
-use PHPMailer;
+use PHPMailer\PHPMailer\PHPMailer;
 use ReflectionMethod;
+use OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\ViewRenderedEvent;
+use OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\BeforeHeadersSendEvent;
 
 /**
  * Main shop actions controller. Processes user actions, logs
@@ -275,6 +278,8 @@ class ShopControl extends \OxidEsales\Eshop\Core\Base
 
         $output = $this->formOutput($view);
 
+        $this->dispatchEvent(new ViewRenderedEvent($this));
+
         $outputManager = $this->_getOutputManager();
         $outputManager->setCharset($view->getCharSet());
 
@@ -283,7 +288,13 @@ class ShopControl extends \OxidEsales\Eshop\Core\Base
             $outputManager->output('errors', $this->_getFormattedErrors($view->getClassName()));
         }
 
+        $this->dispatchEvent(new BeforeHeadersSendEvent($this, $view));
+
         $outputManager->sendHeaders();
+
+        //Send headers that have been registered
+        $header = \OxidEsales\Eshop\Core\Registry::get(\OxidEsales\Eshop\Core\Header::class);
+        $header->sendHeader();
 
         $this->sendAdditionalHeaders($view);
 
@@ -446,15 +457,19 @@ class ShopControl extends \OxidEsales\Eshop\Core\Base
      */
     protected function _render($view)
     {
-        // get Smarty is important here as it sets template directory correct
-        $smarty = \OxidEsales\Eshop\Core\Registry::getUtilsView()->getSmarty();
+        $renderer = $this->getRenderer();
 
         // render it
         $templateName = $view->render();
 
-        // check if template dir exists
-        $templateFile = $this->getConfig()->getTemplatePath($templateName, $this->isAdmin());
-        if (!file_exists($templateFile)) {
+        // check if template exists
+        /** @var TemplateLoaderInterface $templateLoader */
+        $templateLoader = $this->getContainer()->get('oxid_esales.templating.template.loader');
+        if ($this->isAdmin()) {
+            $templateLoader = $this->getContainer()->get('oxid_esales.templating.admin.template.loader');
+        }
+
+        if (!$templateLoader->exists($templateName)) {
             $ex = oxNew(\OxidEsales\Eshop\Core\Exception\SystemComponentException::class);
             $ex->setMessage('EXCEPTION_SYSTEMCOMPONENT_TEMPLATENOTFOUND' . ' ' . $templateName);
             $ex->setComponent($templateName);
@@ -478,19 +493,29 @@ class ShopControl extends \OxidEsales\Eshop\Core\Base
             \OxidEsales\Eshop\Core\Registry::getUtilsView()->passAllErrorsToView($viewData, $errors);
         }
 
-        foreach (array_keys($viewData) as $viewName) {
-            $smarty->assign_by_ref($viewName, $viewData[$viewName]);
-        }
-
         // passing current view object to smarty
-        $smarty->oxobject = $view;
+        // TODO: remove it! Also in varnish module
+        $renderer->oxobject = $view;
 
-        $output = $smarty->fetch($templateName, $view->getViewId());
+        $viewData['oxEngineTemplateId'] = $view->getViewId();
+        $output = $renderer->renderTemplate($templateName, $viewData);
 
         //Output processing - useful for modules as sometimes you may want to process output manually.
         $output = $outputManager->process($output, $view->getClassName());
 
         return $outputManager->addVersionTags($output);
+    }
+
+    /**
+     * @internal
+     *
+     * @return TemplateRendererInterface
+     */
+    private function getRenderer()
+    {
+        return $this->getContainer()
+            ->get(TemplateRendererBridgeInterface::class)
+            ->getTemplateRenderer();
     }
 
     /**
@@ -561,10 +586,13 @@ class ShopControl extends \OxidEsales\Eshop\Core\Base
             if (file_exists($config->getConfigParam('sShopDir') . '/Setup/index.php')) {
                 $tpl = 'message/err_setup.tpl';
                 $activeView = oxNew(\OxidEsales\Eshop\Application\Controller\FrontendController::class);
-                $smarty = \OxidEsales\Eshop\Core\Registry::getUtilsView()->getSmarty();
-                $smarty->assign('oView', $activeView);
-                $smarty->assign('oViewConf', $activeView->getViewConfig());
-                \OxidEsales\Eshop\Core\Registry::getUtils()->showMessageAndExit($smarty->fetch($tpl));
+                $context = [
+                    "oViewConf" => $activeView->getViewConfig(),
+                    "oView"     => $activeView
+                ];
+                $renderer = $this->getRenderer();
+                $errorOutput = $renderer->renderTemplate($tpl, $context);
+                \OxidEsales\Eshop\Core\Registry::getUtils()->showMessageAndExit($errorOutput);
             }
 
             \OxidEsales\Eshop\Core\Registry::getSession()->setVariable('blRunOnceExecuted', true);

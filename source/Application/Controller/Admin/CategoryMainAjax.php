@@ -6,10 +6,8 @@
 
 namespace OxidEsales\EshopCommunity\Application\Controller\Admin;
 
-use oxRegistry;
-use oxDb;
-use oxField;
 use Exception;
+use OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\AfterModelUpdateEvent;
 
 /**
  * Class manages category articles
@@ -63,8 +61,6 @@ class CategoryMainAjax extends \OxidEsales\Eshop\Application\Controller\Admin\Li
         $sOxid = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('oxid');
         $sSynchOxid = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('synchoxid');
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-
-        $sShopID = $myConfig->getShopId();
 
         // category selected or not ?
         if (!$sOxid && $sSynchOxid) {
@@ -138,16 +134,13 @@ class CategoryMainAjax extends \OxidEsales\Eshop\Application\Controller\Admin\Li
                 $sO2CView = $this->_getViewName('oxobject2category');
 
                 $oNew = oxNew(\OxidEsales\Eshop\Application\Model\Object2Category::class);
-                $myUtilsObject = \OxidEsales\Eshop\Core\Registry::getUtilsObject();
-                $oActShop = $myConfig->getActiveShop();
-
                 $sProdIds = "";
                 foreach ($aArticles as $sAdd) {
                     // check, if it's already in, then don't add it again
-                    $sSelect = "select 1 from $sO2CView as oxobject2category where oxobject2category.oxcatnid= "
-                               . $database->quote($sCategoryID) . " and oxobject2category.oxobjectid = " . $database->quote($sAdd) . "";
+                    $sSelect = "select 1 from $sO2CView as oxobject2category where oxobject2category.oxcatnid = :oxcatnid "
+                               . " and oxobject2category.oxobjectid = :oxobjectid";
                     // We force reading from master to prevent issues with slow replications or open transactions (see ESDEV-3804).
-                    if ($database->getOne($sSelect, false, false)) {
+                    if ($database->getOne($sSelect, [':oxcatnid' => $sCategoryID, ':oxobjectid' => $sAdd])) {
                         continue;
                     }
 
@@ -245,6 +238,11 @@ class CategoryMainAjax extends \OxidEsales\Eshop\Application\Controller\Admin\Li
 
         $this->resetArtSeoUrl($aArticles, $sCategoryID);
         $this->resetCounter("catArticle", $sCategoryID);
+
+        //notify services
+        $relation = oxNew(\OxidEsales\Eshop\Application\Model\Object2Category::class);
+        $relation->setCategoryId($sCategoryID);
+        $this->dispatchEvent(new AfterModelUpdateEvent($relation));
     }
 
     /**

@@ -209,18 +209,20 @@ class MultiLanguageModel extends \OxidEsales\Eshop\Core\Model\BaseModel
 
         // select from non-multilanguage core view (all ml tables joined to one)
         $db = \OxidEsales\Eshop\Core\DatabaseProvider::getDb(\OxidEsales\Eshop\Core\DatabaseProvider::FETCH_MODE_ASSOC);
-        $query = "select * from " . getViewName($this->_sCoreTable, -1, -1) . " where oxid = " . $db->quote($this->getId());
-        $rs = $db->getAll($query);
+        $query = "select * from " . getViewName($this->_sCoreTable, -1, -1) . " where oxid = :oxid";
+        $rs = $db->getAll($query, [
+            ':oxid' => $this->getId()
+        ]);
 
         $notInLang = $languages;
 
         // checks if object field data is not empty in all available languages
         // and formats not available in languages array
-        if (is_array($rs) && count($rs[0])) {
+        if (isset($rs[0]) && is_array($rs[0]) && count($rs[0])) {
             foreach ($multiLangFields as $fieldId => $multiLangIds) {
                 foreach ($multiLangIds as $multiLangId) {
                     $fieldName = ($multiLangId == 0) ? $fieldId : $fieldId . '_' . $multiLangId;
-                    if ($rs['0'][strtoupper($fieldName)]) {
+                    if ($rs[0][strtoupper($fieldName)]) {
                         unset($notInLang[$multiLangId]);
                         continue;
                     }
@@ -605,11 +607,12 @@ class MultiLanguageModel extends \OxidEsales\Eshop\Core\Model\BaseModel
         $deleted = parent::delete($oxid);
         if ($deleted) {
             $db = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-            $oxid = $db->quote($oxid);
 
             //delete the record
             foreach ($this->_getLanguageSetTables() as $setTbl) {
-                $db->execute("delete from {$setTbl} where oxid = {$oxid}");
+                $db->execute("delete from {$setTbl} where oxid = :oxid", [
+                    ':oxid' => $oxid
+                ]);
             }
         }
 

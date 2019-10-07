@@ -9,29 +9,39 @@
     "homepage": "https://www.oxid-esales.com/en/home.html",
     "license": "GPL-3.0-only",
     "require": {
-        "php": "^7.0",
-        "phpmailer/phpmailer": "^v5.2.27",
+        "php": "^7.1",
+        "ext-pdo": "*",
+        "ext-json": "*",
+        "phpmailer/phpmailer": "^v6.0.6",
         "smarty/smarty": "^v2.6.31",
         "doctrine/dbal": "^v2.5.13",
         "doctrine/collections": "^1.4.0",
         "monolog/monolog": "^v1.23.0",
         "psr/container": "1.0.*",
-        "symfony/config": "~2.8|~3.0",
-        "symfony/dependency-injection": "^3.1"
+        "symfony/event-dispatcher": "^3.4",
+        "symfony/dependency-injection": "^3.4",
+        "symfony/config": "~3.3|~4.0",
+        "symfony/yaml": "~3.4|~4.0",
+        "symfony/expression-language": "^3.4",
+        "symfony/lock": "^3.4",
+        "symfony/console": "^v3.4.15",
+        "webmozart/path-util": "^2.3",
+        "symfony/finder": "^3.4",
+        "symfony/filesystem": "^3.4"
     },
     "require-dev": {
         "oxid-esales/flow-theme": "^v3.0.2",
         "oxid-esales/oxideshop-doctrine-migration-wrapper": "^v2.1.2",
         "oxid-esales/oxideshop-db-views-generator": "^v1.2.0",
         "oxid-esales/oxideshop-demodata-installer": "^v1.1.2",
-        "oxid-esales/oxideshop-composer-plugin": "^v2.0.3",
+        "oxid-esales/oxideshop-composer-plugin": "dev-master",
         "oxid-esales/oxideshop-unified-namespace-generator": "^2.0.0",
-        "oxid-esales/testing-library": "v5.0.3",
-        "oxid-esales/coding-standards": "^v3.0.5",
-        "oxid-esales/coding-standards-wrapper": "^v1.0.0",
+        "oxid-esales/testing-library": "dev-b-6.x",
+        "oxid-esales/coding-standards-wrapper": "^v2.0.0",
         "incenteev/composer-parameter-handler": "~v2.0",
         "oxid-esales/oxideshop-ide-helper": "^3.0",
-        "oxid-esales/azure-theme": "^v1.4.1"
+        "oxid-esales/azure-theme": "^v1.4.1",
+        "oxid-esales/oxideshop-facts": "^2.3.1"
     },
     "autoload": {
         "psr-4": {
@@ -45,6 +55,7 @@
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
+    "bin": ["bin/oe-console"],
     "scripts": {
         "post-install-cmd": [
             "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",

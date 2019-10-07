@@ -6,9 +6,20 @@
 
 namespace OxidEsales\EshopCommunity\Core\Module;
 
+use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Exception\ModuleConfigurationNotFoundException;
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Bridge\ModuleConfigurationDaoBridgeInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Bridge\ShopConfigurationDaoBridgeInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ShopConfiguration;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\MetaData\Service\MetaDataProvider;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Bridge\ModuleActivationBridgeInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ModuleConfiguration;
+
 /**
  * Module class.
  *
+ * @deprecated since v6.4.0 (2019-03-22); Use service 'OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Bridge\ShopConfigurationDaoBridgeInterface'.
  * @internal Do not make a module extension for this class.
  * @see      https://oxidforge.org/en/core-oxid-eshop-classes-must-not-be-extended.html
  */
@@ -24,6 +35,11 @@ class Module extends \OxidEsales\Eshop\Core\Base
      */
     public function getMetaDataVersion()
     {
+        if ($this->metaDataVersion === null) {
+            $metadataPath = $this->getModuleFullPath($this->getId()) . '/metadata.php';
+            $this->includeModuleMetaData($metadataPath);
+        }
+
         return $this->metaDataVersion;
     }
 
@@ -79,22 +95,26 @@ class Module extends \OxidEsales\Eshop\Core\Base
     /**
      * Load module info
      *
-     * @param string $sModuleId Module ID
+     * @param string $moduleId
      *
      * @return bool
      */
-    public function load($sModuleId)
+    public function load($moduleId)
     {
-        $sModulePath = $this->getModuleFullPath($sModuleId);
-        $sMetadataPath = $sModulePath . "/metadata.php";
+        try {
+            $this->_aModule['id'] = $moduleId;
 
-        if ($sModulePath && is_readable($sMetadataPath)) {
-            $this->includeModuleMetaData($sMetadataPath);
+            $container = ContainerFactory::getInstance()->getContainer();
+            $moduleConfiguration = $container->get(ModuleConfigurationDaoBridgeInterface::class)->get($moduleId);
+
+            $this->_aModule = $this->convertModuleConfigurationToArray($moduleConfiguration);
             $this->_blRegistered = true;
             $this->_blMetadata = true;
             $this->_aModule['active'] = $this->isActive();
 
             return true;
+        } catch (ModuleConfigurationNotFoundException $e) {
+            return false;
         }
 
         return false;
@@ -165,9 +185,20 @@ class Module extends \OxidEsales\Eshop\Core\Base
      */
     public function getExtensions()
     {
-        $rawExtensions = isset($this->_aModule['extend']) ? $this->_aModule['extend'] : [];
+        $moduleConfiguration = $this
+            ->getContainer()
+            ->get(ModuleConfigurationDaoBridgeInterface::class)
+            ->get($this->getId());
 
-        return $this->getUnifiedShopClassExtensionsForBc($rawExtensions);
+        $extensions = [];
+
+        if ($moduleConfiguration->hasClassExtensions()) {
+            foreach ($moduleConfiguration->getClassExtensions() as $extension) {
+                $extensions[$extension->getShopClassName()] = $extension->getModuleExtensionClassName();
+            }
+        }
+
+        return $extensions;
     }
 
     /**
@@ -217,9 +248,9 @@ class Module extends \OxidEsales\Eshop\Core\Base
     {
         $moduleId = null;
         $moduleFile = $module;
-        $moduleId = $this->getIdFromExtension($module);
+        $moduleId = $this->getModuleIdByClassName($module);
         if (!$moduleId) {
-            $modulePaths = $this->getConfig()->getConfigParam('aModulePaths');
+            $modulePaths = $this->getModulePaths();
 
             if (is_array($modulePaths)) {
                 foreach ($modulePaths as $id => $path) {
@@ -262,16 +293,11 @@ class Module extends \OxidEsales\Eshop\Core\Base
      */
     public function getModuleIdByClassName($className)
     {
-        if (!\OxidEsales\Eshop\Core\NamespaceInformationProvider::isNamespacedClass($className)) {
-            return $this->backwardsCompatibleGetModuleIdByClassName($className);
-        }
-
         $moduleId = '';
-        $extensions = (array) $this->getConfig()->getConfigParam('aModuleExtensions');
-        foreach ($extensions as $id => $moduleClasses) {
-            if (in_array($className, $moduleClasses)) {
-                $moduleId = $id;
-                break;
+
+        foreach ($this->getShopConfiguration()->getModuleConfigurations() as $module) {
+            if ($module->hasClassExtension($className)) {
+                return $module->getId();
             }
         }
 
@@ -321,16 +347,18 @@ class Module extends \OxidEsales\Eshop\Core\Base
      */
     public function isActive()
     {
-        $blActive = false;
-        $sId = $this->getId();
-        if (!is_null($sId)) {
-            $blActive = !$this->_isInDisabledList($sId);
-            if ($blActive && $this->hasExtendClass()) {
-                $blActive = $this->_isExtensionsActive();
-            }
+        if ($this->getId() === null) {
+            return false;
         }
 
-        return $blActive;
+        $moduleActivationBridge = $this
+            ->getContainer()
+            ->get(ModuleActivationBridgeInterface::class);
+
+        return $moduleActivationBridge->isActive(
+            $this->getId(),
+            Registry::getConfig()->getShopId()
+        );
     }
 
     /**
@@ -340,11 +368,7 @@ class Module extends \OxidEsales\Eshop\Core\Base
      */
     public function hasExtendClass()
     {
-        $aExtensions = $this->getExtensions();
-
-        return isset($aExtensions)
-               && is_array($aExtensions)
-               && !empty($aExtensions);
+        return !empty($this->getExtensions());
     }
 
     /**
@@ -396,6 +420,7 @@ class Module extends \OxidEsales\Eshop\Core\Base
         }
 
         $aModulePaths = $this->getModulePaths();
+
         $sModulePath = (isset($aModulePaths[$sModuleId])) ? $aModulePaths[$sModuleId] : '';
 
         // if still no module dir, try using module ID as dir name
@@ -433,7 +458,13 @@ class Module extends \OxidEsales\Eshop\Core\Base
      */
     public function getModulePaths()
     {
-        return $this->getConfig()->getConfigParam('aModulePaths');
+        $moduleConfigurations = $this->getInstalledModuleConfigurations();
+        $paths = [];
+        foreach ($moduleConfigurations as $moduleConfiguration) {
+            $paths[$moduleConfiguration->getId()] = $moduleConfiguration->getPath();
+        }
+
+        return $paths;
     }
 
     /**
@@ -457,82 +488,10 @@ class Module extends \OxidEsales\Eshop\Core\Base
 
         $sShopId = $this->getConfig()->getShopId();
 
-        return \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->getCol("SELECT oxtemplate FROM oxtplblocks WHERE oxmodule = '$sModuleId' AND oxshopid = '$sShopId'");
-    }
-
-    /**
-     * Counts activated module extensions.
-     *
-     * @param array $aModuleExtensions    Module extensions
-     * @param array $aInstalledExtensions Installed extensions
-     *
-     * @return int
-     */
-    protected function _countActivatedExtensions($aModuleExtensions, $aInstalledExtensions)
-    {
-        $iActive = 0;
-        foreach ($aModuleExtensions as $sClass => $mExtension) {
-            if (is_array($mExtension)) {
-                foreach ($mExtension as $sExtension) {
-                    if ((isset($aInstalledExtensions[$sClass]) && in_array($sExtension, $aInstalledExtensions[$sClass]))) {
-                        $iActive++;
-                    }
-                }
-            } elseif ((isset($aInstalledExtensions[$sClass]) && in_array($mExtension, $aInstalledExtensions[$sClass]))) {
-                $iActive++;
-            }
-        }
-
-        return $iActive;
-    }
-
-    /**
-     * Counts module extensions.
-     *
-     * @param array $aModuleExtensions Module extensions
-     *
-     * @return int
-     */
-    protected function _countExtensions($aModuleExtensions)
-    {
-        $iCount = 0;
-        foreach ($aModuleExtensions as $mExtensions) {
-            if (is_array($mExtensions)) {
-                $iCount += count($mExtensions);
-            } else {
-                $iCount++;
-            }
-        }
-
-        return $iCount;
-    }
-
-    /**
-     * Checks if module extensions count is the same as in activated extensions list.
-     *
-     * @return bool
-     */
-    protected function _isExtensionsActive()
-    {
-        $aModuleExtensions = $this->getExtensions();
-
-        $aInstalledExtensions = $this->getConfig()->getModulesWithExtendedClass();
-        $iModuleExtensionsCount = $this->_countExtensions($aModuleExtensions);
-        $iActivatedModuleExtensionsCount = $this->_countActivatedExtensions($aModuleExtensions, $aInstalledExtensions);
-
-        return $iModuleExtensionsCount > 0 && $iActivatedModuleExtensionsCount == $iModuleExtensionsCount;
-    }
-
-    /**
-     * Checks if module is in disabled list.
-     *
-     * @param string $sId Module id
-     *
-     * @return bool
-     */
-    protected function _isInDisabledList($sId)
-    {
-        return in_array($sId, (array) $this->getConfig()->getConfigParam('aDisabledModules'));
+        return \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->getCol("SELECT oxtemplate FROM oxtplblocks WHERE oxmodule = :oxmodule AND oxshopid = :oxshopid", [
+            ':oxmodule' => $sModuleId,
+            ':oxshopid' => $sShopId
+        ]);
     }
 
     /**
@@ -543,65 +502,239 @@ class Module extends \OxidEsales\Eshop\Core\Base
     protected function includeModuleMetaData($metadataPath)
     {
         include $metadataPath;
-        /**
-         * metadata.php should include a variable called $aModule, if this variable is not set,
-         * an empty array is assigned to self::aModule
-         */
-        if (!isset($aModule)) {
-            $aModule = [];
-        }
-        $this->setModuleData($aModule);
 
         /**
          * metadata.php should include a variable called $sMetadataVersion
          */
+
         if (isset($sMetadataVersion)) {
             $this->setMetaDataVersion($sMetadataVersion);
         }
     }
 
     /**
-     * Translate module metadata information about the patched shop classes
-     * into Unified Namespace. There might still be BC class names used in module metadata.php.
-     *
-     * @param array $rawExtensions Extension information from module metadata.php.
-     *
      * @return array
      */
-    protected function getUnifiedShopClassExtensionsForBc($rawExtensions)
+    private function getInstalledModuleConfigurations(): array
     {
-        $extensions = [];
+        $shopConfiguration = $this->getShopConfiguration();
 
-        foreach ($rawExtensions as $classToBePatched => $moduleClass) {
-            if (!\OxidEsales\Eshop\Core\NamespaceInformationProvider::isNamespacedClass($classToBePatched)) {
-                $bcMap = \OxidEsales\Eshop\Core\Registry::getBackwardsCompatibilityClassMap();
-                $classToBePatched = array_key_exists(strtolower($classToBePatched), $bcMap) ? $bcMap[strtolower($classToBePatched)]: $classToBePatched;
-            }
-            $extensions[$classToBePatched] = $moduleClass;
-        }
-        return $extensions;
+        return $shopConfiguration->getModuleConfigurations();
     }
 
     /**
-     * @deprecated since v6.0.0 (2017-03-21); Needed to ensure backwards compatibility.
-     *
-     * Backwards compatible version of self::getModuleIdByClassName()
-     *
-     * @param string $classPath The class path as defined in metadata.php section 'extend'. This is not a valid file path.
-     *
-     * @return bool
+     * @return ShopConfiguration
      */
-    private function backwardsCompatibleGetModuleIdByClassName($classPath)
+    private function getShopConfiguration(): ShopConfiguration
     {
-        $moduleId = '';
-        $extensions = (array) $this->getConfig()->getConfigParam('aModuleExtensions');
-        foreach ($extensions as $id => $moduleClasses) {
-            if (in_array($classPath, $moduleClasses)) {
-                $moduleId = $id;
-                break;
+        $container = $this->getContainer();
+        return $container->get(ShopConfigurationDaoBridgeInterface::class)->get();
+    }
+
+    /**
+     * Convert ModuleConfiguration to Array
+     *
+     * @param ModuleConfiguration $configuration
+     *
+     * @return array
+     */
+    private function convertModuleConfigurationToArray(ModuleConfiguration $configuration): array
+    {
+        $data = [
+            'id'          => $configuration->getId(),
+            'version'     => $configuration->getVersion(),
+            'title'       => $configuration->getTitle(),
+            'description' => $configuration->getDescription(),
+            'lang'        => $configuration->getLang(),
+            'thumbnail'   => $configuration->getThumbnail(),
+            'author'      => $configuration->getAuthor(),
+            'url'         => $configuration->getUrl(),
+            'email'       => $configuration->getEmail(),
+        ];
+
+        foreach ($this->convertModuleSettingsToArray($configuration) as $key => $value) {
+            $data[$key] = $value;
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param ModuleConfiguration $moduleConfiguration
+     *
+     * @return array
+     */
+    private function convertModuleSettingsToArray(ModuleConfiguration $moduleConfiguration): array
+    {
+        $data = [];
+
+        $data[MetaDataProvider::METADATA_EXTEND] = $this->convertClassExtensionsToArray($moduleConfiguration);
+        $data[MetaDataProvider::METADATA_TEMPLATES] = $this->convertTemplatesToArray($moduleConfiguration);
+        $data[MetaDataProvider::METADATA_CONTROLLERS] = $this->convertControllersToArray($moduleConfiguration);
+        $data[MetaDataProvider::METADATA_SMARTY_PLUGIN_DIRECTORIES] =
+            $this->convertSmartyPluginDirectoriesToArray($moduleConfiguration);
+        $data[MetaDataProvider::METADATA_FILES] =
+            $this->convertClassesWithoutNamespaceToArray($moduleConfiguration);
+        $data[MetaDataProvider::METADATA_BLOCKS] = $this->convertTemplateBlocksToArray($moduleConfiguration);
+        $data[MetaDataProvider::METADATA_EVENTS] = $this->convertEventsToArray($moduleConfiguration);
+        $data[MetaDataProvider::METADATA_SETTINGS] = $this->convertSettingsToArray($moduleConfiguration);
+
+        return $data;
+    }
+
+    /**
+     * @param ModuleConfiguration $moduleConfiguration
+     *
+     * @return array
+     */
+    private function convertClassExtensionsToArray(ModuleConfiguration $moduleConfiguration): array
+    {
+        $data = [];
+
+        foreach ($moduleConfiguration->getClassExtensions() as $extension) {
+            $data[$extension->getShopClassName()] = $extension->getModuleExtensionClassName();
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param ModuleConfiguration $moduleConfiguration
+     *
+     * @return array
+     */
+    private function convertTemplatesToArray(ModuleConfiguration $moduleConfiguration): array
+    {
+        $data = [];
+
+        foreach ($moduleConfiguration->getTemplates() as $template) {
+            $data[$template->getTemplateKey()] = $template->getTemplatePath();
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param ModuleConfiguration $moduleConfiguration
+     *
+     * @return array
+     */
+    private function convertSmartyPluginDirectoriesToArray(ModuleConfiguration $moduleConfiguration): array
+    {
+        $data = [];
+
+        foreach ($moduleConfiguration->getSmartyPluginDirectories() as $directory) {
+            $data[] = $directory->getDirectory();
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param ModuleConfiguration $moduleConfiguration
+     *
+     * @return array
+     */
+    private function convertControllersToArray(ModuleConfiguration $moduleConfiguration): array
+    {
+        $data = [];
+
+        foreach ($moduleConfiguration->getControllers() as $controller) {
+            $data[$controller->getId()] = $controller->getControllerClassNameSpace();
+        }
+
+        return $data;
+    }
+    /**
+     * @param ModuleConfiguration $moduleConfiguration
+     * @return array
+     */
+    private function convertTemplateBlocksToArray(ModuleConfiguration $moduleConfiguration): array
+    {
+        $data = [];
+
+        foreach ($moduleConfiguration->getTemplateBlocks() as $key => $templateBlock) {
+            $data[$key] = [
+                'template' => $templateBlock->getShopTemplatePath(),
+                'block' => $templateBlock->getBlockName(),
+                'file' => $templateBlock->getModuleTemplatePath(),
+            ];
+            if ($templateBlock->getTheme() !== '') {
+                $data[$key]['theme'] = $templateBlock->getTheme();
+            }
+            if ($templateBlock->getPosition() !== 0) {
+                $data[$key]['position'] = $templateBlock->getPosition();
             }
         }
 
-        return $moduleId;
+        return $data;
+    }
+
+    /**
+     * @param ModuleConfiguration $moduleConfiguration
+     *
+     * @return array
+     */
+    private function convertEventsToArray(ModuleConfiguration $moduleConfiguration): array
+    {
+        $data = [];
+
+        foreach ($moduleConfiguration->getEvents() as $event) {
+            $data[$event->getAction()] = $event->getMethod();
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param ModuleConfiguration $moduleConfiguration
+     *
+     * @return array
+     */
+    private function convertClassesWithoutNamespaceToArray(ModuleConfiguration $moduleConfiguration): array
+    {
+        $data = [];
+
+        foreach ($moduleConfiguration->getClassesWithoutNamespace() as $class) {
+            $data[$class->getShopClass()] = $class->getModuleClass();
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param ModuleConfiguration $moduleConfiguration
+     *
+     * @return array
+     */
+    private function convertSettingsToArray(ModuleConfiguration $moduleConfiguration): array
+    {
+        $data = [];
+
+        foreach ($moduleConfiguration->getModuleSettings() as $index => $setting) {
+            if ($setting->getGroupName()) {
+                $data[$index]['group'] = $setting->getGroupName();
+            }
+
+            if ($setting->getName()) {
+                $data[$index]['name'] = $setting->getName();
+            }
+
+            if ($setting->getType()) {
+                $data[$index]['type'] = $setting->getType();
+            }
+
+            $data[$index]['value'] = $setting->getValue();
+
+            if (!empty($setting->getConstraints())) {
+                $data[$index]['constraints'] = $setting->getConstraints();
+            }
+
+            if ($setting->getPositionInGroup() > 0) {
+                $data[$index]['position'] = $setting->getPositionInGroup();
+            }
+        }
+
+        return $data;
     }
 }

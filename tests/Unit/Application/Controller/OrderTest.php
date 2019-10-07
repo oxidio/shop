@@ -249,7 +249,8 @@ class OrderTest extends \OxidTestCase
     public function testRenderWhenNoActiveUserExistWithBasket()
     {
         $sRedirUrl = $this->getConfig()->getShopHomeURL() . 'cl=basket';
-        $this->setExpectedException('oxException', $sRedirUrl);
+        $this->expectException('oxException');
+        $this->expectExceptionMessage($sRedirUrl);
 
         oxTestModules::addFunction('oxUtils', 'redirect($url, $blAddRedirectParam = true, $iHeaderCode = 301)', '{throw new oxException($url);}');
         $this->getConfig()->setConfigParam('blPsBasketReservationEnabled', false);
@@ -275,7 +276,8 @@ class OrderTest extends \OxidTestCase
     public function testRenderWhenNoActiveUserExistNoBasket()
     {
         $sRedirUrl = $this->getConfig()->getShopHomeURL();
-        $this->setExpectedException('oxException', $sRedirUrl);
+        $this->expectException('oxException');
+        $this->expectExceptionMessage($sRedirUrl);
 
         oxTestModules::addFunction('oxUtils', 'redirect($url, $blAddRedirectParam = true, $iHeaderCode = 301)', '{throw new oxException($url);}');
         $this->getConfig()->setConfigParam('blPsBasketReservationEnabled', false);
@@ -532,7 +534,7 @@ class OrderTest extends \OxidTestCase
 
         $order = $this->getOrderMock($session);
 
-        $this->setExpectedException('oxOutOfStockException');
+        $this->expectException('oxOutOfStockException');
         $this->assertNull($order->execute());
     }
 
@@ -566,7 +568,7 @@ class OrderTest extends \OxidTestCase
         $order = $this->getOrderMock($session);
         $order->expects($this->never())->method('_getNextStep');
 
-        $this->setExpectedException('oxOutOfStockException');
+        $this->expectException('oxOutOfStockException');
         $this->assertNull($order->execute());
     }
 
@@ -982,7 +984,6 @@ class OrderTest extends \OxidTestCase
         } catch (Exception $e) {
             $this->assertEquals($this->getConfig()->getShopHomeURL(), $e->getMessage());
         }
-
     }
 
     public function testRenderDoesCleanReservationsIfOn()
@@ -1050,10 +1051,9 @@ class OrderTest extends \OxidTestCase
 
         $this->assertEquals($oUser->getEncodedDeliveryAddress(), $oOrder->getDeliveryAddressMD5());
 
-        $this->getSession()->setVariable('deladrid', _testDelAddrId);
+        $this->getSession()->setVariable('deladrid', '_testDelAddrId');
 
         $this->assertEquals($oUser->getEncodedDeliveryAddress() . $oDelAddress->getEncodedDeliveryAddress(), $oOrder->getDeliveryAddressMD5());
-
     }
 
     private function setupConfigForOrderExecute()
@@ -1077,7 +1077,7 @@ class OrderTest extends \OxidTestCase
 
     /**
      * @param $session
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return \PHPUnit\Framework\MockObject\MockObject
      */
     private function getOrderMock($session)
     {
@@ -1093,7 +1093,7 @@ class OrderTest extends \OxidTestCase
 
     /**
      * @param $basketItem
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return \PHPUnit\Framework\MockObject\MockObject
      */
     private function getBasketMock($basketItem)
     {
@@ -1105,7 +1105,7 @@ class OrderTest extends \OxidTestCase
 
     /**
      * @param $basket
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return \PHPUnit\Framework\MockObject\MockObject
      */
     private function getSessionMock($basket)
     {

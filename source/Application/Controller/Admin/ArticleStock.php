@@ -20,8 +20,8 @@ use stdClass;
 class ArticleStock extends \OxidEsales\Eshop\Application\Controller\Admin\AdminDetailsController
 {
     /**
-     * Loads article Inventory information, passes it to Smarty engine and
-     * returns name of template file "article_stock.tpl".
+     * Loads article Inventory information and
+     * returns the name of template file.
      *
      * @return string
      */
@@ -73,9 +73,11 @@ class ArticleStock extends \OxidEsales\Eshop\Application\Controller\Admin\AdminD
 
             $oPriceList = oxNew(\OxidEsales\Eshop\Core\Model\ListModel::class);
             $oPriceList->init('oxbase', "oxprice2article");
-            $sQ = "select * from oxprice2article where oxartid = '{$soxId}' " .
+            $sQ = "select * from oxprice2article where oxartid = :oxartid " .
                   "and {$sShopSelect} and (oxamount > 0 or oxamountto > 0) order by oxamount ";
-            $oPriceList->selectstring($sQ);
+            $oPriceList->selectstring($sQ, [
+                ':oxartid' => $soxId
+            ]);
 
             $this->_aViewData["amountprices"] = $oPriceList;
         }
@@ -223,10 +225,11 @@ class ArticleStock extends \OxidEsales\Eshop\Application\Controller\Admin\AdminD
         $this->resetContentCache();
 
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sPriceId = $oDb->quote(\OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter("priceid"));
         $articleId = $this->getEditObjectId();
-        $sId = $oDb->quote($articleId);
-        $oDb->execute("delete from oxprice2article where oxid = {$sPriceId} and oxartid = {$sId}");
+        $oDb->execute("delete from oxprice2article where oxid = :oxid and oxartid = :oxartid", [
+            ':oxid' => \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter("priceid"),
+            ':oxartid' => $articleId
+        ]);
 
         $this->onArticleAmountPriceChange($articleId);
     }

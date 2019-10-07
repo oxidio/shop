@@ -27,7 +27,7 @@ class ModuleTemplateBlockTest extends UnitTestCase
         );
 
         $pathFormatter = oxNew(ModuleTemplateBlockPathFormatter::class);
-        $pathFormatter->setModulesPath($shopPath . DIRECTORY_SEPARATOR . modules);
+        $pathFormatter->setModulesPath($shopPath . DIRECTORY_SEPARATOR . 'modules');
         $pathFormatter->setModuleId($moduleId);
         $pathFormatter->setFileName('blocks/blocktemplate.tpl');
 
@@ -40,7 +40,7 @@ class ModuleTemplateBlockTest extends UnitTestCase
 
     public function testThrowExcpetionWhenModuleTemplateBlockFileDoesNotExist()
     {
-        $this->setExpectedException(oxException::class);
+        $this->expectException(oxException::class);
 
         $shopPath = implode(DIRECTORY_SEPARATOR, [__DIR__, 'TestData', 'shop']);
         $moduleId = 'oeTestTemplateBlockModuleId';
@@ -51,7 +51,7 @@ class ModuleTemplateBlockTest extends UnitTestCase
         );
 
         $pathFormatter = oxNew(ModuleTemplateBlockPathFormatter::class);
-        $pathFormatter->setModulesPath($shopPath . DIRECTORY_SEPARATOR . modules);
+        $pathFormatter->setModulesPath($shopPath . DIRECTORY_SEPARATOR . 'modules');
         $pathFormatter->setModuleId($moduleId);
         $pathFormatter->setFileName('blocks/blocktemplate_notExist.tpl');
 

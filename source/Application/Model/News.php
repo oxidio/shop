@@ -71,9 +71,11 @@ class News extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
             $this->_oGroups = oxNew('oxlist', 'oxgroups');
             $sViewName = getViewName("oxgroups", $this->getLanguage());
             $sSelect = "select {$sViewName}.* from {$sViewName}, oxobject2group ";
-            $sSelect .= "where oxobject2group.oxobjectid='$sOxid' ";
+            $sSelect .= "where oxobject2group.oxobjectid = :oxobjectid ";
             $sSelect .= "and oxobject2group.oxgroupsid={$sViewName}.oxid ";
-            $this->_oGroups->selectString($sSelect);
+            $this->_oGroups->selectString($sSelect, [
+                ':oxobjectid' => $sOxid
+            ]);
         }
 
         return $this->_oGroups;
@@ -118,7 +120,9 @@ class News extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
 
         if ($blDelete = parent::delete($sOxid)) {
             $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-            $oDb->execute("delete from oxobject2group where oxobject2group.oxobjectid = " . $oDb->quote($sOxid));
+            $oDb->execute("delete from oxobject2group where oxobject2group.oxobjectid = :oxobjectid", [
+                ':oxobjectid' => $sOxid
+            ]);
         }
 
         return $blDelete;

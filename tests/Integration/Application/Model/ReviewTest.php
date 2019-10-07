@@ -9,8 +9,8 @@ namespace OxidEsales\EshopCommunity\Tests\Integration\Application\Model;
 use OxidEsales\Eshop\Core\Field;
 use OxidEsales\Eshop\Application\Model\Review;
 use OxidEsales\Eshop\Application\Model\Rating;
-use OxidEsales\EshopCommunity\Internal\Review\Exception\ReviewAndRatingObjectTypeException;
-use OxidEsales\EshopCommunity\Internal\Review\ViewDataObject\ReviewAndRating;
+use OxidEsales\EshopCommunity\Internal\Domain\Review\Exception\ReviewAndRatingObjectTypeException;
+use OxidEsales\EshopCommunity\Internal\Domain\Review\ViewDataObject\ReviewAndRating;
 use OxidEsales\TestingLibrary\UnitTestCase;
 
 class ReviewTest extends UnitTestCase
@@ -62,7 +62,7 @@ class ReviewTest extends UnitTestCase
 
     public function testReviewAndRatingListByUserIdWithWrongRatingType()
     {
-        $this->setExpectedException(ReviewAndRatingObjectTypeException::class);
+        $this->expectException(ReviewAndRatingObjectTypeException::class);
 
         $rating = oxNew(Rating::class);
         $rating->oxratings__oxuserid = new Field('testUser');

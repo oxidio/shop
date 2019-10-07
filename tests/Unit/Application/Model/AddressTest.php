@@ -44,7 +44,6 @@ class AddressTest extends \OxidTestCase
         $oSubj->oxaddress__oxcity = new oxField('Kaunas');
 
         $this->assertEquals("Street StreetNr, Kaunas", $oSubj->toString());
-
     }
 
     /**
@@ -61,7 +60,6 @@ class AddressTest extends \OxidTestCase
         $oSubj->oxaddress__oxcity = new oxField('Kaunas');
 
         $this->assertEquals("Lname, Street StreetNr, Kaunas", $oSubj->toString());
-
     }
 
     /**
@@ -137,7 +135,7 @@ class AddressTest extends \OxidTestCase
         $iStateId = 'CA';
         $iAlternateStateId = 'AK';
 
-        /** @var oxState|PHPUnit_Framework_MockObject_MockObject $oStateMock */
+        /** @var oxState|PHPUnit\Framework\MockObject\MockObject $oStateMock */
         $oStateMock = $this->getMock(\OxidEsales\Eshop\Application\Model\State::class, array('getTitleById'));
 
         $oStateMock->expects($this->at(0))
@@ -160,7 +158,7 @@ class AddressTest extends \OxidTestCase
             ->with($iAlternateStateId)
             ->will($this->returnValue('Alaska'));
 
-        /** @var oxUser|PHPUnit_Framework_MockObject_MockObject $oUserMock */
+        /** @var oxUser|PHPUnit\Framework\MockObject\MockObject $oUserMock */
         $oAddressMock = $this->getMock(\OxidEsales\Eshop\Application\Model\Address::class, array('_getStateObject', 'getStateId'));
 
         $oAddressMock->expects($this->any())

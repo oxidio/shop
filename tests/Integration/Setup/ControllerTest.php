@@ -5,7 +5,6 @@
  */
 namespace OxidEsales\EshopCommunity\Tests\Integration\Setup;
 
-
 use OxidEsales\EshopCommunity\Setup\Controller;
 
 require_once OX_BASE_PATH . 'Setup' . DIRECTORY_SEPARATOR . 'functions.php';
@@ -56,7 +55,7 @@ class ControllerTest extends \OxidEsales\TestingLibrary\UnitTestCase
     {
         $controller = $this->getTestController();
 
-        // NOTE: OxidTestCase::setExpectedException is not what we need here, try/catch is better suited
+        // NOTE: OxidTestCase::expectException is not what we need here, try/catch is better suited
         try {
             $controller->dbConnect();
         } catch (\OxidEsales\EshopCommunity\Setup\Exception\SetupControllerExitException $exception) {
@@ -77,7 +76,7 @@ class ControllerTest extends \OxidEsales\TestingLibrary\UnitTestCase
 
         $controller = $this->getTestController('5.4.53-0ubuntu0.14.04.1');
 
-        // NOTE: OxidTestCase::setExpectedException is not what we need here, try/catch is better suited
+        // NOTE: OxidTestCase::expectException is not what we need here, try/catch is better suited
         try {
             $controller->dbConnect();
         } catch (\OxidEsales\EshopCommunity\Setup\Exception\SetupControllerExitException $exception) {
@@ -100,7 +99,7 @@ class ControllerTest extends \OxidEsales\TestingLibrary\UnitTestCase
 
         $controller = $this->getTestController('5.5.53-0ubuntu0.14.04.1', false, true);
 
-        // NOTE: OxidTestCase::setExpectedException is not what we need here, try/catch is better suited
+        // NOTE: OxidTestCase::expectException is not what we need here, try/catch is better suited
         try {
             $controller->dbConnect();
         } catch (\OxidEsales\EshopCommunity\Setup\Exception\SetupControllerExitException $exception) {
@@ -125,7 +124,7 @@ class ControllerTest extends \OxidEsales\TestingLibrary\UnitTestCase
 
         $controller = $this->getTestController('5.5.53-0ubuntu0.14.04.1');
 
-        // NOTE: OxidTestCase::setExpectedException is not what we need here, try/catch is better suited
+        // NOTE: OxidTestCase::expectException is not what we need here, try/catch is better suited
         try {
             $controller->dbConnect();
         } catch (\OxidEsales\EshopCommunity\Setup\Exception\SetupControllerExitException $exception) {
@@ -149,7 +148,7 @@ class ControllerTest extends \OxidEsales\TestingLibrary\UnitTestCase
 
         $controller = $this->getTestController('5.6.53-0ubuntu0.14.04.1');
 
-        // NOTE: OxidTestCase::setExpectedException is not what we need here, try/catch is better suited
+        // NOTE: OxidTestCase::expectException is not what we need here, try/catch is better suited
         try {
             $controller->dbConnect();
         } catch (\OxidEsales\EshopCommunity\Setup\Exception\SetupControllerExitException $exception) {
@@ -173,7 +172,7 @@ class ControllerTest extends \OxidEsales\TestingLibrary\UnitTestCase
 
         $controller = $this->getTestController('5.6.53-0ubuntu0.14.04.1');
 
-        // NOTE: OxidTestCase::setExpectedException is not what we need here, try/catch is better suited
+        // NOTE: OxidTestCase::expectException is not what we need here, try/catch is better suited
         try {
             $controller->dbConnect();
         } catch (\OxidEsales\EshopCommunity\Setup\Exception\SetupControllerExitException $exception) {
@@ -216,7 +215,7 @@ class ControllerTest extends \OxidEsales\TestingLibrary\UnitTestCase
 
         $controller = $this->getTestController('5.6.53-0ubuntu0.14.04.1', true, false);
 
-        // NOTE: OxidTestCase::setExpectedException is not what we need here, try/catch is better suited
+        // NOTE: OxidTestCase::expectException is not what we need here, try/catch is better suited
         try {
             $controller->dbConnect();
         } catch (\OxidEsales\EshopCommunity\Setup\Exception\SetupControllerExitException $exception) {
@@ -241,7 +240,7 @@ class ControllerTest extends \OxidEsales\TestingLibrary\UnitTestCase
 
         $controller = $this->getTestController('5.6.53-0ubuntu0.14.04.1', false, false, ['aDB' => $databaseCredentials]);
 
-        // NOTE: OxidTestCase::setExpectedException is not what we need here, try/catch is better suited
+        // NOTE: OxidTestCase::expectException is not what we need here, try/catch is better suited
         try {
             $controller->dbCreate();
         } catch (\OxidEsales\EshopCommunity\Setup\Exception\SetupControllerExitException $exception) {
@@ -266,7 +265,7 @@ class ControllerTest extends \OxidEsales\TestingLibrary\UnitTestCase
 
         $controller = $this->getTestController('5.6.53-0ubuntu0.14.04.1', false, false, ['aDB' => $databaseCredentials]);
 
-        // NOTE: OxidTestCase::setExpectedException is not what we need here, try/catch is better suited
+        // NOTE: OxidTestCase::expectException is not what we need here, try/catch is better suited
         try {
             $controller->dbCreate();
         } catch (\OxidEsales\EshopCommunity\Setup\Exception\SetupControllerExitException $exception) {
@@ -289,7 +288,7 @@ class ControllerTest extends \OxidEsales\TestingLibrary\UnitTestCase
 
         $controller = $this->getTestController('5.6.53-0ubuntu0.14.04.1', true, false, ['aDB' => $databaseCredentials]);
 
-        // NOTE: OxidTestCase::setExpectedException is not what we need here, try/catch is better suited
+        // NOTE: OxidTestCase::expectException is not what we need here, try/catch is better suited
         try {
             $controller->dbCreate();
         } catch (\OxidEsales\EshopCommunity\Setup\Exception\SetupControllerExitException $exception) {
@@ -309,7 +308,7 @@ class ControllerTest extends \OxidEsales\TestingLibrary\UnitTestCase
 
         $controller = $this->getTestController('5.6.53-0ubuntu0.14.04.1', true, true, ['aDB' => $databaseCredentials]);
 
-        // NOTE: OxidTestCase::setExpectedException is not what we need here, try/catch is better suited
+        // NOTE: OxidTestCase::expectException is not what we need here, try/catch is better suited
         try {
             $controller->dbCreate();
         } catch (\OxidEsales\EshopCommunity\Setup\Exception\SetupControllerExitException $exception) {

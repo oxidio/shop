@@ -6,6 +6,10 @@
 
 namespace OxidEsales\EshopCommunity\Application\Controller\Admin;
 
+use OxidEsales\Eshop\Core\Module\Module;
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Bridge\ShopConfigurationDaoBridgeInterface;
+
 /**
  * Admin actionss manager.
  * Sets list template, list object class ('oxactions') and default sorting
@@ -28,16 +32,60 @@ class ModuleList extends \OxidEsales\Eshop\Application\Controller\Admin\AdminLis
      */
     public function render()
     {
-        $sModulesDir = $this->getConfig()->getModulesDir();
-
-        $oModuleList = oxNew(\OxidEsales\Eshop\Core\Module\ModuleList::class);
-        $aModules = $oModuleList->getModulesFromDir($sModulesDir);
-
         parent::render();
 
-        // assign our list
-        $this->_aViewData['mylist'] = $aModules;
+        $this->_aViewData['mylist'] = $this->getInstalledModules();
 
         return 'module_list.tpl';
+    }
+
+    /**
+     * @return array
+     */
+    private function getInstalledModules(): array
+    {
+        $container = ContainerFactory::getInstance()->getContainer();
+        $shopConfiguration = $container->get(ShopConfigurationDaoBridgeInterface::class)->get();
+
+        $modules = [];
+
+        foreach ($shopConfiguration->getModuleConfigurations() as $moduleConfiguration) {
+            $module = oxNew(Module::class);
+            $module->load($moduleConfiguration->getId());
+            $modules[] = $module;
+        }
+
+        $modules = $this->sortModulesByTitleAlphabetically($modules);
+        $modules = $this->convertModulesToAssociativeArray($modules);
+
+        return $modules;
+    }
+
+    /**
+     * @param array $modules
+     * @return array
+     */
+    private function sortModulesByTitleAlphabetically(array $modules): array
+    {
+        usort($modules, function ($a, $b) {
+            return strcmp($a->getTitle(), $b->getTitle());
+        });
+
+        return $modules;
+    }
+
+    /**
+     * @param array $modules
+     * @return array
+     */
+    private function convertModulesToAssociativeArray(array $modules): array
+    {
+        $modulesAssociativeArray = [];
+
+        foreach ($modules as $module) {
+            $modulesAssociativeArray[$module->getId()] = $module;
+        }
+
+        return $modulesAssociativeArray;
     }
 }

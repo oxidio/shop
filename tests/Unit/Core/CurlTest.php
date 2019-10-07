@@ -65,7 +65,6 @@ class CurlTest extends \OxidTestCase
 
         $oCurl->setParameters(array('param3' => 'value3', 'param4' => 'values4'));
         $this->assertEquals('param3=value3&param4=values4', $oCurl->getQuery());
-
     }
 
     /**
@@ -221,7 +220,7 @@ class CurlTest extends \OxidTestCase
      */
     public function testSetOption_NotCurlOption()
     {
-        $this->setExpectedException('oxException');
+        $this->expectException('oxException');
 
         $oCurl = oxNew('oxCurl');
         $oCurl->setOption('rParam1', "rValue1");
@@ -232,7 +231,7 @@ class CurlTest extends \OxidTestCase
      */
     public function testSetOption_WrongOptionName()
     {
-        $this->setExpectedException('oxException');
+        $this->expectException('oxException');
 
         $oCurl = oxNew('oxCurl');
         $oCurl->setOption('CURLOPT_WRONG', "rValue1");
@@ -310,7 +309,7 @@ class CurlTest extends \OxidTestCase
      */
     public function testExecute_curlError()
     {
-        $this->setExpectedException('oxException');
+        $this->expectException('oxException');
         $oCurl = $this->getMock(\OxidEsales\Eshop\Core\Curl::class, array("_execute", '_setOptions', '_close', '_getErrorNumber'));
 
         $oCurl->expects($this->any())->method('_setOptions');

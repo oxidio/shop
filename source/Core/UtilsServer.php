@@ -6,6 +6,8 @@
 
 namespace OxidEsales\EshopCommunity\Core;
 
+use OxidEsales\EshopCommunity\Application\Model\User;
+
 /**
  * Server data manipulation class
  */
@@ -48,7 +50,6 @@ class UtilsServer extends \OxidEsales\Eshop\Core\Base
      */
     public function setOxCookie($sName, $sValue = "", $iExpire = 0, $sPath = '/', $sDomain = null, $blToSession = true, $blSecure = false, $blHttpOnly = true)
     {
-
         if ($blToSession && !$this->isAdmin()) {
             $this->_saveSessionCookie($sName, $sValue, $iExpire, $sPath, $sDomain);
         }
@@ -276,16 +277,16 @@ class UtilsServer extends \OxidEsales\Eshop\Core\Base
     /**
      * Sets user info into cookie
      *
-     * @param string  $sUser     user ID
-     * @param string  $sPassword password
-     * @param string  $sShopId   shop ID (default null)
-     * @param integer $iTimeout  timeout value (default 31536000)
-     * @param string  $sSalt     Salt for password encryption
+     * @param string  $userName     user name
+     * @param string  $passwordHash password hash
+     * @param int     $shopId       shop ID (default null)
+     * @param integer $timeout      timeout value (default 31536000)
+     * @param string  $salt
      */
-    public function setUserCookie($sUser, $sPassword, $sShopId = null, $iTimeout = 31536000, $sSalt = 'ox')
+    public function setUserCookie($userName, $passwordHash, $shopId = null, $timeout = 31536000, $salt = User::USER_COOKIE_SALT)
     {
         $myConfig = $this->getConfig();
-        $sShopId = (!$sShopId) ? $myConfig->getShopId() : $sShopId;
+        $shopId = $shopId ?? $myConfig->getShopId();
         $sSslUrl = $myConfig->getSslShopUrl();
         if (stripos($sSslUrl, 'https') === 0) {
             $blSsl = true;
@@ -293,9 +294,9 @@ class UtilsServer extends \OxidEsales\Eshop\Core\Base
             $blSsl = false;
         }
 
-        $this->_aUserCookie[$sShopId] = $sUser . '@@@' . crypt($sPassword, $sSalt);
-        $this->setOxCookie('oxid_' . $sShopId, $this->_aUserCookie[$sShopId], \OxidEsales\Eshop\Core\Registry::getUtilsDate()->getTime() + $iTimeout, '/', null, true, $blSsl);
-        $this->setOxCookie('oxid_' . $sShopId . '_autologin', '1', \OxidEsales\Eshop\Core\Registry::getUtilsDate()->getTime() + $iTimeout, '/', null, true, false);
+        $this->_aUserCookie[$shopId] = $userName . '@@@' . crypt($passwordHash, $salt);
+        $this->setOxCookie('oxid_' . $shopId, $this->_aUserCookie[$shopId], \OxidEsales\Eshop\Core\Registry::getUtilsDate()->getTime() + $timeout, '/', null, true, $blSsl);
+        $this->setOxCookie('oxid_' . $shopId . '_autologin', '1', \OxidEsales\Eshop\Core\Registry::getUtilsDate()->getTime() + $timeout, '/', null, true, false);
     }
 
     /**
@@ -404,17 +405,17 @@ class UtilsServer extends \OxidEsales\Eshop\Core\Base
         return $blIsCurrentUrl;
     }
 
-   /**
-     * Check if the given URL is same as used for request.
-     * The URL in this context is the base address for the shop e.g. https://www.domain.com/shop/
-     * the protocol is optional (www.domain.com/shop/)
-     * but the protocol relative syntax (//www.domain.com/shop/) is not yet supported.
-     *
-     * @param string $sURL        URL to check if is same as request.
-     * @param string $sServerHost request host.
-     *
-     * @return bool true if $sURL is equal to current page URL
-     */
+    /**
+      * Check if the given URL is same as used for request.
+      * The URL in this context is the base address for the shop e.g. https://www.domain.com/shop/
+      * the protocol is optional (www.domain.com/shop/)
+      * but the protocol relative syntax (//www.domain.com/shop/) is not yet supported.
+      *
+      * @param string $sURL        URL to check if is same as request.
+      * @param string $sServerHost request host.
+      *
+      * @return bool true if $sURL is equal to current page URL
+      */
     public function _isCurrentUrl($sURL, $sServerHost)
     {
         // #4010: force_sid added in https to every link

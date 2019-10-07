@@ -73,13 +73,16 @@ class Attribute extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
 
         // remove attributes from articles also
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sOxidQuoted = $oDb->quote($sOXID);
-        $sDelete = "delete from oxobject2attribute where oxattrid = " . $sOxidQuoted;
-        $oDb->execute($sDelete);
+        $sDelete = "delete from oxobject2attribute where oxattrid = :oxattrid";
+        $oDb->execute($sDelete, [
+            ':oxattrid' => $sOXID
+        ]);
 
         // #657 ADDITIONAL removes attribute connection to category
-        $sDelete = "delete from oxcategory2attribute where oxattrid = " . $sOxidQuoted;
-        $oDb->execute($sDelete);
+        $sDelete = "delete from oxcategory2attribute where oxattrid = :oxattrid";
+        $oDb->execute($sDelete, [
+            ':oxattrid' => $sOXID
+        ]);
 
         return parent::delete($sOXID);
     }
@@ -138,7 +141,9 @@ class Attribute extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDB();
         $sAttViewName = getViewName('oxattribute');
 
-        return $oDb->getOne("select oxid from $sAttViewName where LOWER(oxtitle) = " . $oDb->quote(getStr()->strtolower($sSelTitle)));
+        return $oDb->getOne("select oxid from $sAttViewName where LOWER(oxtitle) = :oxtitle ", [
+            ':oxtitle' => getStr()->strtolower($sSelTitle)
+        ]);
     }
 
     /**
@@ -177,10 +182,12 @@ class Attribute extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
             $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
 
             $sSelect = "select o2a.oxid from oxobject2attribute as o2a ";
-            $sSelect .= "where o2a.oxobjectid = " . $oDb->quote($sArtId) . " order by o2a.oxpos";
+            $sSelect .= "where o2a.oxobjectid = :oxobjectid order by o2a.oxpos";
 
             $aIds = [];
-            $rs = $oDb->select($sSelect);
+            $rs = $oDb->select($sSelect, [
+                ':oxobjectid' => $sArtId
+            ]);
             if ($rs != false && $rs->count() > 0) {
                 while (!$rs->EOF) {
                     $aIds[] = $rs->fields[0];
@@ -240,7 +247,6 @@ class Attribute extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
      */
     public function getActiveValue()
     {
-
         return $this->_sActiveValue;
     }
 

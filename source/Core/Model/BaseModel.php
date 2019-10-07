@@ -17,10 +17,13 @@ DEFINE('ACTION_UPDATE_STOCK', 4);
 
 use Exception;
 use OxidEsales\EshopCommunity\Core\Exception\DatabaseException;
-use OxidEsales\EshopCommunity\Internal\Application\ContainerFactory;
 use oxObjectException;
 use \OxidEsales\Eshop\Core\Field;
-use Psr\Container\ContainerInterface;
+use OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\BeforeModelUpdateEvent;
+use OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\BeforeModelDeleteEvent;
+use OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\AfterModelUpdateEvent;
+use OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\AfterModelDeleteEvent;
+use OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\AfterModelInsertEvent;
 
 /**
  * Class BaseModel
@@ -287,8 +290,10 @@ class BaseModel extends \OxidEsales\Eshop\Core\Base
                 try {
                     if ($this->_aInnerLazyCache === null) {
                         $database = \OxidEsales\Eshop\Core\DatabaseProvider::getDb(\OxidEsales\Eshop\Core\DatabaseProvider::FETCH_MODE_ASSOC);
-                        $query = 'SELECT * FROM ' . $viewName . ' WHERE `oxid` = ' . $database->quote($id);
-                        $queryResult = $database->select($query);
+                        $query = 'SELECT * FROM ' . $viewName . ' WHERE `oxid` = :oxid';
+                        $queryResult = $database->select($query, [
+                            ':oxid' => $id
+                        ]);
                         if ($queryResult && $queryResult->count()) {
                             $this->_aInnerLazyCache = array_change_key_case($queryResult->fields, CASE_UPPER);
                             if (array_key_exists($cacheFieldName, $this->_aInnerLazyCache)) {
@@ -422,8 +427,9 @@ class BaseModel extends \OxidEsales\Eshop\Core\Base
         if ($this->getId() && in_array($fieldName, $this->getFieldNames())) {
             $database = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
             $tableName = $this->getCoreTableName();
-            $quotedOxid = $database->quote($this->getId());
-            $title = $database->getOne("select `{$fieldName}` from `{$tableName}` where `oxid` = {$quotedOxid}");
+            $title = $database->getOne("select `{$fieldName}` from `{$tableName}` where `oxid` = :oxid", [
+                ':oxid' => $this->getId()
+            ]);
             $fieldValue = "{$tableName}__{$fieldName}";
             $currentTime = $this->$fieldValue->value;
 
@@ -747,7 +753,7 @@ class BaseModel extends \OxidEsales\Eshop\Core\Base
     {
         $longFieldName = $this->_getFieldLongName($fieldName);
 
-        return $this->$longFieldName->value;
+        return ($this->$longFieldName instanceof Field) ? $this->$longFieldName->value : null;
     }
 
     /**
@@ -788,12 +794,16 @@ class BaseModel extends \OxidEsales\Eshop\Core\Base
             return false;
         }
 
+        $this->dispatchEvent(new BeforeModelDeleteEvent($this));
+
         $this->_removeElement2ShopRelations($oxid);
 
         $database = \OxidEsales\Eshop\Core\DatabaseProvider::getDb(\OxidEsales\Eshop\Core\DatabaseProvider::FETCH_MODE_ASSOC);
         $coreTable = $this->getCoreTableName();
-        $deleteQuery = "delete from {$coreTable} where oxid = " . $database->quote($oxid);
-        $affectedRows = $database->execute($deleteQuery);
+        $deleteQuery = "delete from {$coreTable} where oxid = :oxid";
+        $affectedRows = $database->execute($deleteQuery, [
+            ':oxid' => $oxid
+        ]);
         if ($blDelete = (bool) $affectedRows) {
             $this->onChange(ACTION_DELETE, $oxid);
         }
@@ -852,6 +862,7 @@ class BaseModel extends \OxidEsales\Eshop\Core\Base
         } else {
             $response = $this->_insert();
             $action = ACTION_INSERT;
+            $this->dispatchEvent(new AfterModelInsertEvent($this));
         }
 
         $this->onChange($action);
@@ -901,9 +912,11 @@ class BaseModel extends \OxidEsales\Eshop\Core\Base
 
         $viewName = $this->getCoreTableName();
         $database = \OxidEsales\Eshop\Core\DatabaseProvider::getDb(\OxidEsales\Eshop\Core\DatabaseProvider::FETCH_MODE_ASSOC);
-        $query = "select {$this->_sExistKey} from {$viewName} where {$this->_sExistKey} = " . $database->quote($oxid);
+        $query = "select {$this->_sExistKey} from {$viewName} where {$this->_sExistKey} = :oxid";
 
-        return ( bool ) $database->getOne($query);
+        return ( bool ) $database->getOne($query, [
+            ':oxid' => $oxid
+        ]);
     }
 
     /**
@@ -931,8 +944,6 @@ class BaseModel extends \OxidEsales\Eshop\Core\Base
         return $query;
     }
 
-
-
     /**
      * This function is triggered before the record is updated.
      * If you make any update to the database record manually you should also call beforeUpdate() from your script.
@@ -941,6 +952,7 @@ class BaseModel extends \OxidEsales\Eshop\Core\Base
      */
     public function beforeUpdate($oxid = null)
     {
+        $this->dispatchEvent(new BeforeModelUpdateEvent($this));
     }
 
     /**
@@ -953,6 +965,11 @@ class BaseModel extends \OxidEsales\Eshop\Core\Base
      */
     public function onChange($action = null, $oxid = null)
     {
+        if (ACTION_DELETE == $action) {
+            $this->dispatchEvent(new AfterModelDeleteEvent($this));
+        } else {
+            $this->dispatchEvent(new AfterModelUpdateEvent($this));
+        }
     }
 
     /**
@@ -1396,7 +1413,7 @@ class BaseModel extends \OxidEsales\Eshop\Core\Base
         $database = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
 
         $updateQuery = "update {$coreTableName} set " . $this->_getUpdateFields() .
-                     " where {$coreTableName}.oxid = " . $database->quote($this->getId());
+                       " where {$coreTableName}.oxid = " . $database->quote($this->getId());
 
         $this->beforeUpdate();
         $this->executeDatabaseQuery($updateQuery);
@@ -1408,14 +1425,15 @@ class BaseModel extends \OxidEsales\Eshop\Core\Base
      * Execute a query on the database.
      *
      * @param string $query The command to execute on the database.
+     * @param array  $params Parameters to fill the querry
      *
      * @return int The number of affected rows.
      */
-    protected function executeDatabaseQuery($query)
+    protected function executeDatabaseQuery($query, $params = [])
     {
         $database = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
 
-        return $database->execute($query);
+        return $database->execute($query, $params);
     }
 
     /**
@@ -1613,15 +1631,5 @@ class BaseModel extends \OxidEsales\Eshop\Core\Base
     private function isPropertyField($name)
     {
         return $this->$name instanceof Field;
-    }
-
-    /**
-     * @internal
-     *
-     * @return ContainerInterface
-     */
-    protected function getContainer()
-    {
-        return ContainerFactory::getInstance()->getContainer();
     }
 }

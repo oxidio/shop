@@ -285,7 +285,7 @@ abstract class DatabaseInterfaceImplementationTest extends DatabaseInterfaceImpl
     {
         $expectedExceptionClass = $this->getDatabaseExceptionClassName();
 
-        $this->setExpectedException($expectedExceptionClass);
+        $this->expectException($expectedExceptionClass);
 
         $this->database->select('INSERT INTO ' . self::TABLE_NAME . ' VALUES (\'a\',\'b\')');
     }
@@ -464,7 +464,7 @@ abstract class DatabaseInterfaceImplementationTest extends DatabaseInterfaceImpl
     {
         $expectedExceptionClass = $this->getDatabaseExceptionClassName();
 
-        $this->setExpectedException($expectedExceptionClass);
+        $this->expectException($expectedExceptionClass);
 
         $this->database->execute('SOME INVALID QUERY');
     }
@@ -476,7 +476,7 @@ abstract class DatabaseInterfaceImplementationTest extends DatabaseInterfaceImpl
     {
         $expectedExceptionClass = $this->getDatabaseExceptionClassName();
 
-        $this->setExpectedException($expectedExceptionClass);
+        $this->expectException($expectedExceptionClass);
 
         $masterDb = oxDb::getMaster();
         $masterDb->select(
@@ -587,7 +587,7 @@ abstract class DatabaseInterfaceImplementationTest extends DatabaseInterfaceImpl
     {
         $expectedExceptionClass = $this->getDatabaseExceptionClassName();
 
-        $this->setExpectedException($expectedExceptionClass);
+        $this->expectException($expectedExceptionClass);
 
         $this->database->getCol("INSERT INTO " . self::TABLE_NAME . " VALUES ('a', 'b')");
     }
@@ -782,7 +782,7 @@ abstract class DatabaseInterfaceImplementationTest extends DatabaseInterfaceImpl
     {
         $expectedExceptionClass = $this->getDatabaseExceptionClassName();
 
-        $this->setExpectedException($expectedExceptionClass);
+        $this->expectException($expectedExceptionClass);
 
         $this->database->getAll(
             "SOME INVALID QUERY",
@@ -1164,7 +1164,7 @@ abstract class DatabaseInterfaceImplementationTest extends DatabaseInterfaceImpl
 
         $expectedColumns = $this->getExpectedColumnsByTestMetaColumns();
 
-        foreach($expectedColumns as $key => $sub) {
+        foreach ($expectedColumns as $key => $sub) {
             foreach ($sub as $attributeName => $attributeValue) {
                 $this->assertObjectHasAttributeWithValue($columnInformation[$key], $attributeName, $attributeValue);
             }
@@ -1431,5 +1431,4 @@ abstract class DatabaseInterfaceImplementationTest extends DatabaseInterfaceImpl
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($class, null);
     }
-
 }

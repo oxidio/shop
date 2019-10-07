@@ -53,8 +53,10 @@ class DeliverySetRdfa extends \OxidEsales\Eshop\Application\Controller\Admin\Pay
         // Delete old mappings
         $oDb = DatabaseProvider::getDb();
         $sOxIdParameter = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter("oxid");
-        $sSql = "DELETE FROM oxobject2delivery WHERE oxdeliveryid = " . $oDb->quote($sOxIdParameter) . " AND OXTYPE = 'rdfadeliveryset'";
-        $oDb->execute($sSql);
+        $sSql = "DELETE FROM oxobject2delivery WHERE oxdeliveryid = :oxdeliveryid AND OXTYPE = 'rdfadeliveryset'";
+        $oDb->execute($sSql, [
+            ':oxdeliveryid' => $sOxIdParameter
+        ]);
 
         // Save new mappings
         foreach ($aRDFaDeliveries as $sDelivery) {
@@ -95,8 +97,10 @@ class DeliverySetRdfa extends \OxidEsales\Eshop\Application\Controller\Admin\Pay
     {
         $oDb = DatabaseProvider::getDb();
         $aRDFaDeliveries = [];
-        $sSelect = 'select oxobjectid from oxobject2delivery where oxdeliveryid=' . $oDb->quote(\OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter("oxid")) . ' and oxtype = "rdfadeliveryset" ';
-        $rs = $oDb->select($sSelect);
+        $sSelect = 'select oxobjectid from oxobject2delivery where oxdeliveryid = :oxdeliveryid and oxtype = "rdfadeliveryset" ';
+        $rs = $oDb->select($sSelect, [
+            ':oxdeliveryid' => \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter("oxid")
+        ]);
         if ($rs && $rs->count()) {
             while (!$rs->EOF) {
                 $aRDFaDeliveries[] = $rs->fields[0];

@@ -124,11 +124,12 @@ class ArticleExtendAjax extends \OxidEsales\Eshop\Application\Controller\Admin\L
 
         // removing all
         if (is_array($categoriesToRemove) && count($categoriesToRemove)) {
-            $query = "delete from oxobject2category where oxobject2category.oxobjectid= "
-                  . \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->quote($oxId) . " and ";
+            $query = "delete from oxobject2category where oxobject2category.oxobjectid = :oxobjectid and ";
             $query = $this->updateQueryForRemovingArticleFromCategory($query);
             $query .= " oxcatnid in (" . implode(', ', \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->quoteArray($categoriesToRemove)) . ')';
-            $dataBase->Execute($query);
+            $dataBase->Execute($query, [
+                ':oxobjectid' => $oxId
+            ]);
 
             // updating oxtime values
             $this->_updateOxTime($oxId);
@@ -167,9 +168,10 @@ class ArticleExtendAjax extends \OxidEsales\Eshop\Application\Controller\Admin\L
 
             foreach ($categoriesToAdd as $sAdd) {
                 // check, if it's already in, then don't add it again
-                $sSelect = "select 1 from " . $objectToCategoryView . " as oxobject2category where oxobject2category.oxcatnid= "
-                           . $database->quote($sAdd) . " and oxobject2category.oxobjectid = " . $database->quote($oxId) . " ";
-                if ($database->getOne($sSelect)) {
+                $sSelect = "select 1 from " . $objectToCategoryView . " as oxobject2category " .
+                    "where oxobject2category.oxcatnid = :oxcatnid " .
+                    "and oxobject2category.oxobjectid = :oxobjectid";
+                if ($database->getOne($sSelect, [':oxcatnid' => $sAdd, ':oxobjectid' => $oxId])) {
                     continue;
                 }
 
@@ -198,16 +200,16 @@ class ArticleExtendAjax extends \OxidEsales\Eshop\Application\Controller\Admin\L
     {
         $database = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
         $objectToCategoryView = $this->_getViewName('oxobject2category');
-        $oxId = $database->quote($oxId);
         $queryToEmbed = $this->formQueryToEmbedForUpdatingTime();
+
         // updating oxtime values
-        $query = "update oxobject2category set oxtime = 0 where oxobjectid = {$oxId} {$queryToEmbed} and oxid = (
+        $query = "update oxobject2category set oxtime = 0 where oxobjectid = :oxobjectid {$queryToEmbed} and oxid = (
                     select oxid from (
-                        select oxid from {$objectToCategoryView} where oxobjectid = {$oxId} {$queryToEmbed}
+                        select oxid from {$objectToCategoryView} where oxobjectid = :oxobjectid {$queryToEmbed}
                         order by oxtime limit 1
                     ) as _tmp
                 )";
-        $database->execute($query);
+        $database->execute($query, [':oxobjectid' => $oxId]);
     }
 
     /**
@@ -217,21 +219,20 @@ class ArticleExtendAjax extends \OxidEsales\Eshop\Application\Controller\Admin\L
     {
         $defCat = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter("defcat");
         $oxId = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter("oxid");
-        $database = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-
-        $quotedOxId = $database->quote($oxId);
-        $quotedDefCat = $database->quote($defCat);
 
         $queryToEmbed = $this->formQueryToEmbedForSettingCategoryAsDefault();
 
         // #0003650: increment all product references independent to active shop
-        $query = "update oxobject2category set oxtime = oxtime + 10 where oxobjectid = {$quotedOxId} {$queryToEmbed}";
-        \OxidEsales\Eshop\Core\DatabaseProvider::getInstance()->getDb()->Execute($query);
+        $query = "update oxobject2category set oxtime = oxtime + 10 where oxobjectid = :oxobjectid {$queryToEmbed}";
+        \OxidEsales\Eshop\Core\DatabaseProvider::getInstance()->getDb()->execute($query, [':oxobjectid' => $oxId]);
 
         // set main category for active shop
-        $query = "update oxobject2category set oxtime = 0 where oxobjectid = {$quotedOxId} " .
-              "and oxcatnid = {$quotedDefCat} {$queryToEmbed}";
-        \OxidEsales\Eshop\Core\DatabaseProvider::getInstance()->getDb()->Execute($query);
+        $query = "update oxobject2category set oxtime = 0
+                  where oxobjectid = :oxobjectid and oxcatnid = :oxcatnid {$queryToEmbed}";
+        \OxidEsales\Eshop\Core\DatabaseProvider::getInstance()->getDb()->execute($query, [
+            ':oxobjectid' => $oxId,
+            ':oxcatnid' => $defCat
+        ]);
         //echo "\n$sQ\n";
 
         // #0003366: invalidate article SEO for all shops

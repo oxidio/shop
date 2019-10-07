@@ -6,7 +6,10 @@
 
 namespace OxidEsales\EshopCommunity\Core;
 
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
 use oxSystemComponentException;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Basic class which is used as parent class by other OXID eShop classes.
@@ -25,6 +28,8 @@ class Base
 
     /**
      * oxsession instance
+     *
+     * @deprecated since v6.4.0 (2019-05-17); This attribute will be removed completely at 7.0, use Registry to get session.
      *
      * @var \OxidEsales\Eshop\Core\Session
      */
@@ -88,6 +93,8 @@ class Base
     /**
      * oxConfig instance getter
      *
+     * @deprecated since v6.4.0 (2018-10-15); This method will be removed completely. Use \OxidEsales\Eshop\Core\Registry::getConfig().
+     *
      * @return \OxidEsales\Eshop\Core\Config
      */
     public function getConfig()
@@ -103,6 +110,8 @@ class Base
      * oxConfig instance setter
      *
      * @param \OxidEsales\Eshop\Core\Config $config config object
+     *
+     * @deprecated since v6.4.0 (2018-10-15); This method will be removed completely. Use \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Config:class, $config).
      */
     public function setConfig($config)
     {
@@ -111,6 +120,8 @@ class Base
 
     /**
      * oxSession instance getter
+     *
+     * @deprecated since v6.4.0 (2019-05-17); This method will be removed completely. Use \OxidEsales\Eshop\Core\Registry::getSession().
      *
      * @return \OxidEsales\Eshop\Core\Session
      */
@@ -125,6 +136,8 @@ class Base
 
     /**
      * oxSession instance setter
+     *
+     * @deprecated since v6.4.0 (2019-05-17); This method will be removed completely. Use \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Session::class, $session).
      *
      * @param \OxidEsales\Eshop\Core\Session $session session object
      */
@@ -183,5 +196,29 @@ class Base
     public function setAdminMode($isAdmin)
     {
         self::$_blIsAdmin = $isAdmin;
+    }
+
+    /**
+     * Dispatch given event.
+     *
+     * @param \Symfony\Component\EventDispatcher\Event $event Event to dispatch
+     *
+     * @return \Symfony\Component\EventDispatcher\Event
+     */
+    public function dispatchEvent(\Symfony\Component\EventDispatcher\Event $event)
+    {
+        $container = \OxidEsales\EshopCommunity\Internal\Container\ContainerFactory::getInstance()->getContainer();
+        $dispatcher = $container->get(EventDispatcherInterface::class);
+        return $dispatcher->dispatch($event::NAME, $event);
+    }
+
+    /**
+     * @internal
+     *
+     * @return ContainerInterface
+     */
+    protected function getContainer()
+    {
+        return ContainerFactory::getInstance()->getContainer();
     }
 }

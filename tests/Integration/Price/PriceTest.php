@@ -104,6 +104,7 @@ class PriceTest extends BaseTestCase
 
         // user login
         if ($oUser) {
+            $oUser->load($oUser->getId());
             $oUser->login($aTestCase['user']['oxusername'], '');
         }
 
@@ -187,5 +188,4 @@ class PriceTest extends BaseTestCase
     {
         oxDb::getDb()->execute("TRUNCATE {$sTable}");
     }
-
 }

@@ -50,7 +50,7 @@ class ThemeConfigTest extends \OxidTestCase
         // Check if saveShopConfVar is called with correct values.
         $aParams = array($sName => $sValue);
 
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('getShopId', 'getRequestParameter', 'saveShopConfVar', '_loadVarsFromDb'));
         $oConfig->expects($this->any())->method('getShopId')->will($this->returnValue($iShopId));
         $oConfig->expects($this->any())->method('getRequestParameter')->will($this->returnValue($aParams));
@@ -66,10 +66,13 @@ class ThemeConfigTest extends \OxidTestCase
         );
         $oConfig->expects($this->exactly(6))->method('saveShopConfVar')->will($this->returnValueMap($valueMap));
 
-        /** @var Theme_Config|PHPUnit_Framework_MockObject_MockObject $oTheme_Config */
+        /** @var Theme_Config|PHPUnit\Framework\MockObject\MockObject $oTheme_Config */
         $oTheme_Config = $this->getMock(
-            'Theme_Config', array('getEditObjectId', '_serializeConfVar')
-            , array(), '', false
+            'Theme_Config',
+            array('getEditObjectId', '_serializeConfVar'),
+            array(),
+            '',
+            false
         );
         $oTheme_Config->expects($this->once())->method('getEditObjectId')->will($this->returnValue($sThemeName));
         $oTheme_Config->expects($this->atLeastOnce())->method('_serializeConfVar')->will($this->returnValue($sValue));
@@ -77,5 +80,4 @@ class ThemeConfigTest extends \OxidTestCase
 
         $oTheme_Config->saveConfVars();
     }
-
 }

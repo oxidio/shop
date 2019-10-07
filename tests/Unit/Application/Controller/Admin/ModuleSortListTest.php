@@ -5,49 +5,51 @@
  */
 namespace OxidEsales\EshopCommunity\Tests\Unit\Application\Controller\Admin;
 
+use OxidEsales\Eshop\Application\Controller\Admin\ModuleSortList;
+use OxidEsales\Eshop\Application\Model\Article;
+
 /**
  * Tests for Shop_Config class
  */
 class ModuleSortListTest extends \OxidTestCase
 {
-
-    /**
-     * Module_SortList::Render() test case
-     *
-     * @return null
-     */
     public function testRender()
     {
-        // testing..
-        $oView = oxNew('Module_SortList');
+        $oView = oxNew(ModuleSortList::class);
         $this->assertEquals('module_sortlist.tpl', $oView->render());
         $aViewData = $oView->getViewData();
         $this->assertTrue(isset($aViewData['aExtClasses']));
         $this->assertTrue(isset($aViewData['aDisabledModules']));
     }
 
-    /**
-     * Module_SortList::save()
-     *
-     * @return null
-     */
     public function testSave()
     {
         $this->setAdminMode(true);
 
-        $json = json_encode(array("oxarticle" => array("dir1/module1", "dir2/module2")));
-        $this->setRequestParameter("aModules", $json);
+        $chain = [
+            Article::class => [
+                'dir1/module1',
+                'dir2/module2',
+            ]
+        ];
 
-        $aModules = array("oxarticle" => "dir1/module1&dir2/module2");
+        $this->setRequestParameter('aModules', json_encode($chain));
 
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
-        $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('saveShopConfVar'));
-        $oConfig->expects($this->once())->method('saveShopConfVar')->with($this->equalTo("aarr"), $this->equalTo("aModules"), $this->equalTo($aModules));
+        $moduleSortList = oxNew(ModuleSortList::class);
+        $moduleSortList->save();
 
-        $oView = oxNew('Module_SortList');
-        $oView->setConfig($oConfig);
+        $moduleSortList->render();
 
-        $oView->save();
+        $viewData = $moduleSortList->getViewData();
+        $this->assertSame(
+            [
+                'OxidEsales---Eshop---Application---Model---Article' => [
+                    'dir1/module1',
+                    'dir2/module2',
+                ]
+            ],
+            $viewData['aExtClasses']
+        );
     }
 
     /**

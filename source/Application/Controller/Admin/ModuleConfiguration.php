@@ -6,9 +6,12 @@
 
 namespace OxidEsales\EshopCommunity\Application\Controller\Admin;
 
-use oxConfig;
-use oxRegistry;
-use oxException;
+use OxidEsales\Eshop\Core\Module\Module;
+use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Str;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Bridge\ModuleConfigurationDaoBridgeInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Setting\Setting;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Bridge\ModuleActivationBridgeInterface;
 
 /**
  * Admin article main deliveryset manager.
@@ -38,36 +41,38 @@ class ModuleConfiguration extends \OxidEsales\Eshop\Application\Controller\Admin
      */
     public function render()
     {
-        $sModuleId = $this->_sModuleId = $this->getEditObjectId();
+        $this->_sModuleId = $this->getSelectedModuleId();
+        $moduleId = $this->_sModuleId;
 
-        $oModule = oxNew(\OxidEsales\Eshop\Core\Module\Module::class);
+        try {
+            $moduleConfiguration = $this->getContainer()->get(ModuleConfigurationDaoBridgeInterface::class)->get($moduleId);
+            if (!empty($moduleConfiguration->getModuleSettings())) {
+                $formatModuleSettings = $this->formatModuleSettingsForTemplate($moduleConfiguration->getModuleSettings());
 
-        if ($sModuleId && $oModule->load($sModuleId)) {
-            try {
-                $aDbVariables = $this->_loadMetadataConfVars($oModule->getInfo("settings"));
+                $this->_aViewData["var_constraints"] = $formatModuleSettings['constraints'];
+                $this->_aViewData["var_grouping"] = $formatModuleSettings['grouping'];
 
-                $this->_aViewData["var_constraints"] = $aDbVariables['constraints'];
-                $this->_aViewData["var_grouping"] = $aDbVariables['grouping'];
-                $iCount = 0;
                 foreach ($this->_aConfParams as $sType => $sParam) {
-                    $this->_aViewData[$sParam] = $aDbVariables['vars'][$sType];
-                    $iCount += count($aDbVariables['vars'][$sType]);
+                    $this->_aViewData[$sParam] = $formatModuleSettings['vars'][$sType];
                 }
-            } catch (\OxidEsales\Eshop\Core\Exception\StandardException $oEx) {
-                \OxidEsales\Eshop\Core\Registry::getUtilsView()->addErrorToDisplay($oEx);
-                $oEx->debugOut();
             }
-        } else {
-            \OxidEsales\Eshop\Core\Registry::getUtilsView()->addErrorToDisplay(new \OxidEsales\Eshop\Core\Exception\StandardException('EXCEPTION_MODULE_NOT_LOADED'));
+        } catch (\Throwable $throwable) {
+            Registry::getUtilsView()->addErrorToDisplay($throwable);
+            Registry::getLogger()->error($throwable->getMessage());
         }
 
-        $this->_aViewData["oModule"] = $oModule;
+        $module = oxNew(Module::class);
+        $module->load($moduleId);
+
+        $this->_aViewData['oModule'] = $module;
 
         return 'module_config.tpl';
     }
 
     /**
      * return module filter for config variables
+     *
+     * @deprecated since v6.4.0 (2019-04-08); it moved to Internal\Framework\Module package
      *
      * @return string
      */
@@ -82,6 +87,8 @@ class ModuleConfiguration extends \OxidEsales\Eshop\Application\Controller\Admin
      *      'vars'        => config variable values as array[type][name] = value
      *      'constraints' => constraints list as array[name] = constraint
      *      'grouping'    => grouping info as array[name] = grouping
+     *
+     * @deprecated since v6.4.0 (2019-04-08); it moved to Internal\Framework\Module package
      *
      * @param array $aModuleSettings settings array from module metadata
      *
@@ -140,7 +147,7 @@ class ModuleConfiguration extends \OxidEsales\Eshop\Application\Controller\Admin
                 }
 
                 $aConfVars[$sType][$sName] = $sValue;
-                $aVarConstraints[$sName] = $this->_parseConstraint($sType, $sConstraints);
+                $aVarConstraints[$sName] = $sConstraints;
                 if ($sGroup) {
                     if (!isset($aGrouping[$sGroup])) {
                         $aGrouping[$sGroup] = [$sName => $sType];
@@ -163,41 +170,169 @@ class ModuleConfiguration extends \OxidEsales\Eshop\Application\Controller\Admin
      */
     public function saveConfVars()
     {
-        $oConfig = $this->getConfig();
-
         $this->resetContentCache();
 
-        $this->_sModuleId = $this->getEditObjectId();
-        $sShopId = $oConfig->getShopId();
+        $moduleId = $this->getSelectedModuleId();
+        $shopId = Registry::getConfig()->getShopId();
+        $this->_sModuleId = $moduleId;
 
-        $sModuleId = $this->_getModuleForConfigVars();
+        try {
+            $moduleActivationBridge = $this->getContainer()->get(ModuleActivationBridgeInterface::class);
+            $moduleWasActiveBeforeSaving = $moduleActivationBridge->isActive($moduleId, $shopId);
 
-        foreach ($this->_aConfParams as $sType => $sParam) {
-            $aConfVars = $oConfig->getRequestParameter($sParam);
-            if (is_array($aConfVars)) {
-                foreach ($aConfVars as $sName => $sValue) {
-                    $sDbType = $this->_getDbConfigTypeName($sType);
-                    $oConfig->saveShopConfVar(
-                        $sDbType,
-                        $sName,
-                        $this->_serializeConfVar($sDbType, $sName, $sValue),
-                        $sShopId,
-                        $sModuleId
-                    );
+            if ($moduleWasActiveBeforeSaving) {
+                $moduleActivationBridge->deactivate($moduleId, $shopId);
+            }
+
+            $this->saveModuleConfigVariables($moduleId, $this->getConfigVariablesFromRequest());
+
+            if ($moduleWasActiveBeforeSaving) {
+                $moduleActivationBridge->activate($moduleId, $shopId);
+            }
+        } catch (\Throwable $throwable) {
+            Registry::getUtilsView()->addErrorToDisplay($throwable);
+            Registry::getLogger()->error($throwable->getMessage());
+        }
+    }
+
+    /**
+     * @return string
+     */
+    private function getSelectedModuleId(): string
+    {
+        $moduleId = $this->_sEditObjectId
+            ?? Registry::getRequest()->getRequestEscapedParameter('oxid')
+            ?? Registry::getSession()->getVariable('saved_oxid');
+
+        if ($moduleId === null) {
+            throw new \InvalidArgumentException('Module id not found.');
+        }
+
+        return $moduleId;
+    }
+
+    /**
+     * @param string $moduleId
+     * @param array  $variables
+     */
+    private function saveModuleConfigVariables(string $moduleId, array $variables)
+    {
+        $moduleConfigurationDaoBridge = $this->getContainer()->get(ModuleConfigurationDaoBridgeInterface::class);
+        $moduleConfiguration = $moduleConfigurationDaoBridge->get($moduleId);
+
+        if (!empty($moduleConfiguration->getModuleSettings())) {
+            foreach ($variables as $name => $value) {
+                foreach ($moduleConfiguration->getModuleSettings() as $moduleSetting) {
+                    if ($moduleSetting->getName() === $name) {
+                        if ($moduleSetting->getType() === 'aarr') {
+                            $value = $this->_multilineToAarray($value);
+                        }
+                        if ($moduleSetting->getType() === 'arr') {
+                            $value = $this->_multilineToArray($value);
+                        }
+                        if ($moduleSetting->getType() === 'bool') {
+                            $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+                        }
+                        $moduleSetting->setValue($value);
+                    }
+                }
+            }
+
+            $moduleConfigurationDaoBridge->save($moduleConfiguration);
+        }
+    }
+
+    /**
+     * @return array
+     */
+    private function getConfigVariablesFromRequest(): array
+    {
+        $settings = [];
+
+        foreach ($this->_aConfParams as $requestParameterKey) {
+            $settingsFromRequest = Registry::getRequest()->getRequestEscapedParameter($requestParameterKey);
+
+            if (\is_array($settingsFromRequest)) {
+                foreach ($settingsFromRequest as $name => $value) {
+                    $settings[$name] = $value;
                 }
             }
         }
+
+        return $settings;
+    }
+
+    /**
+     * @param Setting[] $moduleSettings
+     * @return array
+     */
+    private function formatModuleSettingsForTemplate(array $moduleSettings): array
+    {
+        $confVars = [
+            'bool'     => [],
+            'str'      => [],
+            'arr'      => [],
+            'aarr'     => [],
+            'select'   => [],
+            'password' => [],
+        ];
+        $constraints = [];
+        $grouping = [];
+
+        foreach ($moduleSettings as $setting) {
+            $name = $setting->getName();
+            $valueType = $setting->getType();
+            $value = null;
+
+            if ($setting->getValue() !== null) {
+                switch ($setting->getType()) {
+                    case 'arr':
+                        $value = $this->_arrayToMultiline($setting->getValue());
+                        break;
+                    case 'aarr':
+                        $value = $this->_aarrayToMultiline($setting->getValue());
+                        break;
+                    case 'bool':
+                        $value = filter_var($setting->getValue(), FILTER_VALIDATE_BOOLEAN);
+                        break;
+                    default:
+                        $value = $setting->getValue();
+                        break;
+                }
+                $value = Str::getStr()->htmlentities($value);
+            }
+
+            $group = $setting->getGroupName();
+
+
+            $confVars[$valueType][$name] = $value;
+            $constraints[$name] = $setting->getConstraints() ?? '';
+
+            if ($group) {
+                if (!isset($grouping[$group])) {
+                    $grouping[$group] = [$name => $valueType];
+                } else {
+                    $grouping[$group][$name] = $valueType;
+                }
+            }
+        }
+
+        return [
+            'vars'        => $confVars,
+            'constraints' => $constraints,
+            'grouping'    => $grouping,
+        ];
     }
 
     /**
      * Convert metadata type to DB type.
      *
-     * @param string $sType Metadata type.
+     * @param string $type Metadata type.
      *
      * @return string
      */
-    private function _getDbConfigTypeName($sType)
+    private function _getDbConfigTypeName($type)
     {
-        return $sType === 'password' ? 'str' : $sType;
+        return $type === 'password' ? 'str' : $type;
     }
 }

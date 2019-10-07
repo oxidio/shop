@@ -16,7 +16,6 @@ use \oxTestModules;
  */
 class UserTest extends \OxidTestCase
 {
-
     protected $_oUser = array();
 
     /**
@@ -44,7 +43,6 @@ class UserTest extends \OxidTestCase
         }
 
         parent::tearDown();
-
     }
 
     /**
@@ -163,7 +161,6 @@ class UserTest extends \OxidTestCase
 
         $this->getSession()->setVariable('blshowshipaddress', true);
         $this->assertTrue($oUserView->showShipAddress());
-
     }
 
     /**
@@ -196,7 +193,7 @@ class UserTest extends \OxidTestCase
         $this->getConfig()->setConfigParam('blPsBasketReservationEnabled', true);
 
         $oR = $this->getMock('stdclass', array('renewExpiration'));
-        $oR->expects($this->once())->method('renewExpiration')->will($this->evalFunction('{throw new Exception("call is ok");}'));
+        $oR->expects($this->once())->method('renewExpiration')->will($this->throwException(new Exception("call is ok")));
 
         $oS = $this->getMock(\OxidEsales\Eshop\Core\Session::class, array('getBasketReservations'));
         $oS->expects($this->once())->method('getBasketReservations')->will($this->returnValue($oR));

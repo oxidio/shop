@@ -6,6 +6,8 @@
 
 namespace OxidEsales\EshopCommunity\Tests\Acceptance\Admin;
 
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Install\Service\ModuleConfigurationInstallerInterface;
 use OxidEsales\EshopCommunity\Tests\Acceptance\AdminTestCase;
 use OxidEsales\TestingLibrary\ServiceCaller;
 use OxidEsales\TestingLibrary\Services\Files\Remove;
@@ -107,7 +109,8 @@ abstract class ModuleBaseTest extends AdminTestCase
     protected function deleteModuleClass()
     {
         $oServiceCaller = new ServiceCaller($this->getTestConfig());
-        $oServiceCaller->setParameter(Remove::FILES_PARAMETER_NAME,
+        $oServiceCaller->setParameter(
+            Remove::FILES_PARAMETER_NAME,
             [
                 $this->getTestConfig()->getShopPath() . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'test1'
                 . DIRECTORY_SEPARATOR . 'controllers' . DIRECTORY_SEPARATOR . 'test1content.php'
@@ -132,5 +135,17 @@ abstract class ModuleBaseTest extends AdminTestCase
             $fileCopier->createEmptyDirectory($target . $moduleDirectory);
             $fileCopier->copyFiles($testDataPath, $target . $moduleDirectory);
         }
+    }
+
+    protected function installModule(string $path)
+    {
+        $moduleConfigurationInstaller = ContainerFactory::getInstance()
+            ->getContainer()
+            ->get(ModuleConfigurationInstallerInterface::class);
+
+        $moduleConfigurationInstaller->install(
+            __DIR__ . '/testData/modules/' . $path,
+            $path
+        );
     }
 }

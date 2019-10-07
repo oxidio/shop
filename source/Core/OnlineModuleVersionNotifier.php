@@ -6,6 +6,10 @@
 
 namespace OxidEsales\EshopCommunity\Core;
 
+use OxidEsales\Eshop\Core\Module\Module;
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Bridge\ShopConfigurationDaoBridgeInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Bridge\ModuleActivationBridgeInterface;
 use stdClass;
 use oxOnlineModulesNotifierRequest;
 
@@ -24,21 +28,16 @@ use oxOnlineModulesNotifierRequest;
 class OnlineModuleVersionNotifier
 {
     /** @var \OxidEsales\Eshop\Core\OnlineModuleVersionNotifierCaller */
-    private $_oCaller = null;
-
-    /** @var \OxidEsales\Eshop\Core\Module\ModuleList */
-    private $_oModuleList = null;
+    private $_oCaller;
 
     /**
      * Class constructor, initiates class parameters.
      *
-     * @param \OxidEsales\Eshop\Core\OnlineModuleVersionNotifierCaller $oCaller     Online module version notifier caller object
-     * @param \OxidEsales\Eshop\Core\Module\ModuleList                 $oModuleList Module list object
+     * @param \OxidEsales\Eshop\Core\OnlineModuleVersionNotifierCaller $oCaller Online module version notifier caller object
      */
-    public function __construct(\OxidEsales\Eshop\Core\OnlineModuleVersionNotifierCaller $oCaller, \OxidEsales\Eshop\Core\Module\ModuleList $oModuleList)
+    public function __construct(\OxidEsales\Eshop\Core\OnlineModuleVersionNotifierCaller $oCaller)
     {
         $this->_oCaller = $oCaller;
-        $this->_oModuleList = $oModuleList;
     }
 
     /**
@@ -63,24 +62,30 @@ class OnlineModuleVersionNotifier
      */
     protected function _prepareModulesInformation()
     {
-        $aPreparedModules = [];
-        $aModules = $this->_getModules();
-        foreach ($aModules as $oModule) {
+        $preparedModules = [];
+
+        $container = ContainerFactory::getInstance()->getContainer();
+        $shopConfiguration = $container->get(ShopConfigurationDaoBridgeInterface::class)->get();
+        $moduleActivationBridge = $container->get(ModuleActivationBridgeInterface::class);
+
+        foreach ($shopConfiguration->getModuleConfigurations() as $moduleConfiguration) {
             /** @var \OxidEsales\Eshop\Core\Module\Module $oModule */
 
-            $oPreparedModule = new stdClass();
-            $oPreparedModule->id = $oModule->getId();
-            $oPreparedModule->version = $oModule->getInfo('version');
+            $preparedModule = new stdClass();
+            $preparedModule->id = $moduleConfiguration->getId();
+            $preparedModule->version = $moduleConfiguration->getVersion();
 
-            $oPreparedModule->activeInShops = new stdClass();
-            $oPreparedModule->activeInShops->activeInShop = [];
-            if ($oModule->isActive()) {
-                $oPreparedModule->activeInShops->activeInShop[] = \OxidEsales\Eshop\Core\Registry::getConfig()->getShopUrl();
+            $preparedModule->activeInShops = new stdClass();
+            $preparedModule->activeInShops->activeInShop = [];
+            if ($moduleActivationBridge->isActive($moduleConfiguration->getId(), Registry::getConfig()->getShopId())) {
+                $preparedModule
+                    ->activeInShops
+                    ->activeInShop[] = \OxidEsales\Eshop\Core\Registry::getConfig()->getShopUrl();
             }
-            $aPreparedModules[] = $oPreparedModule;
+            $preparedModules[] = $preparedModule;
         }
 
-        return $aPreparedModules;
+        return $preparedModules;
     }
 
     /**
@@ -109,15 +114,27 @@ class OnlineModuleVersionNotifier
     }
 
     /**
+     * @deprecated since v6.4.0 (09-08-2019). Use ShopConfigurationDaoBridgeInterface
+     *
      * Returns shops array of modules.
      *
      * @return array
      */
     protected function _getModules()
     {
-        $aModules = $this->_oModuleList->getList();
-        ksort($aModules);
+        $container = ContainerFactory::getInstance()->getContainer();
+        $shopConfiguration = $container->get(ShopConfigurationDaoBridgeInterface::class)->get();
 
-        return $aModules;
+        $modules = [];
+
+        foreach ($shopConfiguration->getModuleConfigurations() as $moduleConfiguration) {
+            $module = oxNew(Module::class);
+            $module->load($moduleConfiguration->getId());
+            $modules[$moduleConfiguration->getId()] = $module;
+        }
+
+        ksort($modules);
+
+        return $modules;
     }
 }

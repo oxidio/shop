@@ -20,7 +20,6 @@ use \oxTestModules;
 
 class modOxUtilsObject_oxUtilsObject extends \oxUtilsObject
 {
-
     public function setClassNameCache($aValue)
     {
         parent::$_aInstanceCache = $aValue;
@@ -30,7 +29,6 @@ class modOxUtilsObject_oxUtilsObject extends \oxUtilsObject
     {
         return parent::$_aInstanceCache;
     }
-
 }
 
 /**
@@ -75,7 +73,6 @@ class UtilsobjectTest extends \OxidEsales\TestingLibrary\UnitTestCase
         $oArticle = oxNew('oxArticle');
         $oArticle->delete('testArticle');
 
-        oxRegistry::get("oxConfigFile")->setVar('blDoNotDisableModuleOnError', $this->getConfigParam('blDoNotDisableModuleOnError'));
         oxRegistry::get("oxConfigFile")->setVar("sShopDir", $this->getConfigParam('sShopDir'));
 
         parent::tearDown();
@@ -172,7 +169,7 @@ class UtilsobjectTest extends \OxidEsales\TestingLibrary\UnitTestCase
          * Real error handling on missing files is disabled for the tests, but when the shop tries to include that not
          * existing file we expect an error to be thrown
          */
-        $this->setExpectedException(\PHPUnit_Framework_Error_Warning::class);
+        $this->expectException(\PHPUnit\Framework\Error\Warning::class);
 
         $structure = array(
             'modules' => array(
@@ -208,7 +205,8 @@ class UtilsobjectTest extends \OxidEsales\TestingLibrary\UnitTestCase
 
     public function testOxNewCreationOfNonExistingClassContainsClassNameInExceptionMessage()
     {
-        $this->setExpectedException(SystemComponentException::class, 'non_existing_class');
+        $this->expectException(SystemComponentException::class);
+        $this->expectExceptionMessage('non_existing_class');
 
         oxNew("non_existing_class");
     }
@@ -266,27 +264,14 @@ class UtilsobjectTest extends \OxidEsales\TestingLibrary\UnitTestCase
 
         $sClassNameWhichExtends = 'oemodulenameoxorder_different2';
         $oUtilsObject = $this->prepareFakeModuleNonExistentClass($sClassName, $sClassNameWhichExtends);
-
         $this->assertSame($sClassNameExpect, $oUtilsObject->getClassName($sClassName));
+        $expectedExceptionClass = SystemComponentException::class;
+        $this->assertLoggedException($expectedExceptionClass);
     }
-
-    public function testGetClassName_classNotExistDoDisableModuleOnError_originalClassReturn()
-    {
-        $sClassName = 'oxorder';
-        $sClassNameExpect = 'oxorder';
-
-        oxRegistry::get("oxConfigFile")->setVar('blDoNotDisableModuleOnError', false);
-
-        $sClassNameWhichExtends = 'oemodulenameoxorder_different3';
-        $oUtilsObject = $this->prepareFakeModuleNonExistentClass($sClassName, $sClassNameWhichExtends);
-
-        $this->assertSame($sClassNameExpect, $oUtilsObject->getClassName($sClassName));
-    }
-
+    
+    
     public function testGetClassName_classNotExistDoNotDisableModuleOnError_errorThrow()
     {
-        oxRegistry::get("oxConfigFile")->setVar('blDoNotDisableModuleOnError', true);
-
         $sClassName = 'oxorder';
         $sClassNameWhichExtends = 'oemodulenameoxorder_different4';
         $oUtilsObject = $this->_prepareFakeModule($sClassName, $sClassNameWhichExtends);
