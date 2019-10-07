@@ -52,7 +52,11 @@ class ModuleFilesInstaller implements ModuleFilesInstallerInterface
      */
     public function install(OxidEshopPackage $package)
     {
-        $finder = $this->getFinder($package->getPackageSourcePath(), $package->getBlackListFilters());
+        $finder = $this->getFinder(
+            $package->getPackageSourcePath(),
+            $package->getBlackListFilters() ?: $package->getWhiteListFilters(),
+            (bool) $package->getWhiteListFilters()
+        );
 
         $this->fileSystemService->mirror(
             $package->getPackageSourcePath(),
@@ -73,19 +77,22 @@ class ModuleFilesInstaller implements ModuleFilesInstallerInterface
 
     /**
      * @param string $sourceDirectory
-     * @param array  $blackListFilters
+     * @param array  $filters
+     * @param bool   $isWhiteList
      * @return Finder
      */
-    private function getFinder(string $sourceDirectory, array $blackListFilters): Finder
+    private function getFinder(string $sourceDirectory, array $filters, bool $isWhiteList = false): Finder
     {
         $finder = $this->finderFactory->create();
         $finder->in($sourceDirectory);
 
-        foreach ($blackListFilters as $filter) {
+        foreach ($filters as $filter) {
             if ($this->isDirectoryFilter($filter)) {
-                $finder->notPath($this->getDirectoryForFilter($filter));
+                $pattern = $this->getDirectoryForFilter($filter);
+                $isWhiteList ? $finder->path($pattern) : $finder->notPath($pattern);
             } else {
-                $finder->notName($this->normalizeFileFilter($filter));
+                $pattern = $this->normalizeFileFilter($filter);
+                $isWhiteList ? $finder->name($pattern) : $finder->notName($pattern);
             }
         }
 
