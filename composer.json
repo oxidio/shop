@@ -81,7 +81,19 @@
                 "Application/Controller/**/*",
                 "Application/Model/**/*",
                 "Core/**/*",
-                "Internal/**/*"
+                "Internal/**/*",
+                "Setup/Controller/**/*",
+                "Setup/Exception/**/*",
+                "Setup/Controller.php",
+                "Setup/Core.php",
+                "Setup/Database.php",
+                "Setup/Dispatcher.php",
+                "Setup/Language.php",
+                "Setup/Messages.php",
+                "Setup/Session.php",
+                "Setup/Setup.php",
+                "Setup/Utilities.php",
+                "Setup/View.php"
             ]
         },
         "incenteev-parameters": {
