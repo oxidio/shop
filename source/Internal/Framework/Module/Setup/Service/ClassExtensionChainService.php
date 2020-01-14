@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Service;
 
@@ -12,9 +15,6 @@ use OxidEsales\EshopCommunity\Internal\Framework\Config\DataObject\ShopSettingTy
 use OxidEsales\EshopCommunity\Internal\Framework\Dao\EntryDoesNotExistDaoException;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ClassExtensionsChain;
 
-/**
- * @internal
- */
 class ClassExtensionChainService implements ExtensionChainServiceInterface
 {
     /**
@@ -32,8 +32,8 @@ class ClassExtensionChainService implements ExtensionChainServiceInterface
      * @param ActiveClassExtensionChainResolverInterface $activeClassExtensionChainResolver
      */
     public function __construct(
-        ShopConfigurationSettingDaoInterface        $shopConfigurationSettingDao,
-        ActiveClassExtensionChainResolverInterface  $activeClassExtensionChainResolver
+        ShopConfigurationSettingDaoInterface $shopConfigurationSettingDao,
+        ActiveClassExtensionChainResolverInterface $activeClassExtensionChainResolver
     ) {
         $this->shopConfigurationSettingDao = $shopConfigurationSettingDao;
         $this->activeClassExtensionChainResolver = $activeClassExtensionChainResolver;

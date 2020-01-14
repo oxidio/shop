@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Domain\Review\Dao;
 
@@ -12,9 +15,6 @@ use OxidEsales\EshopCommunity\Internal\Domain\Review\DataMapper\ProductRatingDat
 use OxidEsales\EshopCommunity\Internal\Domain\Review\DataObject\ProductRating;
 use OxidEsales\EshopCommunity\Internal\Framework\Dao\EntryDoesNotExistDaoException;
 
-/**
- * @internal
- */
 class ProductRatingDao implements ProductRatingDaoInterface
 {
     /**
@@ -32,8 +32,8 @@ class ProductRatingDao implements ProductRatingDaoInterface
      * @param ProductRatingDataMapperInterface $productRatingMapper
      */
     public function __construct(
-        QueryBuilderFactoryInterface    $queryBuilderFactory,
-        ProductRatingDataMapperInterface           $productRatingMapper
+        QueryBuilderFactoryInterface $queryBuilderFactory,
+        ProductRatingDataMapperInterface $productRatingMapper
     ) {
         $this->queryBuilderFactory = $queryBuilderFactory;
         $this->productRatingMapper = $productRatingMapper;

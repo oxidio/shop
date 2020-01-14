@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Logger;
 
@@ -14,9 +17,6 @@ use OxidEsales\EshopCommunity\Internal\Framework\Logger\Validator\PsrLoggerConfi
 use OxidEsales\EshopCommunity\Internal\Transition\Utility\ContextInterface;
 use Psr\Log\LoggerInterface;
 
-/**
- * @internal
- */
 class LoggerServiceFactory
 {
     /**
@@ -62,7 +62,8 @@ class LoggerServiceFactory
     {
         return new MonologConfiguration(
             'OXID Logger',
-            $this->context
+            $this->context->getLogFilePath(),
+            $this->context->getLogLevel()
         );
     }
 

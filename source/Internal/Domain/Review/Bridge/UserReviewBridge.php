@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Domain\Review\Bridge;
 
@@ -11,9 +14,6 @@ use OxidEsales\EshopCommunity\Internal\Domain\Review\Service\UserReviewServiceIn
 use OxidEsales\EshopCommunity\Internal\Domain\Review\Exception\ReviewPermissionException;
 use OxidEsales\Eshop\Application\Model\Review;
 
-/**
-  * @internal
- */
 class UserReviewBridge implements UserReviewBridgeInterface
 {
     /**
@@ -39,6 +39,7 @@ class UserReviewBridge implements UserReviewBridgeInterface
      * @param string $reviewId
      *
      * @throws ReviewPermissionException
+     * @throws EntryDoesNotExistDaoException
      */
     public function deleteReview($userId, $reviewId)
     {

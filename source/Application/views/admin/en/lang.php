@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -994,6 +995,7 @@ $aLang = [
     'SHOP_MALL_SHOPURL'                                  => 'Shop URL',
     'SHOP_MALL_SHOPSSLSHOPURL'                           => 'Shop SSL URL',
     'SHOP_MALL_NATIVEIMAGES'                             => 'Load /out directory from active shop',
+    'SHOP_MALL_DONOTLOADALLSHOPNEWS'                     => 'Do not show news from all shops',
     'SHOP_MALL_NOSTARTSITE'                              => 'Show main shop front page',
     'SHOP_MALL_STARTSITE'                                => 'Show shop selector',
     'SHOP_MALL_MALLMODE'                                 => 'Start page type',
@@ -1119,7 +1121,9 @@ $aLang = [
     'SHOP_CONFIG_STOCKWARNINGLIMIT'                           => 'Stock Level at which Users are informed that only a few Products remain in Stock',
     'SHOP_CONFIG_STOCKOFFDEFAULTMESSAGE'                      => 'Use default "out-of-stock" Message',
     'SHOP_CONFIG_STOCKONDEFAULTMESSAGE'                       => 'Use default "in-stock" Message',
+    // @deprecated since v6.6.0 (2019-12-18); credit card payment method will be no longer supported
     'SHOP_CONFIG_STORECREDITCARDINFO'                         => 'Save Credit Card information',
+    // END deprecated
     'SHOP_CONFIG_SHOWTSINTERNATIONALFEESMESSAGE'              => 'Display a message about possible international delivery fees',
     'SHOP_CONFIG_SHOWTSCODMESSAGE'                            => 'Display a message about possible "cash on delivery" payment method fees',
     'SHOP_CONFIG_TIMEFORMAT'                                  => 'Time Format in eShop Admin',
@@ -1845,7 +1849,9 @@ $aLang = [
     'PAYMENT_RDFA_BYINVOICE'               => 'Invoice',
     'PAYMENT_RDFA_CHECKINADVANCE'          => 'Check in advance',
     'PAYMENT_RDFA_BYBANKTRANSFERINADVANCE' => 'Cash in advance',
+    // @deprecated since v6.6.0 (2019-12-18); credit card payment method will be no longer supported
     'PAYMENT_RDFA_CREDITCARD'              => 'Credit card payment',
+    // END deprecated
     'PAYMENT_RDFA_AMERICANEXPRESS'         => 'American Express',
     'PAYMENT_RDFA_DINERSCLUB'              => 'Diners Club',
     'PAYMENT_RDFA_DISCOVER'                => 'Discover',
@@ -1995,7 +2001,8 @@ $aLang = [
     'TITLE'                          => 'Salutation',
     'SUBJECT'                        => 'Subject',
     'MESSAGE'                        => 'Message',
-
+    'ADMIN_SETTINGS_LICENSE_VERSION_FETCH_INFO_ERROR' => 'Error when fetching version information',
+    'CURL_EXECUTE_ERROR' => 'Connection error (%s). Please try again later',
 ];
 
 /*

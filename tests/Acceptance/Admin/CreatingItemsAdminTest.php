@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -1530,7 +1531,7 @@ class CreatingItemsAdminTest extends AdminTestCase
         $shopId = ShopIdCalculator::BASE_SHOP_ID;
         $shopId = $this->getTestConfig()->isSubShop() ? 2 : $shopId;
         $id = $this->getTestConfig()->isSubShop() ? 'ee3uioiop3795dea7855be2d1e' : '9d1ef0f8237werea96756e2d1e';
-        $this->executeSql("INSERT INTO `oxconfig` (`OXID`, `OXSHOPID`, `OXVARNAME`, `OXVARTYPE`, `OXVARVALUE`) VALUES ('$id', '$shopId', 'blUseMultidimensionVariants', 'bool', 0x07);");
+        $this->executeSql("INSERT INTO `oxconfig` (`OXID`, `OXSHOPID`, `OXVARNAME`, `OXVARTYPE`, `OXVARVALUE`) VALUES ('$id', '$shopId', 'blUseMultidimensionVariants', 'bool', '1');");
 
         $this->loginAdmin("Administer Products", "Products");
         $this->openListItem("link=10010");
@@ -1558,7 +1559,7 @@ class CreatingItemsAdminTest extends AdminTestCase
             ];
         };
 
-        $this->waitForItemAppear(sprintf($inputPath, 1, 3)."[@value='selvar1 [DE]']");
+        $this->waitForItemAppear(sprintf($inputPath, 1, 3) . "[@value='selvar1 [DE]']");
         $this->assertEquals(["selvar1 [DE]", "10010-1", "3.5"], $variantValues(1));
         $this->assertEquals(["selvar2 [DE]", "10010-2", "2.5"], $variantValues(2));
         $this->assertEquals(["selvar3 [DE]", "10010-3", "0.5"], $variantValues(3));
@@ -1566,7 +1567,7 @@ class CreatingItemsAdminTest extends AdminTestCase
         $this->addSelection("allsel[]", "label=test selection list [EN] šÄßüл | test sellist šÄßüл");
         $this->clickAndWait("//b");
 
-        $this->waitForItemAppear(sprintf($inputPath, 1, 3)."[@value='selvar1 [DE] | selvar1 [DE]']");
+        $this->waitForItemAppear(sprintf($inputPath, 1, 3) . "[@value='selvar1 [DE] | selvar1 [DE]']");
         $this->assertEquals(["selvar1 [DE] | selvar1 [DE]", "10010-1", "4.5"], $variantValues(1));
         $this->assertEquals(["selvar1 [DE] | selvar2 [DE]", "10010-1-1", "3.5"], $variantValues(2));
         $this->assertEquals(["selvar1 [DE] | selvar3 [DE]", "10010-1-2", "1.5"], $variantValues(3));
@@ -1586,7 +1587,7 @@ class CreatingItemsAdminTest extends AdminTestCase
 
         $this->changeAdminEditLanguage('English', 'editlanguage');
 
-        $this->waitForItemAppear(sprintf($inputPath, 1, 3)."[@value='selvar1 [EN] šÄßüл | selvar1 [EN] šÄßüл']");
+        $this->waitForItemAppear(sprintf($inputPath, 1, 3) . "[@value='selvar1 [EN] šÄßüл | selvar1 [EN] šÄßüл']");
         $this->assertEquals("selvar1 [EN] šÄßüл | selvar2 [EN] šÄßüл", $this->getValue("//tr[@id='test_variant.2']/td[3]/input"));
         $this->assertEquals("selvar1 [EN] šÄßüл | selvar3 [EN] šÄßüл", $this->getValue("//tr[@id='test_variant.3']/td[3]/input"));
         $this->assertEquals("selvar1 [EN] šÄßüл | selvar4 [EN] šÄßüл", $this->getValue("//tr[@id='test_variant.4']/td[3]/input"));
@@ -1989,7 +1990,7 @@ class CreatingItemsAdminTest extends AdminTestCase
                                       `OXCUSTNR`, `OXUSTID`, `OXCOMPANY`, `OXFNAME`, `OXLNAME`, `OXSTREET`, `OXSTREETNR`, `OXADDINFO`, `OXCITY`,
                                       `OXCOUNTRYID`, `OXSTATEID`, `OXZIP`, `OXFON`, `OXFAX`, `OXSAL`, `OXBONI`, `OXCREATE`, `OXREGISTER`,
                                       `OXPRIVFON`, `OXMOBFON`, `OXBIRTHDATE`, `OXURL`, `OXUPDATEKEY`, `OXUPDATEEXP`)
-                              VALUES ('kdiruuc', 0, 'malladmin', ".ShopIdCalculator::BASE_SHOP_ID.", 'example00@oxid-esales.dev', '89bb88b81f9b3669fc4c44e082dd9927', '3032396331663033316535343361356231363666653666316533376235353830',
+                              VALUES ('kdiruuc', 0, 'malladmin', " . ShopIdCalculator::BASE_SHOP_ID . ", 'example00@oxid-esales.dev', '89bb88b81f9b3669fc4c44e082dd9927', '3032396331663033316535343361356231363666653666316533376235353830',
                                       121, '111222', 'company1', 'Name1', 'Surname1', 'street1', '11', 'additional info1', 'City11',
                                       'a7c40f632e04633c9.47194042', 'BE', '30001', '1112223331', '2223334441', 'MR', 1000, '2010-02-05 10:22:37', '2010-02-05 10:22:48',
                                       '', '', '1979-01-03', '', '', 0);";
@@ -2528,8 +2529,8 @@ class CreatingItemsAdminTest extends AdminTestCase
             $this->assertElementNotPresent("nav.page.2");
         }
         $this->clickAndWaitFrame("link=A");
-        $newListItemNumber = 10;
-        $listItemWeeksSpecialItemNumber = 9;
+        $newListItemNumber = 9;
+        $listItemWeeksSpecialItemNumber = 8;
         $this->assertEquals("create_delete promotion", $this->getText("//tr[@id='row.$newListItemNumber']/td[2]"));
         $this->clickDeleteListItem($newListItemNumber);
         $this->assertElementNotPresent("nav.page.2");
@@ -2599,8 +2600,8 @@ class CreatingItemsAdminTest extends AdminTestCase
             $this->assertElementNotPresent("nav.page.2");
         }
         $this->changeListSorting("link=A");
-        $newListItemNumber = 10;
-        $listItemWeeksSpecialItemNumber = 9;
+        $newListItemNumber = 9;
+        $listItemWeeksSpecialItemNumber = 8;
         $this->assertEquals("create_delete action", $this->getText("//tr[@id='row.$newListItemNumber']/td[2]"));
         $this->clickDeleteListItem($newListItemNumber);
         $this->assertElementNotPresent("nav.page.2");

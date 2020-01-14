@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -33,7 +34,7 @@ class UserAccountCest
         $I->dontSee(Translator::translate('LOGIN'));
 
         $accountPage = $startPage->openAccountPage();
-        $breadCrumb = Translator::translate('MY_ACCOUNT').' - '.$userData['userLoginName'];
+        $breadCrumb = Translator::translate('MY_ACCOUNT') . ' - ' . $userData['userLoginName'];
         $accountPage->seeOnBreadCrumb($breadCrumb);
         $I->see(Translator::translate('LOGOUT'));
     }
@@ -56,7 +57,7 @@ class UserAccountCest
         $I->dontSee(Translator::translate('LOGIN'));
 
         $accountPage = $startPage->openAccountPage();
-        $breadCrumb = Translator::translate('MY_ACCOUNT').' - '.$userName;
+        $breadCrumb = Translator::translate('MY_ACCOUNT') . ' - ' . $userName;
         $accountPage->seeOnBreadCrumb($breadCrumb);
 
         $changePasswordPage = $accountPage->openChangePasswordPage();
@@ -112,7 +113,7 @@ class UserAccountCest
 
         //enter existing email
         $passwordReminderPage = $passwordReminderPage->resetPassword($userData['userLoginName']);
-        $I->see(Translator::translate('PASSWORD_WAS_SEND_TO').' '.$userData['userLoginName']);
+        $I->see(Translator::translate('PASSWORD_WAS_SEND_TO') . ' ' . $userData['userLoginName']);
 
         //open password reminder page in main user account page
         $passwordReminderPage->openAccountPage()
@@ -140,8 +141,10 @@ class UserAccountCest
         $I->see(Translator::translate('PLEASE_SELECT_STATE'), $userAddressPage->billStateId);
 
         //change user password
-        $userAddressPage = $userAddressPage->changeEmail("example01@oxid-esales.dev", $userData['userPassword'])
-            ->logoutUser();
+        $userAddressPage = $userAddressPage->changeEmail("example01@oxid-esales.dev", $userData['userPassword']);
+
+        $I->dontSee(Translator::translate('COMPLETE_MARKED_FIELDS'));
+        $userAddressPage = $userAddressPage->logoutUser();
 
         //try to login with old and new email address
         $userAddressPage->loginUser($userData['userLoginName'], $userData['userPassword']);
@@ -228,7 +231,6 @@ class UserAccountCest
             ->selectBillingCountry('Germany')
             ->saveAddress();
         $I->see('Germany', $userAddressPage->billingAddress);
-
     }
 
     /**
@@ -310,7 +312,7 @@ class UserAccountCest
             "faxNr" => "111-111-111-$userId",
             "countryId" => $userCountry,
         ];
-        if ( $userCountry == 'Germany' ) {
+        if ($userCountry == 'Germany') {
             $addressData["stateId"] = "Berlin";
         }
         return $addressData;

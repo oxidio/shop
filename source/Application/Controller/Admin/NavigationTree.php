@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -458,20 +459,8 @@ class NavigationTree extends \OxidEsales\Eshop\Core\Base
      */
     protected function _getMenuFiles()
     {
-        $adminThemeName = $this->getContainer()->get(AdminThemeBridgeInterface::class)->getActiveTheme();
-        $editionPathSelector = new EditionPathProvider(new EditionRootPathProvider(new EditionSelector()));
-        $fullAdminDir = $editionPathSelector->getViewsDirectory() . $adminThemeName . DIRECTORY_SEPARATOR;
-        $menuFile = $fullAdminDir . 'menu.xml';
-
-        // including std file
-        if (file_exists($menuFile)) {
-            $filesToLoad[] = $menuFile;
-        }
-
-        // including custom file
-        if (file_exists($fullAdminDir . 'user.xml')) {
-            $filesToLoad[] = $fullAdminDir . 'user.xml';
-        }
+        $adminNavigationFileLocator = $this->getContainer()->get('oxid_esales.templating.admin.navigation.file.locator');
+        $filesToLoad = $adminNavigationFileLocator->locate();
 
         // including module menu files
         $path = getShopBasePath();

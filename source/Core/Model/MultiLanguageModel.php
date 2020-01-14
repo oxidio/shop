@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -520,17 +521,17 @@ class MultiLanguageModel extends \OxidEsales\Eshop\Core\Model\BaseModel
      * Returns actual object view or table name
      *
      * @param string $table  Original table name
-     * @param int    $shopID Shop ID
+     * @param int    $shopId Shop ID
      *
      * @return string
      */
-    protected function _getObjectViewName($table, $shopID = null)
+    protected function _getObjectViewName($table, $shopId = null)
     {
         if (!$this->_blEmployMultilanguage) {
-            return parent::_getObjectViewName($table, $shopID);
+            return parent::_getObjectViewName($table, $shopId);
         }
 
-        return getViewName($table, $this->getLanguage(), $shopID);
+        return getViewName($table, $this->getLanguage(), $shopId);
     }
 
     /**

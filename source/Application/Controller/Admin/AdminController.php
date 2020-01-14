@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -158,7 +159,7 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
         // authorization check
         if (!$this->_authorize()) {
             \OxidEsales\Eshop\Core\Registry::getUtils()->redirect('index.php?cl=login', true, 302);
-            exit;
+            exit('Authorization error occurred!');
         }
 
         $oLang = \OxidEsales\Eshop\Core\Registry::getLang();
@@ -523,7 +524,7 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     protected function _authorize()
     {
-        return ( bool ) (
+        return (bool) (
             $this->getSession()->checkSessionChallenge()
             && count(\OxidEsales\Eshop\Core\Registry::getUtilsServer()->getOxCookie())
             && \OxidEsales\Eshop\Core\Registry::getUtils()->checkAccessRights()

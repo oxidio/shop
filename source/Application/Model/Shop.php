@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -93,6 +94,8 @@ class Shop extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
         parent::__construct();
 
         if (!$this->isShopValid()) {
+            \OxidEsales\Eshop\Core\Registry::getLogger()->error('Shop is not valid');
+
             return;
         }
 

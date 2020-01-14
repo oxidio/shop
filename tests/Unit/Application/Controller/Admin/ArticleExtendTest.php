@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
 namespace OxidEsales\EshopCommunity\Tests\Unit\Application\Controller\Admin;
 
 use \Exception;
@@ -236,7 +238,7 @@ class ArticleExtendTest extends \OxidTestCase
         $oView = oxNew('Article_Extend');
         $aParams = $oView->addDefaultValues($aParams);
 
-        $this->assertEquals("www.delfi.lt", $aParams['oxarticles__oxexturl']);
+        $this->assertEquals("http://www.delfi.lt", $aParams['oxarticles__oxexturl']);
     }
 
     /**

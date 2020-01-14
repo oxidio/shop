@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -245,10 +246,10 @@ class Environment
     protected function _getConfigValueFromDB($sVarName)
     {
         $db = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sQuery = "SELECT " . Registry::getConfig()->getDecodeValueQuery() . "
-                   FROM `oxconfig`
-                   WHERE `OXVARNAME` = '{$sVarName}'
-                   AND `OXSHOPID` = {$this->getShopId()}";
+        $sQuery = "SELECT oxvarvalue
+                   FROM oxconfig
+                   WHERE OXVARNAME = '{$sVarName}'
+                   AND OXSHOPID = {$this->getShopId()}";
 
         $sResult = $db->getOne($sQuery);
         $aExtensionsToCheck = $sResult ? unserialize($sResult) : array();

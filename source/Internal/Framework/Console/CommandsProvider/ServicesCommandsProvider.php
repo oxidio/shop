@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Console\CommandsProvider;
 
@@ -10,10 +13,6 @@ use OxidEsales\EshopCommunity\Internal\Framework\Console\AbstractShopAwareComman
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-/**
- * Provides commands as services.
- * @internal
- */
 class ServicesCommandsProvider implements CommandsProviderInterface
 {
     /**

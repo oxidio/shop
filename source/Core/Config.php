@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -28,8 +29,6 @@ define('MAX_64BIT_INTEGER', '18446744073709551615');
  */
 class Config extends \OxidEsales\Eshop\Core\Base
 {
-    const DEFAULT_CONFIG_KEY = 'fq45QS09_fqyx09239QQ';
-
     // this column of params are defined in config.inc.php file,
     // so for backwards compatibility. names starts without underscore
 
@@ -143,6 +142,17 @@ class Config extends \OxidEsales\Eshop\Core\Base
      * @var bool
      */
     protected $blNativeImages = true;
+
+    /**
+     * Only for multishops
+     * Unload news from all shops in multishop.
+     * If $blOtherShopNews is set to true the multishop does not load news from all shops,
+     * This is applicable for depending on mall
+     * if mall mode is available.
+     *
+     * @var bool
+     */
+    protected $blDoNotLoadAllShopNews = true;
 
     /**
      * Names of tables which are multi-shop
@@ -294,9 +304,6 @@ class Config extends \OxidEsales\Eshop\Core\Base
      */
     protected $_blInit = false;
 
-    /** @var string Default configuration encryption key for database values. */
-    protected $sConfigKey = self::DEFAULT_CONFIG_KEY;
-
     /**
      * prefix for oxModule field for themes in oxConfig and oxConfigDisplay tables
      *
@@ -366,17 +373,17 @@ class Config extends \OxidEsales\Eshop\Core\Base
      * Initialize configuration variables
      *
      * @throws \OxidEsales\Eshop\Core\Exception\DatabaseException
-     * @param int $shopID
+     * @param int $shopId
      */
-    public function initVars($shopID)
+    public function initVars($shopId)
     {
         $this->_loadVarsFromFile();
 
         $this->_setDefaults();
 
-        $configLoaded = $this->_loadVarsFromDb($shopID);
+        $configLoaded = $this->_loadVarsFromDb($shopId);
         // loading shop config
-        if (empty($shopID) || !$configLoaded) {
+        if (empty($shopId) || !$configLoaded) {
             // if no config values where loaded (some problems with DB), throwing an exception
             $exception = new \OxidEsales\Eshop\Core\Exception\DatabaseException(
                 "Unable to load shop config values from database",
@@ -387,15 +394,15 @@ class Config extends \OxidEsales\Eshop\Core\Base
         }
 
         // loading theme config options
-        $this->_loadVarsFromDb($shopID, null, Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sTheme'));
+        $this->_loadVarsFromDb($shopId, null, Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sTheme'));
 
         // checking if custom theme (which has defined parent theme) config options should be loaded over parent theme (#3362)
         if ($this->getConfigParam('sCustomTheme')) {
-            $this->_loadVarsFromDb($shopID, null, Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sCustomTheme'));
+            $this->_loadVarsFromDb($shopId, null, Config::OXMODULE_THEME_PREFIX . $this->getConfigParam('sCustomTheme'));
         }
 
         // loading modules config
-        $this->_loadVarsFromDb($shopID, null, Config::OXMODULE_MODULE_PREFIX);
+        $this->_loadVarsFromDb($shopId, null, Config::OXMODULE_MODULE_PREFIX);
 
         $this->loadAdditionalConfiguration();
 
@@ -538,21 +545,21 @@ class Config extends \OxidEsales\Eshop\Core\Base
     /**
      * Load config values from DB
      *
-     * @param string $shopID   shop ID to load parameters
+     * @param int    $shopId   shop ID to load parameters
      * @param array  $onlyVars array of params to load (optional)
      * @param string $module   module vars to load, empty for base options
      *
      * @return bool
      */
-    protected function _loadVarsFromDb($shopID, $onlyVars = null, $module = '')
+    protected function _loadVarsFromDb($shopId, $onlyVars = null, $module = '')
     {
         $db = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
 
         $params = [
-          ':oxshopid' => $shopID
+          ':oxshopid' => $shopId
         ];
         $select = "select
-                        oxvarname, oxvartype, " . $this->getDecodeValueQuery() . " as oxvarvalue
+                        oxvarname, oxvartype, oxvarvalue
                     from oxconfig
                     where oxshopid = :oxshopid and ";
 
@@ -615,7 +622,8 @@ class Config extends \OxidEsales\Eshop\Core\Base
      */
     protected function _setConfVarFromDb($varName, $varType, $varVal)
     {
-        if (($varName == 'sShopURL' || $varName == 'sSSLShopURL') &&
+        if (
+            ($varName == 'sShopURL' || $varName == 'sSSLShopURL') &&
             (!$varVal || $this->isAdmin() === true)
         ) {
             return;
@@ -778,7 +786,7 @@ class Config extends \OxidEsales\Eshop\Core\Base
     /**
      * Active Shop id setter
      *
-     * @param string $shopId shop id
+     * @param int    $shopId shop id
      */
     public function setShopId($shopId)
     {
@@ -836,7 +844,8 @@ class Config extends \OxidEsales\Eshop\Core\Base
         }
 
         //additional special handling for profihost customers
-        if (isset($serverVars['HTTP_X_FORWARDED_SERVER']) &&
+        if (
+            isset($serverVars['HTTP_X_FORWARDED_SERVER']) &&
             (strpos($serverVars['HTTP_X_FORWARDED_SERVER'], 'ssl') !== false ||
              strpos($serverVars['HTTP_X_FORWARDED_SERVER'], 'secure-online-shopping.de') !== false)
         ) {
@@ -1823,7 +1832,7 @@ class Config extends \OxidEsales\Eshop\Core\Base
      * @param string $varType Variable Type
      * @param string $varName Variable name
      * @param mixed  $varVal  Variable value (can be string, integer or array)
-     * @param string $shopId  Shop ID, default is current shop
+     * @param int    $shopId  Shop ID, default is current shop
      * @param string $module  Module name (empty for base options)
      */
     public function saveShopConfVar($varType, $varName, $varVal, $shopId = null, $module = '')
@@ -1869,7 +1878,7 @@ class Config extends \OxidEsales\Eshop\Core\Base
         ]);
 
         $query = "insert into oxconfig (oxid, oxshopid, oxmodule, oxvarname, oxvartype, oxvarvalue)
-                  values (:oxid, :oxshopid, :oxmodule, :oxvarname, :oxvartype, ENCODE(:value, :key))";
+                  values (:oxid, :oxshopid, :oxmodule, :oxvarname, :oxvartype, :value)";
         $db->execute($query, [
             ':oxid' => $newOXID,
             ':oxshopid' => $shopId,
@@ -1877,7 +1886,6 @@ class Config extends \OxidEsales\Eshop\Core\Base
             ':oxvarname' => $varName,
             ':oxvartype' => $varType,
             ':value' => $value ?? '',
-            ':key' => $this->getConfigParam('sConfigKey'),
         ]);
 
         $this->informServicesAfterConfigurationChanged($varName, $shopId, $module);
@@ -1887,7 +1895,7 @@ class Config extends \OxidEsales\Eshop\Core\Base
      * Retrieves shop configuration parameters from DB.
      *
      * @param string $varName Variable name
-     * @param string $shopId  Shop ID
+     * @param int    $shopId  Shop ID
      * @param string $module  module identifier
      *
      * @return object - raw configuration value in DB
@@ -1907,7 +1915,7 @@ class Config extends \OxidEsales\Eshop\Core\Base
 
         $db = \OxidEsales\Eshop\Core\DatabaseProvider::getDb(\OxidEsales\Eshop\Core\DatabaseProvider::FETCH_MODE_ASSOC);
 
-        $query = "select oxvartype, " . $this->getDecodeValueQuery() . " as oxvarvalue from oxconfig where oxshopid = :oxshopid and oxmodule = :oxmodule and oxvarname = :oxvarname";
+        $query = "select oxvartype, oxvarvalue from oxconfig where oxshopid = :oxshopid and oxmodule = :oxmodule and oxvarname = :oxvarname";
         $rs = $db->select($query, [
             ':oxshopid' => $shopId,
             ':oxmodule' => $module,
@@ -1944,18 +1952,6 @@ class Config extends \OxidEsales\Eshop\Core\Base
     }
 
     /**
-     * Returns decode query part user to decode config field value
-     *
-     * @param string $fieldName field name, default "oxvarvalue" [optional]
-     *
-     * @return string
-     */
-    public function getDecodeValueQuery($fieldName = "oxvarvalue")
-    {
-        return " DECODE( {$fieldName}, '" . $this->getConfigParam('sConfigKey') . "') ";
-    }
-
-    /**
      * Returns true if current active shop is in productive mode or false if not
      *
      * @return bool
@@ -1965,7 +1961,7 @@ class Config extends \OxidEsales\Eshop\Core\Base
         $productive = $this->getConfigParam('blProductive');
         if (!isset($productive)) {
             $query = 'select oxproductive from oxshops where oxid = :oxid';
-            $productive = ( bool ) \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->getOne($query, [
+            $productive = (bool) \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->getOne($query, [
                 ':oxid' => $this->getShopId()
             ]);
             $this->setConfigParam('blProductive', $productive);
@@ -1991,7 +1987,8 @@ class Config extends \OxidEsales\Eshop\Core\Base
      */
     public function getActiveShop()
     {
-        if ($this->_oActShop && $this->_iShopId == $this->_oActShop->getId() &&
+        if (
+            $this->_oActShop && $this->_iShopId == $this->_oActShop->getId() &&
             $this->_oActShop->getLanguage() == Registry::getLang()->getBaseLanguage()
         ) {
             return $this->_oActShop;
@@ -2291,7 +2288,7 @@ class Config extends \OxidEsales\Eshop\Core\Base
     /**
      * Returns whether given shop id is valid.
      *
-     * @param string $shopId
+     * @param int    $shopId
      *
      * @return bool
      */
@@ -2344,7 +2341,8 @@ class Config extends \OxidEsales\Eshop\Core\Base
         if (empty($extension)) {
             $this->dispatchEvent(new ShopConfigurationChangedEvent($varName, (int) $shopId));
         } elseif (false !== strpos($extension, self::OXMODULE_MODULE_PREFIX)) {
-            $this->dispatchEvent(new SettingChangedEvent($varName, (int) $shopId, $extension));
+            $moduleId = str_replace(self::OXMODULE_MODULE_PREFIX, '', $extension);
+            $this->dispatchEvent(new SettingChangedEvent($varName, (int) $shopId, $moduleId));
         } elseif (false !== strpos($extension, self::OXMODULE_THEME_PREFIX)) {
             $this->dispatchEvent(new ThemeSettingChangedEvent($varName, (int) $shopId, $extension));
         }

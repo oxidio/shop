@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataMapper;
 
@@ -10,9 +13,6 @@ use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ModuleConfiguration;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ShopConfiguration;
 
-/**
- * @internal
- */
 class ShopConfigurationDataMapper implements ShopConfigurationDataMapperInterface
 {
     /**
@@ -66,7 +66,7 @@ class ShopConfigurationDataMapper implements ShopConfigurationDataMapperInterfac
      * @param ShopConfiguration $shopConfiguration
      * @param array             $modulesData
      */
-    private function setModulesConfiguration(ShopConfiguration $shopConfiguration, array $modulesData) : void
+    private function setModulesConfiguration(ShopConfiguration $shopConfiguration, array $modulesData): void
     {
         foreach ($modulesData as $moduleId => $moduleData) {
             $moduleConfiguration = new ModuleConfiguration();
@@ -96,7 +96,7 @@ class ShopConfigurationDataMapper implements ShopConfigurationDataMapperInterfac
      * @param ShopConfiguration $shopConfiguration
      * @param array             $chainsData
      */
-    private function setModuleChains(ShopConfiguration $shopConfiguration, array $chainsData) : void
+    private function setModuleChains(ShopConfiguration $shopConfiguration, array $chainsData): void
     {
         if (isset($chainsData[ClassExtensionsChain::NAME])) {
             $chain = new ClassExtensionsChain();

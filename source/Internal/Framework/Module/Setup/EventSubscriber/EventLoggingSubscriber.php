@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
 
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\EventSubscriber;
 
@@ -12,11 +14,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * Class EventLoggingSubscriber
- *
- * @package OxidEsales\EshopCommunity\Internal\ProjectDIConfig\EventSubscriber
- */
 class EventLoggingSubscriber implements EventSubscriberInterface
 {
 

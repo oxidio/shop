@@ -1,17 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-/**
- * Class ShopAwareEventDispatcher
- */
 class ShopAwareEventDispatcher extends EventDispatcher
 {
     /**
@@ -25,10 +25,12 @@ class ShopAwareEventDispatcher extends EventDispatcher
             if ($event->isPropagationStopped()) {
                 break;
             }
-            if (is_array($listener) &&
+            if (
+                is_array($listener) &&
                 is_object($listener[0]) &&
                 in_array(ShopAwareInterface::class, class_implements($listener[0])) &&
-                ! $listener[0]->isActive()) {
+                ! $listener[0]->isActive()
+            ) {
                 continue;
             }
             call_user_func($listener, $event, $eventName, $this);

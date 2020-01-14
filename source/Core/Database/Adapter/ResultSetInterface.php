@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -8,6 +9,8 @@ namespace OxidEsales\EshopCommunity\Core\Database\Adapter;
 
 /**
  * Interface ResultSetInterface
+ *
+ * @deprecated since v6.5.0 (2019-09-24); Use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface
  */
 interface ResultSetInterface extends \Traversable, \Countable
 {

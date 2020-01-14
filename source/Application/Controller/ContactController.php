@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -44,7 +45,7 @@ class ContactController extends \OxidEsales\Eshop\Application\Controller\Fronten
     /**
      * Contact email send status.
      *
-     * @var object
+     * @var null|int
      */
     protected $_blContactSendStatus = null;
 
@@ -156,7 +157,7 @@ class ContactController extends \OxidEsales\Eshop\Application\Controller\Fronten
     /**
      * Template variable getter. Returns status if email was send succesfull
      *
-     * @return object
+     * @return null|int
      */
     public function getContactSendStatus()
     {

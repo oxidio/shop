@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Database;
 
@@ -14,8 +17,6 @@ use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 /**
  * Factory for the Symfony DI container to fetch the database
  * connection.
- *
- * @internal
  */
 class ConnectionFactory
 {

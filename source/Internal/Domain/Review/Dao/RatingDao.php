@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Domain\Review\Dao;
 
@@ -11,9 +14,6 @@ use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInt
 use OxidEsales\EshopCommunity\Internal\Domain\Review\DataMapper\RatingDataMapperInterface;
 use OxidEsales\EshopCommunity\Internal\Domain\Review\DataObject\Rating;
 
-/**
- * @internal
- */
 class RatingDao implements RatingDaoInterface
 {
     /**
@@ -31,8 +31,8 @@ class RatingDao implements RatingDaoInterface
      * @param RatingDataMapperInterface    $ratingDataMapper
      */
     public function __construct(
-        QueryBuilderFactoryInterface    $queryBuilderFactory,
-        RatingDataMapperInterface           $ratingDataMapper
+        QueryBuilderFactoryInterface $queryBuilderFactory,
+        RatingDataMapperInterface $ratingDataMapper
     ) {
         $this->queryBuilderFactory = $queryBuilderFactory;
         $this->ratingDataMapper = $ratingDataMapper;

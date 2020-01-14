@@ -1,15 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
 
+declare(strict_types=1);
+
 namespace OxidEsales\EshopCommunity\Internal\Framework\Smarty;
 
-/**
- * Class SmartyBuilder
- * @package OxidEsales\EshopCommunity\Internal\Smarty
- */
 class SmartyBuilder implements SmartyBuilderInterface
 {
     /**

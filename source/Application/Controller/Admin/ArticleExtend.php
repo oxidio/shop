@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -210,8 +211,6 @@ class ArticleExtend extends \OxidEsales\Eshop\Application\Controller\Admin\Admin
      */
     public function addDefaultValues($aParams)
     {
-        $aParams['oxarticles__oxexturl'] = str_replace("http://", "", $aParams['oxarticles__oxexturl']);
-
         return $aParams;
     }
 

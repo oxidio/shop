@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Storage;
 
@@ -10,9 +13,6 @@ use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Lock\Factory;
 
-/**
- * @internal
- */
 class YamlFileStorageFactory implements FileStorageFactoryInterface
 {
     /**

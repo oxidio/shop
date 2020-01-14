@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
 
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Service;
 
@@ -15,9 +17,6 @@ use OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Exception\ModuleSe
 use OxidEsales\EshopCommunity\Internal\Framework\Module\State\ModuleStateServiceInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @internal
- */
 class ModuleActivationService implements ModuleActivationServiceInterface
 {
     /**
@@ -61,12 +60,12 @@ class ModuleActivationService implements ModuleActivationServiceInterface
      * @param ModuleServicesActivationServiceInterface    $moduleServicesActivationService
      */
     public function __construct(
-        ModuleConfigurationDaoInterface             $moduleConfigurationDao,
-        EventDispatcherInterface                    $eventDispatcher,
+        ModuleConfigurationDaoInterface $moduleConfigurationDao,
+        EventDispatcherInterface $eventDispatcher,
         ModuleConfigurationHandlingServiceInterface $moduleSettingsHandlingService,
-        ModuleStateServiceInterface                 $stateService,
-        ExtensionChainServiceInterface              $classExtensionChainService,
-        ModuleServicesActivationServiceInterface    $moduleServicesActivationService
+        ModuleStateServiceInterface $stateService,
+        ExtensionChainServiceInterface $classExtensionChainService,
+        ModuleServicesActivationServiceInterface $moduleServicesActivationService
     ) {
         $this->moduleConfigurationDao = $moduleConfigurationDao;
         $this->eventDispatcher = $eventDispatcher;
@@ -87,7 +86,7 @@ class ModuleActivationService implements ModuleActivationServiceInterface
     public function activate(string $moduleId, int $shopId)
     {
         if ($this->stateService->isActive($moduleId, $shopId) === true) {
-            throw new ModuleSetupException('Module with id "'. $moduleId . '" is already active.');
+            throw new ModuleSetupException('Module with id "' . $moduleId . '" is already active.');
         }
 
         $moduleConfiguration = $this->moduleConfigurationDao->get($moduleId, $shopId);
@@ -119,7 +118,7 @@ class ModuleActivationService implements ModuleActivationServiceInterface
     public function deactivate(string $moduleId, int $shopId)
     {
         if ($this->stateService->isActive($moduleId, $shopId) === false) {
-            throw new ModuleSetupException('Module with id "'. $moduleId . '" is not active.');
+            throw new ModuleSetupException('Module with id "' . $moduleId . '" is not active.');
         }
 
         $this->eventDispatcher->dispatch(

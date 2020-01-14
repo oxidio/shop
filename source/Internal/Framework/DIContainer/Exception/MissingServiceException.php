@@ -1,16 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
 
+declare(strict_types=1);
+
 namespace OxidEsales\EshopCommunity\Internal\Framework\DIContainer\Exception;
 
-/**
- * Class MissingServiceException
- *
- * @package OxidEsales\EshopCommunity\Internal\DIProjectConfig\Exception
- */
 class MissingServiceException extends \Exception
 {
 }

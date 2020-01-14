@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Tests\Unit\Internal\Framework\Logger\Factory;
 
@@ -21,7 +24,8 @@ class MonologFactoryTest extends \PHPUnit\Framework\TestCase
 
         $configuration = new MonologConfiguration(
             'testLogger',
-            $context
+            $context->getLogFilePath(),
+            $context->getLogLevel()
         );
 
         $validator = new PsrLoggerConfigurationValidator();

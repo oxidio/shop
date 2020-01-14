@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -2485,7 +2486,7 @@ return [
         'editionClassName' => \OxidEsales\EshopCommunity\Core\CreditCardValidator::class,
         'isAbstract'       => false,
         'isInterface'      => false,
-        'isDeprecated'     => false
+        'isDeprecated'     => true
     ],
     'OxidEsales\Eshop\Core\Curl'                                                 => [
         'editionClassName' => \OxidEsales\EshopCommunity\Core\Curl::class,
@@ -2497,31 +2498,31 @@ return [
         'editionClassName' => \OxidEsales\EshopCommunity\Core\DatabaseProvider::class,
         'isAbstract'       => false,
         'isInterface'      => false,
-        'isDeprecated'     => false
+        'isDeprecated'     => true
     ],
     'OxidEsales\Eshop\Core\Database\Adapter\DatabaseInterface'                   => [
         'editionClassName' => \OxidEsales\EshopCommunity\Core\Database\Adapter\DatabaseInterface::class,
         'isAbstract'       => false,
         'isInterface'      => true,
-        'isDeprecated'     => false
+        'isDeprecated'     => true
     ],
     'OxidEsales\Eshop\Core\Database\Adapter\Doctrine\Database'                   => [
         'editionClassName' => \OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database::class,
         'isAbstract'       => false,
         'isInterface'      => false,
-        'isDeprecated'     => false
+        'isDeprecated'     => true
     ],
     'OxidEsales\Eshop\Core\Database\Adapter\Doctrine\ResultSet'                  => [
         'editionClassName' => \OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\ResultSet::class,
         'isAbstract'       => false,
         'isInterface'      => false,
-        'isDeprecated'     => false
+        'isDeprecated'     => true
     ],
     'OxidEsales\Eshop\Core\Database\Adapter\ResultSetInterface'                  => [
         'editionClassName' => \OxidEsales\EshopCommunity\Core\Database\Adapter\ResultSetInterface::class,
         'isAbstract'       => false,
         'isInterface'      => true,
-        'isDeprecated'     => false
+        'isDeprecated'     => true
     ],
     'OxidEsales\Eshop\Core\DbMetaDataHandler'                                    => [
         'editionClassName' => \OxidEsales\EshopCommunity\Core\DbMetaDataHandler::class,

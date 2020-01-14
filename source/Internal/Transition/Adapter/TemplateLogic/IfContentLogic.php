@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -6,9 +7,6 @@
 
 namespace OxidEsales\EshopCommunity\Internal\Transition\Adapter\TemplateLogic;
 
-/**
- * Class IfContentLogic
- */
 class IfContentLogic
 {
     /**
@@ -21,8 +19,10 @@ class IfContentLogic
     {
         static $aContentCache = [];
 
-        if (($sIdent && isset($aContentCache[$sIdent])) ||
-            ($sOxid && isset($aContentCache[$sOxid]))) {
+        if (
+            ($sIdent && isset($aContentCache[$sIdent])) ||
+            ($sOxid && isset($aContentCache[$sOxid]))
+        ) {
             $oContent = $sOxid ? $aContentCache[$sOxid] : $aContentCache[$sIdent];
         } else {
             $oContent = oxNew("oxContent");

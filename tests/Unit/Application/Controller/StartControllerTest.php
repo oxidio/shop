@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
 namespace OxidEsales\EshopCommunity\Tests\Unit\Application\Controller;
 
 use OxidEsales\EshopCommunity\Application\Model\ArticleList;
@@ -49,15 +51,6 @@ class StartControllerTest extends \OxidTestCase
         $this->assertEquals($this->getConfig()->getConfigParam("sShopURL"), $oView->getCanonicalUrl());
     }
 
-    public function testGetArticleList()
-    {
-        $oStart = $this->getProxyClass('start');
-
-        $aList = $oStart->getArticleList();
-        $this->assertTrue($aList instanceof ArticleList);
-        $this->assertEquals(2, $aList->count());
-    }
-
     public function testGetTopArticleList()
     {
         $oStart = $this->getProxyClass('start');
@@ -66,7 +59,7 @@ class StartControllerTest extends \OxidTestCase
         $this->assertTrue($aList instanceof ArticleList);
         $this->assertEquals(1, $aList->count());
 
-        $expectedId = $this->getTestConfig()->getShopEdition() == 'EE'? "2275" : "1849";
+        $expectedId = $this->getTestConfig()->getShopEdition() == 'EE' ? "2275" : "1849";
         $this->assertEquals($expectedId, $aList->current()->getId());
     }
 
@@ -85,7 +78,7 @@ class StartControllerTest extends \OxidTestCase
 
         $oArt = $oStart->getCatOfferArticle();
 
-        $expectedId = $this->getTestConfig()->getShopEdition() == 'EE'? "1351" : "1126";
+        $expectedId = $this->getTestConfig()->getShopEdition() == 'EE' ? "1351" : "1126";
         $this->assertEquals($expectedId, $oArt->getId());
     }
 

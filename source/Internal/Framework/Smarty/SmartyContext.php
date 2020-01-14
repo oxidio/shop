@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Smarty;
 
@@ -10,10 +13,6 @@ use OxidEsales\Eshop\Core\Config;
 use OxidEsales\Eshop\Core\UtilsView;
 use OxidEsales\EshopCommunity\Internal\Transition\Utility\BasicContextInterface;
 
-/**
- * Class SmartyContext
- * @package OxidEsales\EshopCommunity\Internal\Smarty
- */
 class SmartyContext implements SmartyContextInterface
 {
     /**

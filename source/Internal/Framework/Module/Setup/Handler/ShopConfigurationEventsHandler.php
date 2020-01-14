@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Handler;
 
@@ -12,9 +15,6 @@ use OxidEsales\EshopCommunity\Internal\Framework\Config\DataObject\ShopSettingTy
 use OxidEsales\EshopCommunity\Internal\Framework\Dao\EntryDoesNotExistDaoException;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ModuleConfiguration;
 
-/**
- * @internal
- */
 class ShopConfigurationEventsHandler implements ModuleConfigurationHandlerInterface
 {
     /**
@@ -33,8 +33,8 @@ class ShopConfigurationEventsHandler implements ModuleConfigurationHandlerInterf
      * @param ShopConfigurationSettingDaoInterface $shopConfigurationSettingDao
      */
     public function __construct(
-        string                                  $shopConfigurationSettingName,
-        ShopConfigurationSettingDaoInterface    $shopConfigurationSettingDao
+        string $shopConfigurationSettingName,
+        ShopConfigurationSettingDaoInterface $shopConfigurationSettingDao
     ) {
         $this->shopConfigurationSettingName = $shopConfigurationSettingName;
         $this->shopConfigurationSettingDao = $shopConfigurationSettingDao;
