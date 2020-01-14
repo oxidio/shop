@@ -6,7 +6,7 @@
 
 namespace OxidEsales\EshopCommunity\Application\Controller\Admin;
 
-use oxRegistry;
+use OxidEsales\EshopCommunity\Internal\Framework\Theme\Bridge\AdminThemeBridgeInterface;
 use DOMXPath;
 use DOMDocument;
 use DOMElement;
@@ -452,37 +452,19 @@ class NavigationTree extends \OxidEsales\Eshop\Core\Base
     }
 
     /**
-     * Returns array witn pathes + names ox manu xml files. Paths are checked
+     * Returns array with paths + names ox menu xml files. Paths are checked
      *
      * @return array
      */
     protected function _getMenuFiles()
     {
-        $myConfig = $this->getConfig();
-        $myOxUtlis = \OxidEsales\Eshop\Core\Registry::getUtils();
-
-        $editionPathSelector = new EditionPathProvider(new EditionRootPathProvider(new EditionSelector()));
-        $fullAdminDir = $editionPathSelector->getViewsDirectory() . 'admin' . DIRECTORY_SEPARATOR;
-        $menuFile = $fullAdminDir . 'menu.xml';
-
-        $tmpDir = $myConfig->getConfigParam('sCompileDir');
-        $dynLang = $this->_getDynMenuLang();
-        $localDynPath = "{$tmpDir}{$dynLang}_dynscreen.xml";
-
-        // including std file
-        if (file_exists($menuFile)) {
-            $filesToLoad[] = $menuFile;
-        }
-
-        // including custom file
-        if (file_exists($fullAdminDir . 'user.xml')) {
-            $filesToLoad[] = $fullAdminDir . 'user.xml';
-        }
+        $adminNavigationFileLocator = $this->getContainer()->get('oxid_esales.templating.admin.navigation.file.locator');
+        $filesToLoad = $adminNavigationFileLocator->locate();
 
         // including module menu files
         $path = getShopBasePath();
-        $modulelist = oxNew(\OxidEsales\Eshop\Core\Module\ModuleList::class);
-        $activeModuleInfo = $modulelist->getActiveModuleInfo();
+        $moduleList = oxNew(\OxidEsales\Eshop\Core\Module\ModuleList::class);
+        $activeModuleInfo = $moduleList->getActiveModuleInfo();
         if (is_array($activeModuleInfo)) {
             foreach ($activeModuleInfo as $modulePath) {
                 $fullPath = $path . "modules/" . $modulePath;

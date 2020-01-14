@@ -8,8 +8,8 @@ namespace OxidEsales\EshopCommunity\Application\Controller;
 
 use OxidEsales\Eshop\Core\Email;
 use OxidEsales\Eshop\Core\Registry;
-use OxidEsales\EshopCommunity\Internal\Common\Form\FormField;
-use OxidEsales\EshopCommunity\Internal\Form\ContactForm\ContactFormBridgeInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Form\FormField;
+use OxidEsales\EshopCommunity\Internal\Domain\Contact\Form\ContactFormBridgeInterface;
 
 /**
  * Contact window.
@@ -44,7 +44,7 @@ class ContactController extends \OxidEsales\Eshop\Application\Controller\Fronten
     /**
      * Contact email send status.
      *
-     * @var object
+     * @var null|int
      */
     protected $_blContactSendStatus = null;
 
@@ -156,7 +156,7 @@ class ContactController extends \OxidEsales\Eshop\Application\Controller\Fronten
     /**
      * Template variable getter. Returns status if email was send succesfull
      *
-     * @return object
+     * @return null|int
      */
     public function getContactSendStatus()
     {

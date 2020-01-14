@@ -6,6 +6,8 @@
 
 namespace OxidEsales\EshopCommunity\Tests\Acceptance\Admin;
 
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Install\Service\ModuleConfigurationInstallerInterface;
 use OxidEsales\EshopCommunity\Tests\Acceptance\AdminTestCase;
 
 /** Ajax functionality */
@@ -271,9 +273,9 @@ class AjaxFunctionalityAdminTest extends AdminTestCase
         $this->assertElementText("", "//div[@id='container1_c']/table/tbody[2]/tr[1]/td[3]");
         $this->assertElementText("", "//div[@id='container1_c']/table/tbody[2]/tr[1]/td[4]");
         $this->assertElementText("", "//div[@id='container1_c']/table/tbody[2]/tr[1]/td[5]");
-        $this->click("//li[@id='yui-gen3']/a"); //adds price field
+        $this->click("//li[@id='yui-gen12']/a"); //adds price field
         $this->assertElementText("50", "//div[@id='container1_c']/table/tbody[2]/tr[1]/td[5]");
-        $this->click("//li[@id='yui-gen4']/a"); //adds stock field
+        $this->click("//li[@id='yui-gen13']/a"); //adds stock field
         $this->assertElementText("15", "//div[@id='container1_c']/table/tbody[2]/tr[1]/td[6]");
         $this->assertElementText("1001", "//div[@id='container1_c']/table/tbody[2]/tr[2]/td[1]");
         $this->assertElementText("10010", "//div[@id='container1_c']/table/tbody[2]/tr[3]/td[1]");
@@ -741,7 +743,7 @@ class AjaxFunctionalityAdminTest extends AdminTestCase
      */
     public function testAjaxDeliveryAssignProducts()
     {
-       // active config option blVariantsSelection
+        // active config option blVariantsSelection
         $this->callShopSC("oxConfig", null, null, array("blVariantsSelection" => array("type" => "bool", "value" => 'true')));
         $this->loginAdmin("Shop Settings", "Shipping Cost Rules");
         $this->changeAdminListLanguage('Deutsch');
@@ -926,7 +928,6 @@ class AjaxFunctionalityAdminTest extends AdminTestCase
         $this->assertElementText("1 [EN] category šÄßüл", "//div[@id='container1_c']/table/tbody[2]/tr[1]/td[1]");
         $this->assertElementText("[last] [EN] category šÄßüл", "//div[@id='container1_c']/table/tbody[2]/tr[11]/td[1]");
         $this->close();
-
     }
 
     /**
@@ -1212,11 +1213,11 @@ class AjaxFunctionalityAdminTest extends AdminTestCase
     }
 
     /**
-     * ajax: Products -> Assign Accessories
+     * ajax: Products -> Assign Accessories and sort Accessories
      *
      * @group ajax
      */
-    public function testAjaxProductsAssignAccessories()
+    public function testAjaxProductsAssignAndSortAccessories()
     {
         $this->loginAdmin("Administer Products", "Products");
         $this->changeAdminListLanguage('Deutsch');
@@ -1251,6 +1252,25 @@ class AjaxFunctionalityAdminTest extends AdminTestCase
         $this->click("container2_btn");
         $this->assertElementText("1001", "//div[@id='container1_c']/table/tbody[2]/tr[1]/td[1]");
         $this->assertElementText("10016", "//div[@id='container1_c']/table/tbody[2]/tr[7]/td[1]");
+
+        // check sort
+        $this->click("container1_btn");
+        $this->assertElementText("0", "//div[@id='container2_c']/table/tbody[2]/tr[1]/td[3]");
+        $this->assertElementText("0", "//div[@id='container2_c']/table/tbody[2]/tr[7]/td[3]");
+        $this->click("//div[@id='container2_c']/table/tbody[2]/tr[7]/td[1]");
+        $this->waitForItemAppear("orderup");
+        $this->click("orderup");
+        $this->assertElementText("0", "//div[@id='container2_c']/table/tbody[2]/tr[1]/td[3]");
+        $this->assertElementText("6", "//div[@id='container2_c']/table/tbody[2]/tr[7]/td[3]");
+        $firstRow = $this->getText("//div[@id='container2_c']/table/tbody[2]/tr[1]/td[1]");
+        $secondRow = $this->getText("//div[@id='container2_c']/table/tbody[2]/tr[2]/td[1]");
+        $this->click("//div[@id='container2_c']/table/tbody[2]/tr[1]/td[1]");
+        $this->waitForItemAppear("orderdown");
+        $this->click("orderdown");
+        $this->assertElementText($secondRow, "//div[@id='container2_c']/table/tbody[2]/tr[1]/td[1]");
+        $this->assertElementText($firstRow, "//div[@id='container2_c']/table/tbody[2]/tr[2]/td[1]");
+        $this->assertElementText("0", "//div[@id='container2_c']/table/tbody[2]/tr[1]/td[3]");
+        $this->assertElementText("1", "//div[@id='container2_c']/table/tbody[2]/tr[2]/td[3]");
         $this->close();
     }
 
@@ -1863,6 +1883,8 @@ class AjaxFunctionalityAdminTest extends AdminTestCase
      */
     public function testOxAjaxContainerClassResolution()
     {
+        $this->installModule('oxid/test11');
+
         $this->loginAdmin("Extensions", "Modules");
 
         $this->activateModule("Test module #11");
@@ -1894,6 +1916,7 @@ class AjaxFunctionalityAdminTest extends AdminTestCase
      */
     public function testOxAjaxContainerClassResolutionMetadata1Module()
     {
+        $this->installModule('oxid/test12');
         $this->loginAdmin("Extensions", "Modules");
 
         $this->activateModule("Test module #12");
@@ -1923,5 +1946,17 @@ class AjaxFunctionalityAdminTest extends AdminTestCase
         $this->frame("edit");
         $this->clickAndWait("//form[@id='myedit']//input[@value='Activate']");
         $this->assertElementPresent("//form[@id='myedit']//input[@value='Deactivate']");
+    }
+
+    private function installModule(string $path)
+    {
+        $moduleConfigurationInstaller = ContainerFactory::getInstance()
+            ->getContainer()
+            ->get(ModuleConfigurationInstallerInterface::class);
+
+        $moduleConfigurationInstaller->install(
+            __DIR__ . '/testData/modules/' . $path,
+            $path
+        );
     }
 }

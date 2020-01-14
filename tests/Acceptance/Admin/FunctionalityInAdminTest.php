@@ -12,17 +12,8 @@ use OxidEsales\EshopCommunity\Tests\Acceptance\AdminTestCase;
 /** Admin interface functionality. */
 class FunctionalityInAdminTest extends AdminTestCase
 {
-    /** @var array To store translation error value. */
-    private $translationError = [];
-
-    /**
-     * Set translation error value if some case would change it.
-     */
-    public function setUp()
-    {
-        $this->translationError = $this->errorsInPage["ERROR: Tran"];
-        parent::setUp();
-    }
+    /** @var string To store translation error value. */
+    private $translationError = '';
 
     /**
      * Restore translation error value as some case might change it.
@@ -38,8 +29,11 @@ class FunctionalityInAdminTest extends AdminTestCase
      * Some translations might be missing as tests add new language.
      * In these cases no need to check if everything is translated.
      */
-    private function skipTranslationCheck()
+    private function skipTranslationCheck(): void
     {
+        $this->translationError = !empty($this->errorsInPage["ERROR: Tran"])
+            ? $this->errorsInPage["ERROR: Tran"]
+            : $this->translationError;
         unset($this->errorsInPage["ERROR: Tran"]);
     }
 
@@ -568,17 +562,19 @@ class FunctionalityInAdminTest extends AdminTestCase
     }
 
     /**
-     * not registered user makes order. later someone else registers with same email.
-     * already creted order is edited (added some products). #1696
+     * Not registered user makes order. Later someone else registers with same email.
+     * Already created order is edited (added some products). #1696
      *
      * @group adminFunctionality
+     * @group flow-theme
      */
     public function testEditingNotRegisteredUserOrder()
     {
+        $this->activateTheme('flow');
         //not registered user creates the order
         $this->addToBasket("1001");
 
-        $this->clickAndWait("//button[text()='%CONTINUE_TO_NEXT_STEP%']");
+        $this->clickAndWait("//button[contains(text(), '%CONTINUE_TO_NEXT_STEP%')]");
         $this->clickAndWait("//div[@id='optionNoRegistration']//button");
 
         $this->type("userLoginName", "example01@oxid-esales.dev");
@@ -593,10 +589,10 @@ class FunctionalityInAdminTest extends AdminTestCase
         $this->type("orderRemark", "remark text");
         $this->clickAndWait("//button[text()='%CONTINUE_TO_NEXT_STEP%']");
         $this->click("payment_oxidcashondel");
-        $this->clickAndWait("//button[text()='%CONTINUE_TO_NEXT_STEP%']");
+        $this->clickAndWait("//button[contains(text(), '%CONTINUE_TO_NEXT_STEP%')]");
         $this->assertTextPresent("%WHAT_I_WANTED_TO_SAY% remark text");
-        $this->check("//form[@id='orderConfirmAgbTop']//input[@name='ord_agb' and @value='1']");
-        $this->clickAndWait("//form[@id='orderConfirmAgbTop']//button");
+        $this->click("//form[@id='orderConfirmAgbTop']//input[@name='ord_agb' and @value='1']");
+        $this->clickAndWait("//form[@id='orderConfirmAgbBottom']//button");
 
         //someone creates acc with same info and email
         $this->clearCache();
@@ -1067,7 +1063,7 @@ class FunctionalityInAdminTest extends AdminTestCase
         $this->click("helpBtn_HELP_SHOP_MAIN_PRODUCTIVE");
         $this->waitForItemAppear("helpPanel");
         $this->assertTrue($this->isVisible("helpPanel"));
-        $this->assertEquals("Non-productive eShop mode is intended", substr($this->clearString($this->getText("helpPanel")), 0, 37));
+        $this->assertEquals("Close Non-productive eShop mode is intended", substr($this->clearString($this->getText("helpPanel")), 0, 43));
         $this->click("link=Close");
         $this->waitForItemDisappear("helpPanel");
         $this->checkForErrors();

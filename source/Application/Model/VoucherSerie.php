@@ -69,8 +69,10 @@ class VoucherSerie extends \OxidEsales\Eshop\Core\Model\BaseModel
             $this->_oGroups->init('oxgroups');
             $sViewName = getViewName("oxgroups");
             $sSelect = "select gr.* from {$sViewName} as gr, oxobject2group as o2g where
-                         o2g.oxobjectid = " . \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->quote($this->getId()) . " and gr.oxid = o2g.oxgroupsid ";
-            $this->_oGroups->selectString($sSelect);
+                         o2g.oxobjectid = :oxobjectid and gr.oxid = o2g.oxgroupsid ";
+            $this->_oGroups->selectString($sSelect, [
+                ':oxobjectid' => $this->getId()
+            ]);
         }
 
         return $this->_oGroups;
@@ -82,8 +84,10 @@ class VoucherSerie extends \OxidEsales\Eshop\Core\Model\BaseModel
     public function unsetUserGroups()
     {
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sDelete = 'delete from oxobject2group where oxobjectid = ' . $oDb->quote($this->getId());
-        $oDb->execute($sDelete);
+        $sDelete = 'delete from oxobject2group where oxobjectid = :oxobjectid';
+        $oDb->execute($sDelete, [
+            ':oxobjectid' => $this->getId()
+        ]);
     }
 
     /**
@@ -92,8 +96,10 @@ class VoucherSerie extends \OxidEsales\Eshop\Core\Model\BaseModel
     public function unsetDiscountRelations()
     {
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sDelete = 'delete from oxobject2discount where oxobject2discount.oxdiscountid = ' . $oDb->quote($this->getId());
-        $oDb->execute($sDelete);
+        $sDelete = 'delete from oxobject2discount where oxobject2discount.oxdiscountid = :oxdiscountid';
+        $oDb->execute($sDelete, [
+            ':oxdiscountid' => $this->getId()
+        ]);
     }
 
     /**
@@ -104,8 +110,11 @@ class VoucherSerie extends \OxidEsales\Eshop\Core\Model\BaseModel
     public function getVoucherList()
     {
         $oVoucherList = oxNew(\OxidEsales\Eshop\Application\Model\VoucherList::class);
-        $sSelect = 'select * from oxvouchers where oxvoucherserieid = ' . \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->quote($this->getId());
-        $oVoucherList->selectString($sSelect);
+        $sSelect = 'select * from oxvouchers 
+            where oxvoucherserieid = :oxvoucherserieid';
+        $oVoucherList->selectString($sSelect, [
+            ':oxvoucherserieid' => $this->getId()
+        ]);
 
         return $oVoucherList;
     }
@@ -116,8 +125,10 @@ class VoucherSerie extends \OxidEsales\Eshop\Core\Model\BaseModel
     public function deleteVoucherList()
     {
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sDelete = 'delete from oxvouchers where oxvoucherserieid = ' . $oDb->quote($this->getId());
-        $oDb->execute($sDelete);
+        $sDelete = 'delete from oxvouchers where oxvoucherserieid = :oxvoucherserieid';
+        $oDb->execute($sDelete, [
+            ':oxvoucherserieid' => $this->getId()
+        ]);
     }
 
     /**
@@ -130,11 +141,18 @@ class VoucherSerie extends \OxidEsales\Eshop\Core\Model\BaseModel
         $aStatus = [];
 
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sQuery = 'select count(*) as total from oxvouchers where oxvoucherserieid = ' . $oDb->quote($this->getId());
-        $aStatus['total'] = $oDb->getOne($sQuery);
+        $sQuery = 'select count(*) as total from oxvouchers 
+            where oxvoucherserieid = :oxvoucherserieid';
+        $aStatus['total'] = $oDb->getOne($sQuery, [
+            ':oxvoucherserieid' => $this->getId()
+        ]);
 
-        $sQuery = 'select count(*) as used from oxvouchers where oxvoucherserieid = ' . $oDb->quote($this->getId()) . ' and ((oxorderid is not NULL and oxorderid != "") or (oxdateused is not NULL and oxdateused != 0))';
-        $aStatus['used'] = $oDb->getOne($sQuery);
+        $sQuery = 'select count(*) as used from oxvouchers 
+            where oxvoucherserieid = :oxvoucherserieid 
+                and ((oxorderid is not NULL and oxorderid != "") or (oxdateused is not NULL and oxdateused != 0))';
+        $aStatus['used'] = $oDb->getOne($sQuery, [
+            ':oxvoucherserieid' => $this->getId()
+        ]);
 
         $aStatus['available'] = $aStatus['total'] - $aStatus['used'];
 

@@ -43,8 +43,15 @@ class Actions extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
     public function addArticle($articleId)
     {
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sQ = "select max(oxsort) from oxactions2article where oxactionid = " . $oDb->quote($this->getId()) . " and oxshopid = '" . $this->getShopId() . "'";
-        $iSort = ((int) $oDb->getOne($sQ)) + 1;
+        $sQ = "select max(oxsort) 
+                from oxactions2article 
+                where oxactionid = :oxactionid and oxshopid = :oxshopid";
+
+        $params = [
+            ':oxactionid' => $this->getId(),
+            ':oxshopid' => $this->getShopId()
+        ];
+        $iSort = ((int)$oDb->getOne($sQ, $params)) + 1;
 
         $oNewGroup = oxNew(\OxidEsales\Eshop\Core\Model\BaseModel::class);
         $oNewGroup->init('oxactions2article');
@@ -66,8 +73,12 @@ class Actions extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
     {
         // remove actions from articles also
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sDelete = "delete from oxactions2article where oxactionid = " . $oDb->quote($this->getId()) . " and oxartid = " . $oDb->quote($articleId) . " and oxshopid = '" . $this->getShopId() . "'";
-        $iRemovedArticles = $oDb->execute($sDelete);
+        $sDelete = "delete from oxactions2article where oxactionid = :oxactionid and oxartid = :oxartid and oxshopid = :oxshopid";
+        $iRemovedArticles = $oDb->execute($sDelete, [
+            ':oxactionid' => $this->getId(),
+            ':oxartid' => $articleId,
+            ':oxshopid' => $this->getShopId()
+        ]);
 
         return (bool) $iRemovedArticles;
     }
@@ -90,8 +101,11 @@ class Actions extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
 
         // remove actions from articles also
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sDelete = "delete from oxactions2article where oxactionid = " . $oDb->quote($articleId) . " and oxshopid = '" . $this->getShopId() . "'";
-        $oDb->execute($sDelete);
+        $sDelete = "delete from oxactions2article where oxactionid = :oxactionid and oxshopid = :oxshopid";
+        $oDb->execute($sDelete, [
+            ':oxactionid' => $articleId,
+            ':oxshopid' => $this->getShopId()
+        ]);
 
         return parent::delete($articleId);
     }
@@ -154,7 +168,8 @@ class Actions extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
      */
     public function isRunning()
     {
-        if (!($this->oxactions__oxactive->value
+        if (!(
+            $this->oxactions__oxactive->value
               && $this->oxactions__oxtype->value == 2
               && $this->oxactions__oxactivefrom->value != '0000-00-00 00:00:00'
         )
@@ -225,8 +240,11 @@ class Actions extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
 
         $articleId = $database->getOne(
             'select oxobjectid from oxobject2action ' .
-            'where oxactionid=' . $database->quote($this->getId()) .
-            ' and oxclass="oxarticle"'
+            'where oxactionid = :oxactionid and oxclass = :oxclass',
+            [
+                ':oxactionid' => $this->getId(),
+                ':oxclass' => 'oxarticle'
+            ]
         );
 
         return $articleId;

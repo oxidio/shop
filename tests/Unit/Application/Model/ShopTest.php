@@ -13,7 +13,6 @@ use \oxField;
 
 class ShopTest extends \OxidTestCase
 {
-
     public function testStructure()
     {
         $oShop = oxNew('oxShop');
@@ -79,7 +78,7 @@ class ShopTest extends \OxidTestCase
      */
     public function testMakeViewQuery($sTable, $sLang, $aMockedFunctionReturns, $sQuery)
     {
-        /** @var oxShop|PHPUnit_Framework_MockObject_MockObject $oShop */
+        /** @var oxShop|PHPUnit\Framework\MockObject\MockObject $oShop */
         $oShop = $this->getMock(\OxidEsales\Eshop\Application\Model\Shop::class, array_keys($aMockedFunctionReturns));
         foreach ($aMockedFunctionReturns as $sFunction => $sReturnValue) {
             $oShop->expects($this->any())->method($sFunction)->will($this->returnValue($sReturnValue));

@@ -8,6 +8,8 @@ namespace OxidEsales\EshopCommunity\Core;
 
 use OxidEsales\Eshop\Core\Exception\SystemComponentException;
 use OxidEsales\Eshop\Core\Database\Adapter\ResultSetInterface;
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Templating\Loader\TemplateLoaderInterface;
 
 /**
  * System requirements class.
@@ -298,6 +300,7 @@ class SystemRequirements
             $sPath . 'out/pictures/media/', // @deprecated, use out/media instead
             $sPath . 'out/media/',
             $sPath . 'log/',
+            $sPath . '../var/',
             $sTmp
         ];
         $iModStat = 2;
@@ -555,9 +558,9 @@ class SystemRequirements
     {
         $requirementFits = null;
 
-        $minimalRequiredVersion = '7.0.0';
-        $minimalRecommendedVersion = '7.0.0';
-        $maximalRecommendedVersion = '7.1.9999';
+        $minimalRequiredVersion = '7.1.0';
+        $minimalRecommendedVersion = '7.1.0';
+        $maximalRecommendedVersion = '7.2.9999';
 
         $installedPhpVersion = $this->getPhpVersion();
 
@@ -751,7 +754,7 @@ class SystemRequirements
      */
     public function checkIniSet()
     {
-        return (@ini_set('session.name', 'sid') !== false) ? 2 : 0;
+        return (@ini_set('memory_limit', @ini_get('memory_limit')) !== false) ? 2 : 0;
     }
 
     /**
@@ -1039,9 +1042,11 @@ class SystemRequirements
             case 'g':
                 $sBytes *= 1024;
             // megabytes
+            // no break
             case 'm':
                 $sBytes *= 1024;
             // kilobytes
+            // no break
             case 'k':
                 $sBytes *= 1024;
                 break;
@@ -1062,16 +1067,16 @@ class SystemRequirements
      */
     protected function _checkTemplateBlock($sTemplate, $sBlockName)
     {
-        $sTplFile = $this->getConfig()->getTemplatePath($sTemplate, false);
-        if (!$sTplFile || !file_exists($sTplFile)) {
-            // check if file is in admin theme
-            $sTplFile = $this->getConfig()->getTemplatePath($sTemplate, true);
-            if (!$sTplFile || !file_exists($sTplFile)) {
+        /** @var TemplateLoaderInterface $templateLoader */
+        $templateLoader = $this->getContainer()->get('oxid_esales.templating.template.loader');
+        if (!$templateLoader->exists($sTemplate)) {
+            $templateLoader = $this->getContainer()->get('oxid_esales.templating.admin.template.loader');
+            if (!$templateLoader->exists($sTemplate)) {
                 return false;
             }
         }
 
-        $sFile = file_get_contents($sTplFile);
+        $sFile = $templateLoader->getContext($sTemplate);
         $sBlockNameQuoted = preg_quote($sBlockName, '/');
 
         return (bool) preg_match('/\[\{\s*block\s+name\s*=\s*([\'"])' . $sBlockNameQuoted . '\1\s*\}\]/is', $sFile);
@@ -1133,9 +1138,12 @@ class SystemRequirements
         $config = $this->getConfig();
         $database = \OxidEsales\Eshop\Core\DatabaseProvider::getDb(\OxidEsales\Eshop\Core\DatabaseProvider::FETCH_MODE_ASSOC);
 
-        $query = "select * from oxtplblocks where oxactive=1 and oxshopid=? and oxtheme in ('', ?)";
+        $query = "select * from oxtplblocks where oxactive = 1 and oxshopid = :oxshopid and oxtheme in ('', :oxtheme)";
 
-        return $database->select($query, [$config->getShopId(), $activeThemeId]);
+        return $database->select($query, [
+            ':oxshopid' => $config->getShopId(),
+            ':oxtheme' => $activeThemeId
+        ]);
     }
 
     /**
@@ -1168,5 +1176,15 @@ class SystemRequirements
     protected function _getRecommendMemoryLimit()
     {
         return '60M';
+    }
+
+    /**
+     * @internal
+     *
+     * @return \Psr\Container\ContainerInterface
+     */
+    protected function getContainer()
+    {
+        return ContainerFactory::getInstance()->getContainer();
     }
 }

@@ -271,8 +271,8 @@ class VariantHandler extends \OxidEsales\Eshop\Core\Base
     protected function _updateArticleVarName($sUpdate, $sArtId)
     {
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sUpdate = "update oxarticles set " . $sUpdate . " where oxid = " . $oDb->quote($sArtId);
-        $oDb->Execute($sUpdate);
+        $sUpdate = "update oxarticles set " . $sUpdate . " where oxid = :oxid";
+        $oDb->execute($sUpdate, [':oxid' => $sArtId]);
     }
 
     /**
@@ -436,7 +436,6 @@ class VariantHandler extends \OxidEsales\Eshop\Core\Base
      */
     protected function _getSelections($sTitle)
     {
-
         if ($this->getConfig()->getConfigParam('blUseMultidimensionVariants')) {
             $aSelections = explode($this->_sMdSeparator, $sTitle);
         } else {

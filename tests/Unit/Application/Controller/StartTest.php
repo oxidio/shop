@@ -15,7 +15,6 @@ use \oxTestModules;
  */
 class StartTest extends \OxidTestCase
 {
-
     public function testGetTitleSuffix()
     {
         $oShop = oxNew('oxShop');
@@ -49,15 +48,6 @@ class StartTest extends \OxidTestCase
 
         $oView = oxNew('start');
         $this->assertEquals($this->getConfig()->getConfigParam("sShopURL"), $oView->getCanonicalUrl());
-    }
-
-    public function testGetArticleList()
-    {
-        $oStart = $this->getProxyClass('start');
-
-        $aList = $oStart->getArticleList();
-        $this->assertTrue($aList instanceof articlelist);
-        $this->assertEquals(2, $aList->count());
     }
 
     public function testGetTopArticleList()
@@ -159,7 +149,5 @@ class StartTest extends \OxidTestCase
 
         $oView = oxNew('start');
         $oView->getBanners();
-
     }
-
 }

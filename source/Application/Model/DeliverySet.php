@@ -48,10 +48,15 @@ class DeliverySet extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
 
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
 
-        $sOxIdQuoted = $oDb->quote($sOxId);
-        $oDb->execute('delete from oxobject2payment where oxobjectid = ' . $sOxIdQuoted);
-        $oDb->execute('delete from oxobject2delivery where oxdeliveryid = ' . $sOxIdQuoted);
-        $oDb->execute('delete from oxdel2delset where oxdelsetid = ' . $sOxIdQuoted);
+        $oDb->execute('delete from oxobject2payment where oxobjectid = :oxid', [
+            ':oxid' => $sOxId
+        ]);
+        $oDb->execute('delete from oxobject2delivery where oxdeliveryid = :oxid', [
+            ':oxid' => $sOxId
+        ]);
+        $oDb->execute('delete from oxdel2delset where oxdelsetid = :oxid', [
+            ':oxid' => $sOxId
+        ]);
 
         return parent::delete($sOxId);
     }
@@ -66,8 +71,11 @@ class DeliverySet extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
     public function getIdByName($sTitle)
     {
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sQ = "SELECT `oxid` FROM `" . getViewName('oxdeliveryset') . "` WHERE  `oxtitle` = " . $oDb->quote($sTitle);
-        $sId = $oDb->getOne($sQ);
+        $sQ = "SELECT `oxid` FROM `" . getViewName('oxdeliveryset') . "` 
+            WHERE  `oxtitle` = :oxtitle";
+        $sId = $oDb->getOne($sQ, [
+            ':oxtitle' => $sTitle
+        ]);
 
         return $sId;
     }

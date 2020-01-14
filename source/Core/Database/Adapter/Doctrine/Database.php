@@ -18,12 +18,17 @@ use OxidEsales\Eshop\Core\Database\Adapter\DatabaseInterface;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
 use OxidEsales\Eshop\Core\Exception\StandardException;
+use OxidEsales\EshopCommunity\Internal\Framework\Database\Logger\DatabaseLoggerFactoryInterface;
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
 use PDO;
 
 /**
  * The doctrine implementation of our database.
  *
  * @package OxidEsales\Eshop\Core\Database\Adapter\Doctrine;
+ *
+ * @deprecated since v6.5.0 (2019-09-24);
+ *             Use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface
  */
 class Database implements DatabaseInterface
 {
@@ -94,12 +99,6 @@ class Database implements DatabaseInterface
     public function connect()
     {
         $connection = null;
-
-        /**
-         * @todo we need a SQLLogger that logs to a (CSV?) file, as we probably do not want to log into the database.
-         *
-         * $configuration->setSQLLogger(new EchoSQLLogger());
-         */
 
         try {
             $connection = $this->getConnectionFromDriverManager();
@@ -307,6 +306,8 @@ class Database implements DatabaseInterface
                 $exception = $this->convertException($exception);
                 $this->handleException($exception);
             }
+        } else {
+            \OxidEsales\Eshop\Core\Registry::getLogger()->warning('Given statement does not produce output and was not executed', [debug_backtrace()]);
         }
 
         return false;
@@ -888,7 +889,6 @@ class Database implements DatabaseInterface
         switch (true) {
             case $exception instanceof Exception\ConnectionException:
                 // ConnectionException will be mapped to DatabaseConnectionException::class
-                // no break
             case $exception instanceof ConnectionException:
                 /**
                  * Doctrine does not recognise "SQLSTATE[HY000] [2003] Can't connect to MySQL server on 'mysql.example'"
@@ -1017,6 +1017,8 @@ class Database implements DatabaseInterface
 
         if ($this->doesStatementProduceOutput($query)) {
             $result = $statement->fetchAll();
+        } else {
+            \OxidEsales\Eshop\Core\Registry::getLogger()->warning('Given statement does not produce output and was not executed', [debug_backtrace()]);
         }
 
         return $result;
@@ -1109,7 +1111,7 @@ class Database implements DatabaseInterface
             $item->auto_increment = strtolower($extra) == 'auto_increment';
             $item->binary = (false !== strpos(strtolower($type), 'blob'));
             $item->unsigned = (false !== strpos(strtolower($type), 'unsigned'));
-            $item->has_default = ('' === $default || is_null($default)) ? false : true;
+            $item->has_default = ('' === trim($default, "'") || is_null($default)) ? false : true;
             if ($item->has_default) {
                 $item->default_value = $default;
             }
@@ -1304,7 +1306,7 @@ class Database implements DatabaseInterface
 
         $assignedType = strtoupper($assignedType);
         if ((
-                in_array($assignedType, $integerTypes) ||
+            in_array($assignedType, $integerTypes) ||
                 in_array($assignedType, $fixedPointTypes) ||
                 in_array($assignedType, $floatingPointTypes) ||
                 in_array($assignedType, $textTypes) ||
@@ -1378,10 +1380,24 @@ class Database implements DatabaseInterface
      */
     protected function getConnectionFromDriverManager()
     {
-        $configuration = new Configuration();
-        $connectionParameters = $this->getConnectionParameters();
+        return DriverManager::getConnection($this->getConnectionParameters(), $this->getConnectionConfiguration());
+    }
 
-        return DriverManager::getConnection($connectionParameters, $configuration);
+    private function getConnectionConfiguration(): Configuration
+    {
+        $configuration = new Configuration();
+        $this->configureSqlLogger($configuration);
+        return $configuration;
+    }
+
+    private function configureSqlLogger(Configuration $configuration): void
+    {
+        $container = ContainerFactory::getInstance()->getContainer();
+        /** logger instantiation requires auto-wiring(compiled container) */
+        if ($container->isCompiled()) {
+            $databaseLogger = $container->get(DatabaseLoggerFactoryInterface::class)->getDatabaseLogger();
+            $configuration->setSQLLogger($databaseLogger);
+        }
     }
 
     /**

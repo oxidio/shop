@@ -28,7 +28,6 @@ require_once TEST_LIBRARY_HELPERS_PATH . 'oxUBaseHelper.php';
  */
 class UBaseTest extends \OxidTestCase
 {
-
     protected $_sRequestMethod = null;
     protected $_sRequestUri = null;
 
@@ -983,7 +982,8 @@ class UBaseTest extends \OxidTestCase
 
         $this->assertEquals(
             array(
-                0 => array('title' => 'test', 'link' => 'http://example.com/')), $a
+                0 => array('title' => 'test', 'link' => 'http://example.com/')),
+            $a
         );
 
         $oView->addRssFeed('testd', 'http://example.com/?test=1', 'iknowthiskey');
@@ -992,7 +992,8 @@ class UBaseTest extends \OxidTestCase
         $this->assertEquals(
             array(
                 0              => array('title' => 'test', 'link' => 'http://example.com/'),
-                'iknowthiskey' => array('title' => 'testd', 'link' => 'http://example.com/?test=1')), $a
+                'iknowthiskey' => array('title' => 'testd', 'link' => 'http://example.com/?test=1')),
+            $a
         );
     }
 
@@ -1212,7 +1213,6 @@ class UBaseTest extends \OxidTestCase
 
         $oView = oxNew('oxubase');
         $this->assertEquals("en", $oView->getActiveLangAbbr());
-
     }
 
     /*
@@ -1453,7 +1453,7 @@ class UBaseTest extends \OxidTestCase
         $utils->expects($this->never())->method('redirect');
         \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Utils::class, $utils);
 
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $config */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $config */
         $config = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('isProductiveMode'));
         $config->expects($this->any())->method('isProductiveMode')->will($this->returnValue(1));
 
@@ -1481,7 +1481,7 @@ class UBaseTest extends \OxidTestCase
         $utils->expects($this->never())->method('redirect');
         \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\Utils::class, $utils);
 
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $config */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $config */
         $config = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('isProductiveMode'));
         $config->expects($this->any())->method('isProductiveMode')->will($this->returnValue(1));
         $config->setConfigParam('blSeoLogging', 1);
@@ -1600,7 +1600,6 @@ class UBaseTest extends \OxidTestCase
         $this->assertEquals("aaa?bb&amp;pgNr=1", $oUBase->UNITaddPageNrParam("aaa?bb&amp;pgNr=2", 1));
         $this->assertEquals("aaa?pgNr=11&amp;param=value", $oUBase->UNITaddPageNrParam("aaa?pgNr=13&amp;param=value", 11));
         $this->assertEquals("aaa?bb&amp;pgNr=919&amp;param=value", $oUBase->UNITaddPageNrParam("aaa?bb&amp;pgNr=155&amp;param=value", 919));
-
     }
 
     public function testSetGetRootVendor()
@@ -1678,9 +1677,9 @@ class UBaseTest extends \OxidTestCase
         oxTestModules::addModuleObject('oxActionList', $oList);
 
         $oView = $this->getMock(\OxidEsales\Eshop\Application\Controller\FrontendController::class, array("getPromoFinishedList", "getPromoCurrentList", "getPromoFutureList"));
-        $oView->expects($this->once())->method('getPromoFinishedList')->will($this->returnValue(1));
-        $oView->expects($this->once())->method('getPromoCurrentList')->will($this->returnValue(1));
-        $oView->expects($this->once())->method('getPromoFutureList')->will($this->returnValue(1));
+        $oView->expects($this->once())->method('getPromoFinishedList')->will($this->returnValue([1]));
+        $oView->expects($this->once())->method('getPromoCurrentList')->will($this->returnValue([1]));
+        $oView->expects($this->once())->method('getPromoFutureList')->will($this->returnValue([1]));
 
         $this->assertTrue($oView->getShowPromotionList());
     }
@@ -2506,5 +2505,4 @@ class UBaseTest extends \OxidTestCase
         $baseController->setClassKey('test_class_key');
         $this->assertEquals('test_class_key', $baseController->getClassKey());
     }
-
 }

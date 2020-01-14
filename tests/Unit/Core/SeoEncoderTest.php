@@ -18,7 +18,6 @@ use \oxTestModules;
 
 class modSeoEncoder extends oxSeoEncoder
 {
-
     public function setProhibitedID($aProhibitedID)
     {
         $this->_aProhibitedID = $aProhibitedID;
@@ -628,8 +627,16 @@ class SeoEncoderTest extends \OxidTestCase
         // saving its meta data
         $oEncoder = \OxidEsales\Eshop\Core\Registry::getSeoEncoder();
         $oEncoder->addSeoEntry(
-            $oArticle->getId(), $oArticle->getShopId(), $oArticle->getLanguage(), 'http://stdlink',
-            $oArticle->getLink(), 'oxarticle', 0, 'oxseo oxkeywords', 'oxseo oxdescription', ''
+            $oArticle->getId(),
+            $oArticle->getShopId(),
+            $oArticle->getLanguage(),
+            'http://stdlink',
+            $oArticle->getLink(),
+            'oxarticle',
+            0,
+            'oxseo oxkeywords',
+            'oxseo oxdescription',
+            ''
         );
 
         // now testing if meta data was stored..
@@ -717,7 +724,8 @@ class SeoEncoderTest extends \OxidTestCase
         $sShopId = $this->getConfig()->getBaseShopId();
         $iLang = 1;
         $sObjectId = md5(strtolower($sShopId . $sStdUrl));
-        $sIdent = md5(strtolower($sSeoUrl));;
+        $sIdent = md5(strtolower($sSeoUrl));
+        ;
         $sType = 'dynamic';
 
         $sQ = "insert into oxseo (oxobjectid, oxident, oxshopid, oxlang, oxstdurl, oxseourl, oxtype)
@@ -804,7 +812,7 @@ class SeoEncoderTest extends \OxidTestCase
         $iShopId = $this->getConfig()->getBaseShopId();
         $sObjectId = md5(strtolower($iShopId . $sStdUrl));
 
-        $oEncoder = $this->getMock(\OxidEsales\Eshop\Core\SeoEncoder::class, array('_trimUrl', '_prepareUri', '_loadFromDb', '_copyToHistory', '_getUniqueSeoUrl', '_saveToDb'));
+        $oEncoder = $this->getMock(\OxidEsales\Eshop\Core\SeoEncoder::class, array('_trimUrl', '_prepareUri', '_loadFromDb', '_copyToHistory', '_getUniqueSeoUrl', '_saveToDb', '_processSeoUrl'));
         $oEncoder->expects($this->atLeastOnce())->method('_trimUrl')->with($this->equalTo($sStdUrl))->will($this->returnValue($sStdUrl));
         $oEncoder->expects($this->once())->method('_prepareUri')->with($this->equalTo($sSeoUrl))->will($this->returnValue($sSeoUrl));
         $oEncoder->expects($this->once())->method('_loadFromDb')->with($this->equalTo('dynamic'), $this->equalTo($sObjectId), $this->equalTo($iLang))->will($this->returnValue($sSeoUrl));
@@ -887,10 +895,18 @@ class SeoEncoderTest extends \OxidTestCase
         $language = 'zzz';
         $type = 'ggg';
 
-        $expectedQuery = "delete from oxseo where oxobjectid = '{$objectId}' and oxshopid = '{$shopId}' and oxlang = '{$language}' and oxtype = '{$type}' ";
+        $expectedQuery = "delete from oxseo where oxobjectid = :oxobjectid and oxshopid = :oxshopid and oxlang = :oxlang and oxtype = :oxtype";
 
         $encoderMock = $this->getMock(\OxidEsales\Eshop\Core\SeoEncoder::class, array('executeDatabaseQuery'));
-        $encoderMock->expects($this->once())->method('executeDatabaseQuery')->with($this->equalTo($expectedQuery));
+        $encoderMock->expects($this->once())->method('executeDatabaseQuery')->with(
+            $this->equalTo($expectedQuery),
+            $this->equalTo([
+                ':oxobjectid' => 'xxx',
+                ':oxshopid' => 'yyy',
+                ':oxlang' => 'zzz',
+                ':oxtype' => 'ggg'
+            ])
+        );
 
         $encoderMock->deleteSeoEntry($objectId, $shopId, $language, $type);
     }
@@ -1096,7 +1112,8 @@ class SeoEncoderTest extends \OxidTestCase
                                    values ( '{$sObjectId}', '" . md5(strtolower("de/$sSeoUrl3")) . "', '{$iShopId}', '0', '{$sStdUrl3}', '{$sSeoUrl3}', '1', 'oxarticle', '{$sRootId3}' )"
         );
 
-        $oEncoder = oxNew('oxSeoEncoder');;
+        $oEncoder = oxNew('oxSeoEncoder');
+        ;
         $oEncoder->UNITsaveToDb('oxarticle', $sObjectId, $sStdUrl3, $sSeoUrl3, 0, $iShopId, null, $sRootId3);
 
         $sSql = " select oxobjectid, oxparams, oxexpired from oxseo where oxobjectid= '{$sObjectId}' and oxexpired = '0' ";

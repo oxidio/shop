@@ -128,6 +128,9 @@ class UserPayment extends \OxidEsales\Eshop\Core\Model\BaseModel
      * Inserts payment information to DB. Returns insert status.
      *
      * @return bool
+     *
+     * @deprecated since v6.5.0 (2019-11-28); oxidcreditcard will be no longer supported so Method will be removed
+     *
      */
     protected function _insert()
     {
@@ -138,6 +141,7 @@ class UserPayment extends \OxidEsales\Eshop\Core\Model\BaseModel
         }
 
         //encode sensitive data
+        $sEncodedValue = '';
         if ($sValue = $this->oxuserpayments__oxvalue->value) {
             // Function is called from inside a transaction in Category::save (see ESDEV-3804 and ESDEV-3822).
             // No need to explicitly force master here.
@@ -217,9 +221,14 @@ class UserPayment extends \OxidEsales\Eshop\Core\Model\BaseModel
         $blGet = false;
         if ($oUser && $sPaymentType != null) {
             $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-            $sQ = 'select oxpaymentid from oxorder where oxpaymenttype=' . $oDb->quote($sPaymentType) . ' and
-                    oxuserid=' . $oDb->quote($oUser->getId()) . ' order by oxorderdate desc';
-            if (($sOxId = $oDb->getOne($sQ))) {
+            $sQ = 'select oxpaymentid from oxorder where oxpaymenttype = :oxpaymenttype and
+                    oxuserid = :oxuserid order by oxorderdate desc';
+            $params = [
+                ':oxpaymenttype' => $sPaymentType,
+                ':oxuserid' => $oUser->getId()
+            ];
+
+            if (($sOxId = $oDb->getOne($sQ, $params))) {
                 $blGet = $this->load($sOxId);
             }
         }
@@ -231,6 +240,9 @@ class UserPayment extends \OxidEsales\Eshop\Core\Model\BaseModel
      * Returns an array of dyn payment values
      *
      * @return array
+     *
+     * @deprecated since v6.5.0 (2019-11-28); oxidcreditcard will be no longer supported so Method will be removed
+     *
      */
     public function getDynValues()
     {

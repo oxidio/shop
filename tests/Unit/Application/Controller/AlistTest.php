@@ -8,6 +8,7 @@ namespace OxidEsales\EshopCommunity\Tests\Unit\Application\Controller;
 use \oxField;
 use \Exception;
 use \oxDb;
+use OxidEsales\Eshop\Application\Controller\ArticleListController;
 use \oxRegistry;
 use \oxTestModules;
 
@@ -338,7 +339,7 @@ class AlistTest extends \OxidTestCase
 
         $listView = $this->getMock(\OxidEsales\Eshop\Application\Controller\ArticleListController::class, array('getActiveCategory', 'getArticleList', 'getActPage', 'getPageCount'));
         $listView->expects($this->atLeastOnce())->method('getActiveCategory')->will($this->returnValue($category));
-        $listView->expects($this->once())->method('getActPage')->will( $this->returnValue( 12 ) );
+        $listView->expects($this->once())->method('getActPage')->will($this->returnValue(12));
         $listView->expects($this->once())->method('getPageCount')->will($this->returnValue(0));
         $listView->expects($this->atLeastOnce())->method('getArticleList');
 
@@ -360,6 +361,24 @@ class AlistTest extends \OxidTestCase
         $oListView->executefilter();
 
         $this->assertEquals(array('somecategory' => array('0' => 'somefilter')), $this->getSessionParam('session_attrfilter'));
+    }
+
+    /**
+     * Test reset filter.
+     */
+    public function testResetFilter()
+    {
+        $this->setRequestParameter('attrfilter', 'somefilter');
+        $this->setRequestParameter('cnid', 'someCategory');
+
+        $articleListController = oxNew(ArticleListController::class);
+        $articleListController->executefilter();
+        $articleListController->resetFilter();
+
+        $this->assertSame(
+            [],
+            $this->getSessionParam('session_attrfilter')
+        );
     }
 
     /**
@@ -956,7 +975,6 @@ class AlistTest extends \OxidTestCase
         $oListView->expects($this->any())->method('getActiveCategory')->will($this->returnValue($oCat));
 
         $this->assertEquals('Men', $oListView->getTitle());
-
     }
 
     /**
@@ -1020,7 +1038,7 @@ class AlistTest extends \OxidTestCase
 
         $this->setRequestParameter('cnid', $sCatId);
 
-        /** @var AList|PHPUnit_Framework_MockObject_MockObject $oSubj */
+        /** @var AList|PHPUnit\Framework\MockObject\MockObject $oSubj */
         $oSubj = $this->getMock(\OxidEsales\Eshop\Application\Controller\ArticleListController::class, array('_prepareMetaKeyword'));
         $oSubj->expects($this->any())->method('_prepareMetaKeyword')->will($this->returnValue("aaa"));
 
@@ -1067,7 +1085,6 @@ class AlistTest extends \OxidTestCase
         $oView->expects($this->once())->method('getCategoryTree')->will($this->returnValue($oCategoryList));
 
         $this->assertTrue(count($oView->getBreadCrumb()) == 2);
-
     }
 
     /**
@@ -1087,7 +1104,6 @@ class AlistTest extends \OxidTestCase
         $this->assertEquals(1, count($aPath));
         $this->assertNotNull($aPath[0]['title']);
         $this->assertEquals("moreLink", $aPath[0]['link']);
-
     }
 
     /**

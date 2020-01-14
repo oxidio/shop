@@ -14,7 +14,6 @@ use OxidEsales\Eshop\CoreCommunity\DatabaseProvider;
 use oxRegistry;
 use oxTestModules;
 
-
 /**
  * Testing oxArticleList class
  */
@@ -548,7 +547,6 @@ class ArticlelistTest extends \OxidTestCase
      */
     public function testLoadCategoryIds()
     {
-
         $sArticleTable = $this->_getArticleTable();
 
         //$oTest = $this->getProxyClass('oxArticleList');
@@ -622,7 +620,6 @@ class ArticlelistTest extends \OxidTestCase
      */
     public function testLoadCategoryArticlesOverMock()
     {
-
         $oTest = $this->getMock(\OxidEsales\Eshop\Application\Model\ArticleList::class, array('_getCategorySelect', 'selectString'));
 
         $sArticleTable = $this->_getArticleTable();
@@ -643,7 +640,6 @@ class ArticlelistTest extends \OxidTestCase
      */
     public function testLoadCategoryArticlesWithLimit()
     {
-
         $oTest = $this->getMock(\OxidEsales\Eshop\Application\Model\ArticleList::class, array('_getCategorySelect', 'selectString'));
 
         $sArticleTable = $this->_getArticleTable();
@@ -815,7 +811,6 @@ EOT;
      */
     public function testLoadSearchIds()
     {
-
         $this->setConfigParam('aSearchCols', array('oxtitle', 'oxshortdesc', 'oxsearchkeys', 'oxartnum'));
         $this->setTime(100);
 
@@ -843,7 +838,6 @@ EOT;
      */
     public function testLoadSearchIdsInEngLangWithSort()
     {
-
         $this->setConfigParam('aSearchCols', array('oxtitle', 'oxshortdesc', 'oxsearchkeys', 'oxartnum'));
         $this->setTime(100);
         $this->setLanguage(1);
@@ -872,7 +866,6 @@ EOT;
      */
     public function testLoadSearchIdsCategory()
     {
-
         $this->setConfigParam('aSearchCols', array('oxtitle', 'oxshortdesc', 'oxsearchkeys', 'oxartnum'));
         $this->setTime(100);
 
@@ -901,7 +894,6 @@ EOT;
      */
     public function testLoadSearchIdsVendor()
     {
-
         $this->setConfigParam('aSearchCols', array('oxtitle', 'oxshortdesc', 'oxsearchkeys', 'oxartnum'));
         $this->setTime(100);
 
@@ -928,7 +920,6 @@ EOT;
      */
     public function testLoadSearchIdsManufacturer()
     {
-
         $this->setConfigParam('aSearchCols', array('oxtitle', 'oxshortdesc', 'oxsearchkeys', 'oxartnum'));
         $this->setTime(100);
 
@@ -955,7 +946,6 @@ EOT;
      */
     public function testLoadSearchIdsCategoryVendorManufacturer()
     {
-
         $this->setConfigParam('aSearchCols', array('oxtitle', 'oxshortdesc', 'oxsearchkeys', 'oxartnum'));
         $this->setTime(100);
 
@@ -985,7 +975,6 @@ EOT;
      */
     public function testLoadSearchIdsWithSearchInLongDesc()
     {
-
         $this->setTime(100);
         $this->setConfigParam('aSearchCols', array('oxlongdesc'));
 
@@ -1249,7 +1238,6 @@ EOT;
      */
     public function testLoadNewestArticlesSelect()
     {
-
         $this->setTime(100);
 
         $sArticleTable = $this->_getArticleTable();
@@ -1297,7 +1285,6 @@ EOT;
      */
     public function testLoadNewestArticlesSelectByInsert()
     {
-
         $this->setTime(100);
 
         $sArticleTable = $this->_getArticleTable();
@@ -1372,7 +1359,6 @@ EOT;
      */
     public function testLoadTop5ArticlesSelect()
     {
-
         $this->setTime(100);
         $sArticleTable = $this->_getArticleTable();
         $oArticle = oxNew('oxArticle');
@@ -1398,7 +1384,6 @@ EOT;
      */
     public function testLoadTop5ArticlesSelect10()
     {
-
         $this->setTime(100);
         $sArticleTable = $this->_getArticleTable();
         $oArticle = oxNew('oxArticle');
@@ -1424,7 +1409,6 @@ EOT;
      */
     public function testGetVendorSelect()
     {
-
         $this->setTime(100);
 
         $sArticleTable = $this->_getArticleTable();
@@ -1449,7 +1433,6 @@ EOT;
      */
     public function testGetManufacturerSelect()
     {
-
         $this->setTime(100);
 
         $sArticleTable = $this->_getArticleTable();
@@ -1556,7 +1539,7 @@ EOT;
      */
     public function testLoadHistoryArticlesSingleArticle()
     {
-        /** @var oxArticleList|PHPUnit_Framework_MockObject_MockObject $articleList */
+        /** @var oxArticleList|PHPUnit\Framework\MockObject\MockObject $articleList */
         $articleList = $this->getMock(\OxidEsales\Eshop\Application\Model\ArticleList::class, array('loadIds', 'sortByIds'));
         $articleList->expects($this->any())->method("loadIds")->will($this->returnValue(true));
         $articleList->expects($this->any())->method("sortByIds")->will($this->returnValue(true));
@@ -1680,7 +1663,7 @@ EOT;
 
         $oTest = $this->getMock(\OxidEsales\Eshop\Application\Model\ArticleList::class, array('selectString'));
         $oTest->expects($this->never())->method("selectString");
-        $oTest->loadIds(null);
+        $oTest->loadIds([]);
     }
 
     /**
@@ -1982,7 +1965,7 @@ EOT;
     public function testLoadOrderArticlesNoOrders()
     {
         $oTest = oxNew('oxArticleList');
-        $oTest->loadOrderArticles(null);
+        $oTest->loadOrderArticles([]);
         $this->assertEquals(0, $oTest->count());
     }
 
@@ -2580,5 +2563,4 @@ EOT;
         $iExpectedMaxPrice = 30;
         $this->assertEquals($iExpectedMaxPrice, (int) oxDb::getDB()->getOne($sQ, array("_testParentArticle")));
     }
-
 }

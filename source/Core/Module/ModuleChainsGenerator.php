@@ -6,6 +6,16 @@
 
 namespace OxidEsales\EshopCommunity\Core\Module;
 
+use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Exception\ModuleConfigurationNotFoundException;
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Bridge\ModuleConfigurationDaoBridgeInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Bridge\ShopConfigurationDaoBridgeInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Bridge\ModuleActivationBridgeInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Exception\ModuleSetupException;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\State\ModuleStateServiceInterface;
+use Psr\Container\ContainerInterface;
+
 /**
  * Generates class chains for extended classes by modules.
  * IMPORTANT: Due to the way the shop is prepared for testing, you must not use Registry::getConfig() in this class.
@@ -61,13 +71,7 @@ class ModuleChainsGenerator
         if (!$classAlias) {
             $classAlias = $className;
         }
-        $fullChain = $this->getFullChain($className, $classAlias);
-        $activeChain = [];
-        if (!empty($fullChain)) {
-            $activeChain = $this->filterInactiveExtensions($fullChain);
-        }
-
-        return $activeChain;
+        return $this->getFullChain($className, $classAlias);
     }
 
     /**
@@ -85,7 +89,7 @@ class ModuleChainsGenerator
         $lowerCaseClassName = strtolower($className);
 
         $variablesLocator = $this->getModuleVariablesLocator();
-        $modules = $this->getModulesArray($variablesLocator);
+        $modules = $this->getClassExtensionChain($variablesLocator);
         $modules = array_change_key_case($modules);
         $allExtendedClasses = array_keys($modules);
         $currentExtendedClasses = array_intersect($allExtendedClasses, [$lowerCaseClassName, $lowerCaseClassAlias]);
@@ -129,6 +133,8 @@ class ModuleChainsGenerator
     /**
      * Checks if module is disabled, added to aDisabledModules config.
      *
+     * @deprecated since v6.4 (2019-05-22); There are only extensions of active modules in the class chain.
+     *
      * @param array $classChain Module names
      *
      * @return array
@@ -148,6 +154,8 @@ class ModuleChainsGenerator
      * Clean classes from chain for given module id.
      * Classes might be in module chain by path (old way) or by module namespace(new way).
      * This function removes all classes from class chain for classes inside a deactivated module's directory.
+     *
+     * @deprecated since v6.4 (2019-05-22); If you want to clean a module from the class chain, deactivate the module.
      *
      * @param string $moduleId
      * @param array  $classChain
@@ -177,25 +185,32 @@ class ModuleChainsGenerator
      * Get Ids of all deactivated module.
      * If none are deactivated, returns an empty array.
      *
+     * @deprecated since v6.4 (2019-05-22); Use ShopConfigurationDaoBridgeInterface instead to get inactive modules.
+     *
      * @return array
      */
     public function getDisabledModuleIds()
     {
-        $variablesLocator = $this->getModuleVariablesLocator();
-        $disabledModules = $variablesLocator->getModuleVariable('aDisabledModules');
-        $disabledModules = is_array($disabledModules) ? $disabledModules : [];
+        $moduleStateService = $this->getModuleStateService();
+        $moduleConfigurations = $this->getShopConfigurationDaoBridge()
+                                     ->get()
+                                     ->getModuleConfigurations();
 
-        return $disabledModules;
+        $disabledModuleIds = [];
+
+        foreach ($moduleConfigurations as $moduleConfiguration) {
+            if (!$moduleStateService->isActive($moduleConfiguration->getId(), Registry::getConfig()->getShopId())) {
+                $disabledModuleIds[] = $moduleConfiguration->getId();
+            }
+        }
+
+        return $disabledModuleIds;
     }
 
     /**
-     * SPIKE: extract function to match moduleId with installation path
-     *        Example: aModulePaths = array('MyTestModule' => 'myvendor/mymodule',
-     *                                      'oepaypal'     => 'oe/oepaypal')
-     *
-     * TODD: Think about case sensitivity issues
-     *
      * Get module path relative to source/modules for given module id.
+     *
+     * @deprecated since v6.4 (2019-05-22); Use ShopConfigurationDaoBridgeInterface instead.
      *
      * @param string $moduleId
      *
@@ -203,14 +218,11 @@ class ModuleChainsGenerator
      */
     public function getModuleDirectoryByModuleId($moduleId)
     {
-        $variablesLocator = $this->getModuleVariablesLocator();
-        $modulePaths = $variablesLocator->getModuleVariable('aModulePaths');
-
-        $moduleDirectory = $moduleId;
-        if (is_array($modulePaths) && array_key_exists($moduleId, $modulePaths)) {
-            if (isset($modulePaths[$moduleId])) {
-                $moduleDirectory = $modulePaths[$moduleId];
-            }
+        try {
+            $moduleConfiguration = $this->getModuleConfigurationDaoBridge()->get($moduleId);
+            $moduleDirectory = $moduleConfiguration->getPath();
+        } catch (ModuleConfigurationNotFoundException $domainException) {
+            return $moduleId;
         }
 
         return $moduleDirectory;
@@ -343,7 +355,7 @@ class ModuleChainsGenerator
             /**
              * Test if the class could be loaded
              */
-            if (!class_exists($moduleClass)) {
+            if (!class_exists($moduleClass, false)) {
                 $this->handleSpecialCases($parentClass);
                 $this->onModuleExtensionCreationError($moduleClassPath);
 
@@ -389,40 +401,27 @@ class ModuleChainsGenerator
     }
 
     /**
-     * If blDoNotDisableModuleOnError config value is false, disables bad module.
-     * To avoid problems with unit tests it only throw an exception if class does not exist.
+     * Writes/logs an error on module extension creation problem
      *
      * @param string $moduleClass
-     *
-     * @throws \OxidEsales\EshopCommunity\Core\Exception\SystemComponentException
      */
     protected function onModuleExtensionCreationError($moduleClass)
     {
-        $disableModuleOnError = !$this->getConfigBlDoNotDisableModuleOnError();
-        if ($disableModuleOnError) {
-            if ($this->disableModule($moduleClass)) {
-                /**
-                 * The business logic does allow to throw an exception here, but just at least the disabling of the
-                 * module must be logged
-                 */
-                $module = oxNew(\OxidEsales\Eshop\Core\Module\Module::class);
-                $moduleId = $module->getIdByPath($moduleClass);
-                $message = sprintf('Module class %s not found. Module ID %s disabled', $moduleClass, $moduleId);
-                $exception = new \OxidEsales\Eshop\Core\Exception\SystemComponentException($message);
-                $exception->debugOut();
-            }
-        } else {
-            $exception =  new \OxidEsales\Eshop\Core\Exception\SystemComponentException();
-            /** Use setMessage here instead of passing it in constructor in order to test exception message */
-            $exception->setMessage('EXCEPTION_SYSTEMCOMPONENT_CLASSNOTFOUND' . ' ' . $moduleClass);
-            $exception->setComponent($moduleClass);
-
-            throw $exception;
+        $moduleId = "(module id not availible)";
+        if (class_exists("\OxidEsales\Eshop\Core\Module\Module", false)) {
+            $module = oxNew(\OxidEsales\Eshop\Core\Module\Module::class);
+            $moduleId = $module->getIdByPath($moduleClass);
         }
+        $message = sprintf('Module class %s not found. Module ID %s', $moduleClass, $moduleId);
+        $exception = new \OxidEsales\Eshop\Core\Exception\SystemComponentException($message);
+        \OxidEsales\Eshop\Core\Registry::getLogger()->error($exception->getMessage(), [$exception]);
     }
 
     /**
-     * Disables module, adds to aDisabledModules config.
+     * If the module is found in configuration, return value is always true. Independent if the module was in a active
+     * or inactive state previously.
+     *
+     * @deprecated since v6.4.0 (2019-05-20). Use ModuleActivationServiceInterface instead.
      *
      * @param string $modulePath Full module path
      *
@@ -432,12 +431,23 @@ class ModuleChainsGenerator
     {
         $module = oxNew(\OxidEsales\Eshop\Core\Module\Module::class);
         $moduleId = $module->getIdByPath($modulePath);
-        $module->load($moduleId);
 
-        $moduleCache = oxNew('oxModuleCache', $module);
-        $moduleInstaller = oxNew('oxModuleInstaller', $moduleCache);
+        if (false === $module->load($moduleId)) {
+            return false;
+        }
 
-        return $moduleInstaller->deactivate($module);
+        try {
+            $this
+                ->getModuleActivationBridge()
+                ->deactivate(
+                    $moduleId,
+                    Registry::getConfig()->getShopId()
+                );
+        } catch (ModuleSetupException $moduleSetupException) {
+            return true;
+        }
+
+        return true;
     }
 
     /**
@@ -451,25 +461,17 @@ class ModuleChainsGenerator
     }
 
     /**
-     * Getter for module array.
+     * Only classes of active modules are considered.
      *
      * @param \OxidEsales\Eshop\Core\Module\ModuleVariablesLocator $variablesLocator
      *
      * @return array
      */
-    protected function getModulesArray(\OxidEsales\Eshop\Core\Module\ModuleVariablesLocator $variablesLocator)
+    protected function getClassExtensionChain(\OxidEsales\Eshop\Core\Module\ModuleVariablesLocator $variablesLocator)
     {
         $modules = (array) $variablesLocator->getModuleVariable('aModules');
 
         return $modules;
-    }
-
-    /**
-     * @return mixed
-     */
-    protected function getConfigBlDoNotDisableModuleOnError()
-    {
-        return \OxidEsales\Eshop\Core\Registry::get(\OxidEsales\Eshop\Core\ConfigFile::class)->getVar("blDoNotDisableModuleOnError");
     }
 
     /**
@@ -480,5 +482,48 @@ class ModuleChainsGenerator
     protected function isUnitTest()
     {
         return defined('OXID_PHP_UNIT');
+    }
+
+    /**
+     * @return ModuleActivationBridgeInterface
+     */
+    private function getModuleActivationBridge(): ModuleActivationBridgeInterface
+    {
+        return $this->getContainer()
+                    ->get(ModuleActivationBridgeInterface::class);
+    }
+
+    /**
+     * @return ModuleConfigurationDaoBridgeInterface
+     */
+    private function getModuleConfigurationDaoBridge() : ModuleConfigurationDaoBridgeInterface
+    {
+        return $this->getContainer()
+                    ->get(ModuleConfigurationDaoBridgeInterface::class);
+    }
+
+    /**
+     * @return ShopConfigurationDaoBridgeInterface
+     */
+    private function getShopConfigurationDaoBridge() : ShopConfigurationDaoBridgeInterface
+    {
+        return $this->getContainer()
+                    ->get(ShopConfigurationDaoBridgeInterface::class);
+    }
+
+    /**
+     * @return ModuleStateServiceInterface
+     */
+    private function getModuleStateService() : ModuleStateServiceInterface
+    {
+        return $this->getContainer()->get(ModuleStateServiceInterface::class);
+    }
+
+    /**
+     * @return ContainerInterface
+     */
+    private function getContainer() : ContainerInterface
+    {
+        return ContainerFactory::getInstance()->getContainer();
     }
 }

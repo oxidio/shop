@@ -6,7 +6,7 @@
 
 namespace OxidEsales\EshopCommunity\Tests\Integration\Core\Autoload\BackwardsCompatibility;
 
-class BackwardsCompatibleCatchingOxExceptionRelativeToNamespace_3_Test extends \PHPUnit_Framework_TestCase
+class BackwardsCompatibleCatchingOxExceptionRelativeToNamespace_3_Test extends \PHPUnit\Framework\TestCase
 {
 
     /**
@@ -21,7 +21,7 @@ class BackwardsCompatibleCatchingOxExceptionRelativeToNamespace_3_Test extends \
             throw $exception;
         } catch (oxException $exception) {
             /** If the exception has been caught, the test has failed */
-            $this->fail( 'The given exception (oxNew(\oxException::class)) was caught as oxException');
+            $this->fail('The given exception (oxNew(\oxException::class)) was caught as oxException');
         } catch (\Exception $exception) {
             /** If the exception has not been caught before, the test has passed */
             $this->assertTrue(true, 'The given exception (oxNew(\oxException::class)) was not caught as oxException');

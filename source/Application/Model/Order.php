@@ -320,14 +320,16 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
     protected function _getArticles($blExcludeCanceled = false)
     {
         $sSelect = "SELECT `oxorderarticles`.* FROM `oxorderarticles`
-                        WHERE `oxorderarticles`.`oxorderid` = '" . $this->getId() . "'" .
+                        WHERE `oxorderarticles`.`oxorderid` = :oxorderid" .
                    ($blExcludeCanceled ? " AND `oxorderarticles`.`oxstorno` != 1 " : " ") . "
                         ORDER BY `oxorderarticles`.`oxartid`, `oxorderarticles`.`oxselvariant`, `oxorderarticles`.`oxpersparam` ";
 
         // order articles
         $oArticles = oxNew(\OxidEsales\Eshop\Core\Model\ListModel::class);
         $oArticles->init('oxorderarticle');
-        $oArticles->selectString($sSelect);
+        $oArticles->selectString($sSelect, [
+            ':oxorderid' => (string) $this->getId()
+        ]);
 
         return $oArticles;
     }
@@ -584,8 +586,11 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
     protected function _setOrderStatus($sStatus)
     {
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sQ = 'update oxorder set oxtransstatus=' . $oDb->quote($sStatus) . ' where oxid=' . $oDb->quote($this->getId());
-        $oDb->execute($sQ);
+        $sQ = 'update oxorder set oxtransstatus = :oxtransstatus where oxid = :oxid';
+        $oDb->execute($sQ, [
+            ':oxtransstatus' => $sStatus,
+            ':oxid' => $this->getId()
+        ]);
 
         //updating order object
         $this->oxorder__oxtransstatus = new \OxidEsales\Eshop\Core\Field($sStatus, \OxidEsales\Eshop\Core\Field::T_RAW);
@@ -687,7 +692,7 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
         if ($this->_blReloadDiscount) {
             $dDiscount = 0;
             $aDiscounts = $oBasket->getDiscounts();
-            if (count($aDiscounts) > 0) {
+            if (is_array($aDiscounts) && count($aDiscounts) > 0) {
                 foreach ($aDiscounts as $oDiscount) {
                     $dDiscount += $oDiscount->dDiscount;
                 }
@@ -735,7 +740,6 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
      */
     protected function _setUser($oUser)
     {
-
         $this->oxorder__oxuserid = new \OxidEsales\Eshop\Core\Field($oUser->getId());
 
         // bill address
@@ -1021,7 +1025,6 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
      */
     protected function _updateWishlist($aArticleList, $oUser)
     {
-
         foreach ($aArticleList as $oContent) {
             if (($sWishId = $oContent->getWishId())) {
                 // checking which wishlist user uses ..
@@ -1096,9 +1099,12 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
     {
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
         $sDate = date('Y-m-d H:i:s', \OxidEsales\Eshop\Core\Registry::getUtilsDate()->getTime());
-        $sQ = 'update oxorder set oxorderdate=' . $oDb->quote($sDate) . ' where oxid=' . $oDb->quote($this->getId());
+        $sQ = 'update oxorder set oxorderdate = :oxorderdate where oxid = :oxid';
         $this->oxorder__oxorderdate = new \OxidEsales\Eshop\Core\Field($sDate, \OxidEsales\Eshop\Core\Field::T_RAW);
-        $oDb->execute($sQ);
+        $oDb->execute($sQ, [
+            ':oxorderdate' => $sDate,
+            ':oxid' => $this->getId()
+        ]);
     }
 
     /**
@@ -1271,8 +1277,11 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
 
         $iCnt = oxNew(\OxidEsales\Eshop\Core\Counter::class)->getNext($this->_getCounterIdent());
-        $sQ = "update oxorder set oxordernr = ? where oxid = ?";
-        $blUpdate = ( bool ) $oDb->execute($sQ, [$iCnt, $this->getId()]);
+        $sQ = "update oxorder set oxordernr = :oxordernr where oxid = :oxid";
+        $blUpdate = ( bool ) $oDb->execute($sQ, [
+            ':oxordernr' => $iCnt,
+            ':oxid' => $this->getId()
+        ]);
 
         if ($blUpdate) {
             $this->oxorder__oxordernr = new \OxidEsales\Eshop\Core\Field($iCnt);
@@ -1418,8 +1427,10 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
             $this->_oOrderBasket->setSkipVouchersChecking(true);
 
             // add previously used vouchers
-            $sQ = 'select oxid from oxvouchers where oxorderid = ' . $oDb->quote($this->getId());
-            $aVouchers = $oDb->getAll($sQ);
+            $sQ = 'select oxid from oxvouchers where oxorderid = :oxorderid';
+            $aVouchers = $oDb->getAll($sQ, [
+                ':oxorderid' => $this->getId()
+            ]);
             foreach ($aVouchers as $aVoucher) {
                 $this->_oOrderBasket->addVoucher($aVoucher['oxid']);
             }
@@ -1536,9 +1547,13 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
      */
     public function getInvoiceNum()
     {
-        $sQ = 'select max(oxorder.oxinvoicenr) from oxorder where oxorder.oxshopid = "' . $this->getConfig()->getShopId() . '" ';
+        $sQ = 'select max(oxorder.oxinvoicenr) from oxorder 
+            where oxorder.oxshopid = :oxshopid ';
+        $params = [
+            ':oxshopid' => $this->getConfig()->getShopId()
+        ];
 
-        return (( int ) \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->getOne($sQ, false) + 1);
+        return (( int ) \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->getOne($sQ, $params) + 1);
     }
 
     /**
@@ -1548,9 +1563,13 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
      */
     public function getNextBillNum()
     {
-        $sQ = 'select max(cast(oxorder.oxbillnr as unsigned)) from oxorder where oxorder.oxshopid = "' . $this->getConfig()->getShopId() . '" ';
+        $sQ = 'select max(cast(oxorder.oxbillnr as unsigned)) from oxorder 
+            where oxorder.oxshopid = :oxshopid ';
+        $params = [
+            ':oxshopid' => $this->getConfig()->getShopId()
+        ];
 
-        return (( int ) \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->getOne($sQ, false) + 1);
+        return (( int ) \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->getOne($sQ, $params) + 1);
     }
 
     /**
@@ -1597,8 +1616,11 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
     {
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb(\OxidEsales\Eshop\Core\DatabaseProvider::FETCH_MODE_ASSOC);
         $aVouchers = [];
-        $sSelect = "select oxvouchernr from oxvouchers where oxorderid = " . $oDb->quote($this->oxorder__oxid->value);
-        $rs = $oDb->select($sSelect);
+        $sSelect = "select oxvouchernr from oxvouchers 
+            where oxorderid = :oxorderid";
+        $rs = $oDb->select($sSelect, [
+            ':oxorderid' => $this->oxorder__oxid->value
+        ]);
         if ($rs != false && $rs->count() > 0) {
             while (!$rs->EOF) {
                 $aVouchers[] = $rs->fields['oxvouchernr'];
@@ -1619,14 +1641,18 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
     public function getOrderSum($blToday = false)
     {
         $sSelect = 'select sum(oxtotalordersum / oxcurrate) from oxorder where ';
-        $sSelect .= 'oxshopid = "' . $this->getConfig()->getShopId() . '" and oxorder.oxstorno != "1" ';
+        $sSelect .= 'oxshopid = :oxshopid and oxorder.oxstorno != "1" ';
 
         if ($blToday) {
             $sSelect .= 'and oxorderdate like "' . date('Y-m-d') . '%" ';
         }
 
+        $params = [
+            ':oxshopid' => $this->getConfig()->getShopId()
+        ];
+
         // We force reading from master to prevent issues with slow replications or open transactions (see ESDEV-3804).
-        return ( double ) \OxidEsales\Eshop\Core\DatabaseProvider::getMaster()->getOne($sSelect);
+        return ( double ) \OxidEsales\Eshop\Core\DatabaseProvider::getMaster()->getOne($sSelect, $params);
     }
 
     /**
@@ -1639,14 +1665,18 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
     public function getOrderCnt($blToday = false)
     {
         $sSelect = 'select count(*) from oxorder where ';
-        $sSelect .= 'oxshopid = "' . $this->getConfig()->getShopId() . '"  and oxorder.oxstorno != "1" ';
+        $sSelect .= 'oxshopid = :oxshopid  and oxorder.oxstorno != "1" ';
 
         if ($blToday) {
             $sSelect .= 'and oxorderdate like "' . date('Y-m-d') . '%" ';
         }
 
+        $params = [
+            ':oxshopid' => $this->getConfig()->getShopId()
+        ];
+
         // We force reading from master to prevent issues with slow replications or open transactions (see ESDEV-3804).
-        return ( int ) \OxidEsales\Eshop\Core\DatabaseProvider::getMaster()->getOne($sSelect);
+        return ( int ) \OxidEsales\Eshop\Core\DatabaseProvider::getMaster()->getOne($sSelect, $params);
     }
 
 
@@ -1665,7 +1695,10 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
 
         // We force reading from master to prevent issues with slow replications or open transactions (see ESDEV-3804).
         $masterDb = \OxidEsales\Eshop\Core\DatabaseProvider::getMaster();
-        if ($masterDb->getOne('select oxid from oxorder where oxid = ' . $masterDb->quote($sOxId))) {
+        $params = [
+            ':oxid' => $sOxId
+        ];
+        if ($masterDb->getOne('select oxid from oxorder where oxid = :oxid', $params)) {
             return true;
         }
 
@@ -1804,8 +1837,15 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
     {
         // We force reading from master to prevent issues with slow replications or open transactions (see ESDEV-3804).
         $masterDb = \OxidEsales\Eshop\Core\DatabaseProvider::getMaster();
-        $sQ = 'select oxorder.oxpaymenttype from oxorder where oxorder.oxshopid="' . $this->getConfig()->getShopId() . '" and oxorder.oxuserid=' . $masterDb->quote($sUserId) . ' order by oxorder.oxorderdate desc ';
-        $sLastPaymentId = $masterDb->getOne($sQ);
+        $sQ = 'select oxorder.oxpaymenttype from oxorder 
+            where oxorder.oxshopid = :oxshopid 
+                and oxorder.oxuserid = :oxuserid 
+            order by oxorder.oxorderdate desc ';
+
+        $sLastPaymentId = $masterDb->getOne($sQ, [
+            ':oxshopid' => $this->getConfig()->getShopId(),
+            ':oxuserid' => $sUserId
+        ]);
 
         return $sLastPaymentId;
     }
@@ -1998,7 +2038,7 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
 
         if (!$iValidState) {
             // validating payment
-            $iValidState = $this->validatePayment($oBasket);
+            $iValidState = $this->validatePayment($oBasket, $oUser);
         }
 
         if (!$iValidState) {
@@ -2059,7 +2099,7 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
 
         $iState = 0;
         if ($sDelAddressMD5 != $sDeliveryAddress || !$blFieldsValid) {
-            $iState = self::ORDER_STATE_INVALIDDElADDRESSCHANGED;
+            $iState = self::ORDER_STATE_INVALIDDELADDRESSCHANGED;
         }
 
         return $iState;
@@ -2087,11 +2127,13 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
         $oDelSet = oxNew(\OxidEsales\Eshop\Application\Model\DeliverySet::class);
         $sTable = $oDelSet->getViewName();
 
-        $sQ = "select 1 from {$sTable} where {$sTable}.oxid=" .
-              $masterDb->quote($oBasket->getShippingId()) . " and " . $oDelSet->getSqlActiveSnippet();
+        $sQ = "select 1 from {$sTable} where {$sTable}.oxid = :oxid and " . $oDelSet->getSqlActiveSnippet();
+        $params = [
+            ':oxid' => $oBasket->getShippingId()
+        ];
 
         // We force reading from master to prevent issues with slow replications or open transactions (see ESDEV-3804).
-        if (!$masterDb->getOne($sQ)) {
+        if (!$masterDb->getOne($sQ, $params)) {
             // throwing exception
             return self::ORDER_STATE_INVALIDDELIVERY;
         }
@@ -2101,15 +2143,16 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
      * Checks if payment used for current order is available and active.
      * Throws exception if not available
      *
-     * @param \OxidEsales\Eshop\Application\Model\Basket $oBasket basket object
+     * @param \OxidEsales\Eshop\Application\Model\Basket    $oBasket basket object
+     * @param \OxidEsales\Eshop\Application\Model\User|null $oUser   user object
      *
      * @return null
      */
-    public function validatePayment($oBasket)
+    public function validatePayment($oBasket, $oUser = null)
     {
         $paymentId = $oBasket->getPaymentId();
 
-        if (!$this->isValidPaymentId($paymentId) || !$this->isValidPayment($oBasket)) {
+        if (!$this->isValidPaymentId($paymentId) || !$this->isValidPayment($oBasket, $oUser)) {
             return self::ORDER_STATE_INVALIDPAYMENT;
         }
     }
@@ -2266,21 +2309,24 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
             from 
                 {$tableName}
             where 
-                {$tableName}.oxid = {$masterDb->quote($paymentId)}
+                {$tableName}.oxid = :oxid
                 and {$paymentModel->getSqlActiveSnippet()}
         ";
 
-        return (bool) $masterDb->getOne($sql);
+        return (bool) $masterDb->getOne($sql, [
+            ':oxid' => $paymentId
+        ]);
     }
 
     /**
      * Returns true if payment is valid.
      *
-     * @param \OxidEsales\Eshop\Application\Model\Basket $basket
+     * @param \OxidEsales\Eshop\Application\Model\Basket    $basket
+     * @param \OxidEsales\Eshop\Application\Model\User|null $oUser  user object
      *
      * @return bool
      */
-    private function isValidPayment($basket)
+    private function isValidPayment($basket, $oUser = null)
     {
         $paymentId = $basket->getPaymentId();
         $paymentModel = oxNew(EshopPayment::class);
@@ -2289,10 +2335,14 @@ class Order extends \OxidEsales\Eshop\Core\Model\BaseModel
         $dynamicValues = $this->getDynamicValues();
         $shopId = $this->getConfig()->getShopId();
 
+        if (!$oUser) {
+            $oUser = $this->getUser();
+        }
+
         return $paymentModel->isValidPayment(
             $dynamicValues,
             $shopId,
-            $this->getUser(),
+            $oUser,
             $basket->getPriceForPayment(),
             $basket->getShippingId()
         );

@@ -8,7 +8,7 @@ namespace OxidEsales\EshopCommunity\Tests\Unit\Application\Controller;
 use OxidEsales\EshopCommunity\Application\Controller\AccountNoticeListController;
 use \oxField;
 
-use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Tests for Account class
@@ -32,9 +32,9 @@ class AccountNoticeListControllerTest extends \OxidTestCase
         $oSearch = $this->getMock(AccountNoticeListController::class, array("getNoticeProductList"));
         $oSearch->expects($this->once())->method("getNoticeProductList")->will($this->returnValue($aNoticeProdList));
         $this->assertEquals(
-            $aArrayKeys
-            , $oSearch->getSimilarRecommListIds()
-            , "getSimilarRecommListIds() should return array of keys from result of getNoticeProductList()"
+            $aArrayKeys,
+            $oSearch->getSimilarRecommListIds(),
+            "getSimilarRecommListIds() should return array of keys from result of getNoticeProductList()"
         );
     }
 

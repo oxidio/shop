@@ -42,7 +42,6 @@ class modForTestGetBaseTplDirExpectsDefault extends oxConfig
 
 class modForTestInitLoadingPriority extends oxConfig
 {
-
     public $iDebug;
 
     protected function _loadVarsFromDb($sShopID, $aOnlyVars = null, $sModule = '')
@@ -55,7 +54,6 @@ class modForTestInitLoadingPriority extends oxConfig
 
 class ConfigTest extends \OxidTestCase
 {
-
     protected $_iCurr = null;
     protected $_aShops = array();
     private $shopUrl = 'http://www.example.com/';
@@ -203,16 +201,18 @@ class ConfigTest extends \OxidTestCase
      * test that is httpsOnly method on config returns true if connection is using https and the shop is configured
      * with https for both urls
      */
-    public function testIsHttpsOnlySameUrlWithSSl() {
+    public function testIsHttpsOnlySameUrlWithSSl()
+    {
         $res = $this->isHttpsOnlySameUrl(true);
-        $this->assertTrue( $res);
+        $this->assertTrue($res);
     }
 
     /**
      * test that is httpsOnly method on config returns false if connection is not using https and the shop is configured
      * with http for both urls
      */
-    public function testIsHttpsOnlySameUrlNotSsl() {
+    public function testIsHttpsOnlySameUrlNotSsl()
+    {
         $res = $this->isHttpsOnlySameUrl(false);
         $this->assertFalse($res);
     }
@@ -291,7 +291,7 @@ class ConfigTest extends \OxidTestCase
     /**
      * When a DatabaseException is thrown, method handleDatabaseException on the ExceptionHandler is called
      *
-     * @covers Config::init()
+     * @covers \OxidEsales\EshopCommunity\Core\Config::init()
      */
     public function testInitCallesExceptionHandlerOnDatabaseException()
     {
@@ -306,7 +306,7 @@ class ConfigTest extends \OxidTestCase
         $exceptionHandlerMock = $this->getMock(ExceptionHandler::class, ['handleDatabaseException']);
         $exceptionHandlerMock->expects($this->once())->method('handleDatabaseException');
 
-        /** @var Config|PHPUnit_Framework_MockObject_MockObject $config */
+        /** @var Config|PHPUnit\Framework\MockObject\MockObject $config */
         $config = $this->getMock(Config::class, ['_loadVarsFromDb','getExceptionHandler']);
         $config->expects($this->any())->method('_loadVarsFromDb')->will($this->throwException($exception));
         $config->expects($this->any())->method('getExceptionHandler')->will($this->returnValue($exceptionHandlerMock));
@@ -625,7 +625,7 @@ class ConfigTest extends \OxidTestCase
 
     public function testSetConfVarFromDb()
     {
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array("setConfigParam"));
         $oConfig->expects($this->at(0))->method('setConfigParam')
             ->with(
@@ -704,7 +704,6 @@ class ConfigTest extends \OxidTestCase
                        "theme:basic#sZoomImageSize",
                        "theme:azure#sZoomImageSize");
         foreach ($aVars as $sData) {
-
             $aData = explode("#", $sData);
             $sModule = $aData[0] ? $aData[0] : oxConfig::OXMODULE_THEME_PREFIX . $oConfig->getConfigParam('sTheme');
             $sVar = $aData[1];
@@ -730,7 +729,6 @@ class ConfigTest extends \OxidTestCase
 
         $oConfig = oxNew('oxConfig');
         $this->assertFalse($oConfig->getShopConfVar('testVar1') == null);
-
     }
 
 
@@ -1188,7 +1186,7 @@ class ConfigTest extends \OxidTestCase
      */
     public function testGetResourceUrlNonAdminNonSsl()
     {
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('isSsl'));
         $oConfig->expects($this->any())->method('isSsl')->will($this->returnValue(false));
         $oConfig->init();
@@ -1335,7 +1333,6 @@ class ConfigTest extends \OxidTestCase
         try {
             $this->assertEquals($sLangDir, $oConfig->getImageDir());
             $this->assertEquals($sNoLangDir, $oConfig->getImageDir());
-
         } catch (Exception $e) {
         }
 
@@ -1402,7 +1399,7 @@ class ConfigTest extends \OxidTestCase
      */
     public function testGetCurrentShopUrlNoSsl()
     {
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('isSsl'));
         $oConfig->expects($this->any())->method('isSsl')->will($this->returnValue(false));
         $oConfig->init();
@@ -1454,7 +1451,7 @@ class ConfigTest extends \OxidTestCase
      */
     public function testGetImageDirNativeImagesIsSsl()
     {
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('isAdmin', 'isSsl'));
         $oConfig->expects($this->any())->method('isAdmin')->will($this->returnValue(false));
         $oConfig->expects($this->any())->method('isSsl')->will($this->returnValue(false));
@@ -1645,7 +1642,6 @@ class ConfigTest extends \OxidTestCase
         $oConfig = oxNew('oxConfig');
         $oConfig->init();
         $this->assertEquals($oGbp, $oConfig->getActShopCurrencyObject());
-
     }
 
     public function testGetActShopCurrencyObjectDefauls()
@@ -1681,7 +1677,7 @@ class ConfigTest extends \OxidTestCase
 
     public function testGetShopCurrentUrlNoSsl()
     {
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('isSsl'));
         $oConfig->expects($this->any())->method('isSsl')->will($this->returnValue(false));
         $oConfig->init();
@@ -1941,7 +1937,7 @@ class ConfigTest extends \OxidTestCase
         $vfsStreamWrapper->createFile('out/test4/1/de/test1/text.txt', '');
         $sTestDir = $vfsStreamWrapper->getRootPath();
 
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('getOutDir'));
         $oConfig->expects($this->any())->method('getOutDir')->will($this->returnValue($sTestDir . 'out/'));
         $oConfig->init();
@@ -1958,7 +1954,7 @@ class ConfigTest extends \OxidTestCase
         $vfsStreamWrapper->createFile('out/test4/1/test2/text.txt', '');
         $sTestDir = $vfsStreamWrapper->getRootPath();
 
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('getOutDir'));
         $oConfig->expects($this->any())->method('getOutDir')->will($this->returnValue($sTestDir . 'out/'));
         $oConfig->init();
@@ -1975,7 +1971,7 @@ class ConfigTest extends \OxidTestCase
         $vfsStreamWrapper->createFile('out/test4/de/test2a/text.txt', '');
         $sTestDir = $vfsStreamWrapper->getRootPath();
 
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('getOutDir'));
         $oConfig->expects($this->any())->method('getOutDir')->will($this->returnValue($sTestDir . 'out/'));
         $oConfig->init();
@@ -1992,7 +1988,7 @@ class ConfigTest extends \OxidTestCase
         $vfsStreamWrapper->createFile('out/test4/test3/text.txt', '');
         $sTestDir = $vfsStreamWrapper->getRootPath();
 
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('getOutDir'));
         $oConfig->expects($this->any())->method('getOutDir')->will($this->returnValue($sTestDir . 'out/'));
         $oConfig->init();
@@ -2009,7 +2005,7 @@ class ConfigTest extends \OxidTestCase
         $vfsStreamWrapper->createFile('out/test4/text.txt', '');
         $sTestDir = $vfsStreamWrapper->getRootPath();
 
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('getOutDir'));
         $oConfig->expects($this->any())->method('getOutDir')->will($this->returnValue($sTestDir . 'out/'));
         $oConfig->init();
@@ -2026,7 +2022,7 @@ class ConfigTest extends \OxidTestCase
         $vfsStreamWrapper->createFile('out/de/test5/text.txt', '');
         $sTestDir = $vfsStreamWrapper->getRootPath();
 
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('getOutDir'));
         $oConfig->expects($this->any())->method('getOutDir')->will($this->returnValue($sTestDir . 'out/'));
         $oConfig->init();
@@ -2041,7 +2037,7 @@ class ConfigTest extends \OxidTestCase
     {
         $expectedResult = 'someEditionTemplateResponse';
 
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $config */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $config */
         $config = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('getEditionTemplate'));
         $config->expects($this->any())->method('getEditionTemplate')->will($this->returnValue($expectedResult));
         $config->init();
@@ -2277,7 +2273,6 @@ class ConfigTest extends \OxidTestCase
 
         $oConfig->setIsSsl(true);
         $this->assertEquals($sSSLUrl, $oConfig->getShopMainUrl());
-
     }
 
     /**
@@ -2378,7 +2373,7 @@ class ConfigTest extends \OxidTestCase
      */
     public function testInit_noValuesFromConfig()
     {
-        /** @var oxconfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxconfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('_loadVarsFromDb', '_handleDbConnectionException'));
         $oConfig->expects($this->once())->method('_loadVarsFromDb')->will($this->returnValue(false));
         $oConfig->expects($this->once())->method('_handleDbConnectionException');
@@ -2392,7 +2387,7 @@ class ConfigTest extends \OxidTestCase
      */
     public function testInit_noShopId()
     {
-        /** @var oxconfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxconfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('getShopId', '_handleDbConnectionException'));
         $oConfig->expects($this->once())->method('getShopId')->will($this->returnValue(false));
         $oConfig->expects($this->once())->method('_handleDbConnectionException');
@@ -2417,37 +2412,20 @@ class ConfigTest extends \OxidTestCase
     }
 
     /**
-     * @dataProvider getSystemConfigurationParameters
-     */
-    public function testSaveSystemConfigurationParameterInSubShop($sType, $sName, $sValue)
-    {
-        $this->getConfig()->setShopId(2);
-
-        $oConfig = oxNew('oxConfig');
-        $oConfig->saveSystemConfigParameter($sType, $sName, $sValue);
-
-        if ($sType == 'num') {
-            $this->assertEquals((float) $sValue, $oConfig->getSystemConfigParameter($sName));
-        } else {
-            $this->assertEquals($sValue, $oConfig->getSystemConfigParameter($sName));
-        }
-    }
-
-    /**
      * Mock oxUtilsServer to see that oxConfig::isCurrentUrl return same result.
      */
     public function testIsCurrentUrlIsWrapperForOxUtilsServer()
     {
         $sURLToCheck = 'some url which does not matter as we check against mock';
 
-        /** @var oxUtilsServer|PHPUnit_Framework_MockObject_MockObject $oUtilsServer */
+        /** @var oxUtilsServer|PHPUnit\Framework\MockObject\MockObject $oUtilsServer */
         $oUtilsServer = $this->getMock('oxUtilsServer');
         $oUtilsServer->expects($this->any())->method('isCurrentUrl')->will($this->returnValue(true));
         \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\UtilsServer::class, $oUtilsServer);
 
         $this->assertTrue($this->getConfig()->isCurrentUrl($sURLToCheck));
 
-        /** @var oxUtilsServer|PHPUnit_Framework_MockObject_MockObject $oUtilsServer */
+        /** @var oxUtilsServer|PHPUnit\Framework\MockObject\MockObject $oUtilsServer */
         $oUtilsServer = $this->getMock('oxUtilsServer');
         $oUtilsServer->expects($this->any())->method('isCurrentUrl')->will($this->returnValue(false));
         \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\UtilsServer::class, $oUtilsServer);
@@ -2516,9 +2494,9 @@ class ConfigTest extends \OxidTestCase
     }
 
     /**
-     * @covers Config::getExceptionHandler()
+     * @covers \OxidEsales\EshopCommunity\Core\Config::getExceptionHandler()
      */
-    public function testGetExceptionHandlerReturnsInstanceOfExceptionHandler ()
+    public function testGetExceptionHandlerReturnsInstanceOfExceptionHandler()
     {
         $expectedClass = \OxidEsales\Eshop\Core\Exception\ExceptionHandler::class;
 
@@ -2529,11 +2507,11 @@ class ConfigTest extends \OxidTestCase
     }
 
     /**
-     * @return oxConfig|PHPUnit_Framework_MockObject_MockObject
+     * @return oxConfig|PHPUnit\Framework\MockObject\MockObject
      */
     protected function getConfigWithSslMocked()
     {
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('isSsl', 'getSslShopUrl'));
         $oConfig->expects($this->any())->method('isSsl')->will($this->returnValue(true));
         $oConfig->expects($this->any())->method('getSslShopUrl')->will($this->returnValue($this->getConfigParam('sSSLShopURL')));
@@ -2615,5 +2593,4 @@ class ConfigTest extends \OxidTestCase
 
         return $resolver;
     }
-
 }

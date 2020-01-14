@@ -12,7 +12,6 @@ use \oxTestModules;
  */
 class ShopConfigTest extends \OxidTestCase
 {
-
     public function setUp()
     {
         $this->setAdminMode(true);
@@ -95,9 +94,9 @@ class ShopConfigTest extends \OxidTestCase
 
         // testing..
         $oView = $this->getMock(\OxidEsales\Eshop\Application\Controller\Admin\ShopConfiguration::class, $aTasks, array(), '', false);
-        $oView->expects($this->once())->method('getConfig')->will($this->returnValue($oConfig));
+        $oView->expects($this->atLeastOnce())->method('getConfig')->will($this->returnValue($oConfig));
         $oView->expects($this->once())->method('resetContentCache');
-        $oView->expects($this->once())->method('_getModuleForConfigVars')
+        $oView->expects($this->atLeastOnce())->method('_getModuleForConfigVars')
             ->will($this->returnValue('theme:mytheme'));
 
         $oView->saveConfVars();

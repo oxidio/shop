@@ -51,11 +51,8 @@ if (!function_exists('getCountryList')) {
         $cePath = (new Facts)->getCommunityEditionSourcePath();
         $aCountries = [];
         $relativePath = 'Application/Controller/Admin/ShopCountries.php';
-        if (file_exists("$cePath/$relativePath")) {
-            include "$cePath/$relativePath";
-        } else {
-            include __DIR__ . "/../$relativePath";
-        }
+
+        include "$cePath/$relativePath";
 
         return $aCountries;
     }
@@ -72,11 +69,9 @@ if (!function_exists('getLocation')) {
         $cePath = (new Facts)->getCommunityEditionSourcePath();
         $aLocationCountries = [];
         $relativePath = 'Application/Controller/Admin/ShopCountries.php';
-        if (file_exists("$cePath/$relativePath")) {
-            include "$cePath/$relativePath";
-        } else {
-            include __DIR__ . "/../$relativePath";
-        }
+
+        include "$cePath/$relativePath";
+
         return $aLocationCountries;
     }
 }
@@ -92,11 +87,8 @@ if (!function_exists('getLanguages')) {
         $cePath = (new Facts)->getCommunityEditionSourcePath();
         $aLanguages = [];
         $relativePath = 'Application/Controller/Admin/ShopCountries.php';
-        if (file_exists("$cePath/$relativePath")) {
-            include "$cePath/$relativePath";
-        } else {
-            include __DIR__ . "/../$relativePath";
-        }
+
+        include "$cePath/$relativePath";
 
         return $aLanguages;
     }
@@ -153,6 +145,10 @@ if (!function_exists('getVendorDirectory')) {
 if (!class_exists("Conf", false)) {
     /**
      * Config key loader class
+     *
+     * @deprecated since v6.5.0 (2019-11-28); Class will be removed
+     * because MySQL 8 removed ENCODE and DECODE methods
+     *
      */
     class Conf
     {

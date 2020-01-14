@@ -6,7 +6,7 @@
 namespace OxidEsales\EshopCommunity\Tests\Unit\Core;
 
 use \exception;
-use \PHPUnit_Framework_AssertionFailedError;
+use \PHPUnit\Framework\AssertionFailedError;
 use \oxDb;
 use \oxRegistry;
 use \oxTestModules;
@@ -33,7 +33,6 @@ class SeoDecoderTest extends \OxidTestCase
                 $oDb->execute("ALTER TABLE `oxarticles` DROP `OXSEOID_1`");
                 $this->regenerateViews();
             }
-
         } catch (Exception $oEx) {
             // avoiding exceptions while removing columns ..
         }
@@ -264,7 +263,7 @@ class SeoDecoderTest extends \OxidTestCase
 
     public function testDecodeUrl()
     {
-        oxTestModules::addFunction('oxSeoDecoder', 'parseStdUrl', create_function('$u', 'return array();'));
+        oxTestModules::addFunction('oxSeoDecoder', 'parseStdUrl', 'function ($u) {return array();}');
         $oD = oxNew('oxSeoDecoder');
         $this->assertSame(false, $oD->decodeUrl($this->getConfig()->getShopURL() . 'Uragarana/'));
         $iShopId = $this->getConfig()->getBaseShopId();
@@ -314,7 +313,6 @@ class SeoDecoderTest extends \OxidTestCase
             // this forces redirect to "/oxideshop/eshop/source/asd" + "/"
             $this->assertEquals("asd/", $oD->UNITgetParams("/oxideshop/eshop/source/asd", "/oxideshop/eshop/source/"));
         } catch (Exception $oE) {
-
             if ($oE->getCode() === 123) {
                 $this->assertEquals("Admin-oxid/", $oD->UNITgetParams("/oxideshop/eshop/source/Admin-oxid/?pgNr=1", "/oxideshop/eshop/source/"));
                 $this->assertEquals("Admin-oxid/", $oD->UNITgetParams("/oxideshop/eshop/source/Admin-oxid/", "/oxideshop/eshop/source/"));
@@ -330,8 +328,8 @@ class SeoDecoderTest extends \OxidTestCase
         $aS = $_SERVER;
         $aG = $_GET;
         try {
-            oxTestModules::addFunction('oxSeoDecoder', '_getParams', create_function('$sR, $sP', 'if ($sR != "sRe" || $sP != "sPa" ) throw new PHPUnit_Framework_AssertionFailedError("bad params"); return "sParam";'));
-            oxTestModules::addFunction('oxSeoDecoder', 'decodeUrl', create_function('$sU', 'if ($sU != "sParam" ) throw new PHPUnit_Framework_AssertionFailedError("bad params"); return array("test"=>"test");'));
+            oxTestModules::addFunction('oxSeoDecoder', '_getParams', 'function ($sR, $sP) {if ($sR != "sRe" || $sP != "sPa" ) throw new PHPUnit\Framework\AssertionFailedError("bad params"); return "sParam";}');
+            oxTestModules::addFunction('oxSeoDecoder', 'decodeUrl', 'function ($sU) {if ($sU != "sParam" ) throw new PHPUnit\Framework\AssertionFailedError("bad params"); return array("test"=>"test");}');
             $oD = oxNew('oxSeoDecoder');
             $_GET = array('was' => 'was');
             $_SERVER = array('REQUEST_URI' => 'sRe', 'SCRIPT_NAME' => 'sPoxseo.phpa');
@@ -340,7 +338,6 @@ class SeoDecoderTest extends \OxidTestCase
             $_SERVER = array('SCRIPT_URI' => 'sRe', 'SCRIPT_NAME' => 'sPoxseo.phpa');
             $oD->processSeoCall();
             $this->assertEquals(array('test' => 'test', 'was' => 'was'), $_GET);
-
         } catch (Exception $e) {
         }
         $_GET = $aG;

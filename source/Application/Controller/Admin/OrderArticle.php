@@ -128,9 +128,11 @@ class OrderArticle extends \OxidEsales\Eshop\Application\Controller\Admin\AdminD
             //get article id
             $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb(\OxidEsales\Eshop\Core\DatabaseProvider::FETCH_MODE_ASSOC);
             $sTable = getViewName("oxarticles");
-            $sQ = "select oxid, oxparentid from $sTable where oxartnum = " . $oDb->quote($sArtNum) . " limit 1";
+            $sQ = "select oxid, oxparentid from $sTable where oxartnum = :oxartnum limit 1";
 
-            $rs = $oDb->select($sQ);
+            $rs = $oDb->select($sQ, [
+                ':oxartnum' => $sArtNum
+            ]);
             if ($rs != false && $rs->count() > 0) {
                 $sArtId = $rs->fields['OXPARENTID'] ? $rs->fields['OXPARENTID'] : $rs->fields['OXID'];
 
@@ -206,8 +208,6 @@ class OrderArticle extends \OxidEsales\Eshop\Application\Controller\Admin\AdminD
 
         // order and order article exits?
         if ($oOrderArticle->load($sOrderArtId) && $oOrder->load($sOrderId)) {
-            $myConfig = $this->getConfig();
-
             // deleting record
             $oOrderArticle->delete();
 
@@ -241,13 +241,13 @@ class OrderArticle extends \OxidEsales\Eshop\Application\Controller\Admin\AdminD
         }
 
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sQ = "update oxorderarticles set oxstorno = " . $oDb->quote($oArticle->oxorderarticles__oxstorno->value) . " where oxid = " . $oDb->quote($sOrderArtId);
-        $oDb->execute($sQ);
+        $sQ = "update oxorderarticles set oxstorno = :oxstorno where oxid = :oxid";
+        $oDb->execute($sQ, [':oxstorno' => $oArticle->oxorderarticles__oxstorno->value, ':oxid' => $sOrderArtId]);
 
         //get article id
-        $sQ = "select oxartid from oxorderarticles where oxid = " . $oDb->quote($sOrderArtId);
+        $sQ = "select oxartid from oxorderarticles where oxid = :oxid";
         // We force reading from master to prevent issues with slow replications or open transactions (see ESDEV-3804).
-        if (($sArtId = \OxidEsales\Eshop\Core\DatabaseProvider::getMaster()->getOne($sQ))) {
+        if (($sArtId = \OxidEsales\Eshop\Core\DatabaseProvider::getMaster()->getOne($sQ, [':oxid' => $sOrderArtId]))) {
             $oOrder = oxNew(\OxidEsales\Eshop\Application\Model\Order::class);
             if ($oOrder->load($this->getEditObjectId())) {
                 $oOrder->recalculateOrder();

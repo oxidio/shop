@@ -29,7 +29,8 @@ function isAdmin()
  */
 function warningHandler($iErrorNr, $sErrorText)
 {
-    echo "<div class='error_box'>" . Registry::getLang()->translateString('userError') . "<code>[$iErrorNr] $sErrorText</code></div>";
+    echo "<div class='error_box'>" . Registry::getLang()->translateString('userError') . "<code>[$iErrorNr] " .
+         "$sErrorText</code></div>";
 }
 
 /**
@@ -133,6 +134,8 @@ function getStr()
 /**
  * Sets template content from cache. In demoshop enables security mode.
  *
+ * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
+ *
  * @see http://www.smarty.net/docsv2/en/template.resources.tpl
  *
  * @param string $sTplName    name of template
@@ -155,6 +158,8 @@ function ox_get_template($sTplName, &$sTplSource, $oSmarty)
  * Sets time for smarty templates recompilation. If oxidtimecache is set, smarty will cache templates for this period.
  * Otherwise templates will always be compiled.
  *
+ * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
+ *
  * @see http://www.smarty.net/docsv2/en/template.resources.tpl
  *
  * @param string $sTplName       name of template
@@ -173,6 +178,8 @@ function ox_get_timestamp($sTplName, &$iTplTimestamp, $oSmarty)
 /**
  * Dummy function, required for smarty plugin registration.
  *
+ * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
+ *
  * @see http://www.smarty.net/docsv2/en/template.resources.tpl
  *
  * @param string $sTplName not used here
@@ -187,6 +194,8 @@ function ox_get_secure($sTplName, $oSmarty)
 
 /**
  * Dummy function, required for smarty plugin registration.
+ *
+ * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
  *
  * @see http://www.smarty.net/docsv2/en/template.resources.tpl
  *

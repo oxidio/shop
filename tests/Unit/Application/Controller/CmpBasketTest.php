@@ -12,10 +12,9 @@ use \oxTestModules;
 
 class CmpBasketTest extends \OxidTestCase
 {
-
     public function testToBasketReturnsNull()
     {
-        /** @var oxcmp_basket|PHPUnit_Framework_MockObject_MockObject $o */
+        /** @var oxcmp_basket|PHPUnit\Framework\MockObject\MockObject $o */
         $o = $this->getMock(\OxidEsales\Eshop\Application\Component\BasketComponent::class, array('_getItems'));
         $o->expects($this->once())->method('_getItems')->will($this->returnValue(false));
 
@@ -37,19 +36,19 @@ class CmpBasketTest extends \OxidTestCase
             )
         );
 
-        /** @var oxBasketItem|PHPUnit_Framework_MockObject_MockObject $oBItem */
+        /** @var oxBasketItem|PHPUnit\Framework\MockObject\MockObject $oBItem */
         $oBItem = $this->getMock(\OxidEsales\Eshop\Application\Model\BasketItem::class, array('getTitle', 'getProductId', 'getAmount', 'getdBundledAmount'));
         $oBItem->expects($this->once())->method('getTitle')->will($this->returnValue('ret:getTitle'));
         $oBItem->expects($this->once())->method('getProductId')->will($this->returnValue('ret:getProductId'));
         $oBItem->expects($this->once())->method('getAmount')->will($this->returnValue('ret:getAmount'));
         $oBItem->expects($this->once())->method('getdBundledAmount')->will($this->returnValue('ret:getdBundledAmount'));
 
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('getConfigParam'));
         $oConfig->expects($this->at(0))->method('getConfigParam')->with($this->equalTo('iNewBasketItemMessage'))->will($this->returnValue('2'));
         $oConfig->expects($this->at(1))->method('getConfigParam')->with($this->equalTo('iNewBasketItemMessage'))->will($this->returnValue('2'));
 
-        /** @var oxcmp_basket|PHPUnit_Framework_MockObject_MockObject $o */
+        /** @var oxcmp_basket|PHPUnit\Framework\MockObject\MockObject $o */
         $o = $this->getMock(\OxidEsales\Eshop\Application\Component\BasketComponent::class, array('_getItems', '_setLastCallFnc', '_addItems', 'getConfig'));
         $o->expects($this->once())->method('_getItems')->will($this->returnValue($aProducts));
         $o->expects($this->once())->method('_setLastCallFnc')->with($this->equalTo('tobasket'))->will($this->returnValue(null));
@@ -78,18 +77,18 @@ class CmpBasketTest extends \OxidTestCase
             )
         );
 
-        /** @var oxBasketItem|PHPUnit_Framework_MockObject_MockObject $oBItem */
+        /** @var oxBasketItem|PHPUnit\Framework\MockObject\MockObject $oBItem */
         $oBItem = $this->getMock(\OxidEsales\Eshop\Application\Model\BasketItem::class, array('getTitle', 'getProductId', 'getAmount', 'getdBundledAmount'));
         $oBItem->expects($this->never())->method('getTitle')->will($this->returnValue('ret:getTitle'));
         $oBItem->expects($this->never())->method('getProductId')->will($this->returnValue('ret:getProductId'));
         $oBItem->expects($this->never())->method('getAmount')->will($this->returnValue('ret:getAmount'));
         $oBItem->expects($this->never())->method('getdBundledAmount')->will($this->returnValue('ret:getdBundledAmount'));
 
-        /** @var oxConfig|PHPUnit_Framework_MockObject_MockObject $oConfig */
+        /** @var oxConfig|PHPUnit\Framework\MockObject\MockObject $oConfig */
         $oConfig = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('getConfigParam'));
         $oConfig->expects($this->once())->method('getConfigParam')->with($this->equalTo('iNewBasketItemMessage'))->will($this->returnValue('0'));
 
-        /** @var oxcmp_basket|PHPUnit_Framework_MockObject_MockObject $o */
+        /** @var oxcmp_basket|PHPUnit\Framework\MockObject\MockObject $o */
         $o = $this->getMock(\OxidEsales\Eshop\Application\Component\BasketComponent::class, array('_getItems', '_setLastCallFnc', '_addItems', 'getConfig', '_getRedirectUrl'));
         $o->expects($this->once())->method('_getItems')->will($this->returnValue($aProducts));
         $o->expects($this->once())->method('_setLastCallFnc')->with($this->equalTo('tobasket'))->will($this->returnValue(null));
@@ -270,10 +269,8 @@ class CmpBasketTest extends \OxidTestCase
     {
         $o = oxNew('oxcmp_basket');
         $this->assertEquals(
-            array
-            (
-            'abc' => array
-            (
+            array(
+            'abc' => array(
                 'am'           => 10,
                 'sel'          => 'sel',
                 'persparam'    => 'persparam',
@@ -295,9 +292,9 @@ class CmpBasketTest extends \OxidTestCase
     public function testGetItemsFromArgsRm()
     {
         $this->setRequestParameter(
-            'aproducts', array(
-                              'abc' => array
-                              (
+            'aproducts',
+            array(
+                              'abc' => array(
                                   'am'           => 10,
                                   'sel'          => 'sel',
                                   'persparam'    => 'persparam',
@@ -311,8 +308,7 @@ class CmpBasketTest extends \OxidTestCase
         $o = oxNew('oxcmp_basket');
         $this->assertEquals(
             array(
-                 'abc' => array
-                 (
+                 'abc' => array(
                      'am'           => 0,
                      'sel'          => 'sel',
                      'persparam'    => 'persparam',
@@ -336,10 +332,8 @@ class CmpBasketTest extends \OxidTestCase
 
         $o = oxNew('oxcmp_basket');
         $this->assertEquals(
-            array
-            (
-            'b:artid' => array
-            (
+            array(
+            'b:artid' => array(
                 'am'           => 'b:am',
                 'sel'          => 'b:sel',
                 'persparam'    => array('details' => 'b:persparam'),
@@ -353,10 +347,8 @@ class CmpBasketTest extends \OxidTestCase
 
         $this->setRequestParameter('persparam', 'b:persparam');
         $this->assertSame(
-            array
-            (
-            'b:artid' => array
-            (
+            array(
+            'b:artid' => array(
                 'am'           => 'b:am',
                 'sel'          => 'b:sel',
                 'persparam'    => null,
@@ -365,7 +357,8 @@ class CmpBasketTest extends \OxidTestCase
             )
 
             ),
-            $o->UNITgetItems(), '"Details" field in persparams is mandatory'
+            $o->UNITgetItems(),
+            '"Details" field in persparams is mandatory'
         );
     }
 
@@ -382,8 +375,7 @@ class CmpBasketTest extends \OxidTestCase
 
         $o = oxNew('oxcmp_basket');
         $this->assertEquals(
-            array
-            (),
+            array(),
             $o->UNITgetItems()
         );
     }
@@ -421,7 +413,8 @@ class CmpBasketTest extends \OxidTestCase
         $o->expects($this->once())->method('getSession')->will($this->returnValue($oSession));
 
         $this->assertEquals(
-            $oBasketItem, $o->UNITaddItems(
+            $oBasketItem,
+            $o->UNITaddItems(
                 array(
                      array(
                          'aid'          => 'a_aid',
@@ -482,7 +475,8 @@ class CmpBasketTest extends \OxidTestCase
         $o->expects($this->exactly(1))->method('getConfig')->will($this->returnValue($oConfig));
 
         $this->assertEquals(
-            null, $o->UNITaddItems(
+            null,
+            $o->UNITaddItems(
                 array(
                      array(),
                 )
@@ -524,7 +518,8 @@ class CmpBasketTest extends \OxidTestCase
         $o->expects($this->exactly(2))->method('getConfig')->will($this->returnValue($oConfig));
 
         $this->assertEquals(
-            null, $o->UNITaddItems(
+            null,
+            $o->UNITaddItems(
                 array(
                      array(),
                 )
@@ -567,7 +562,8 @@ class CmpBasketTest extends \OxidTestCase
         $o->expects($this->exactly(1))->method('getConfig')->will($this->returnValue($oConfig));
 
         $this->assertEquals(
-            null, $o->UNITaddItems(
+            null,
+            $o->UNITaddItems(
                 array(
                      array(),
                 )
@@ -598,7 +594,8 @@ class CmpBasketTest extends \OxidTestCase
         $o->expects($this->exactly(1))->method('getConfig')->will($this->returnValue($oConfig));
 
         $this->assertEquals(
-            null, $o->UNITaddItems(
+            null,
+            $o->UNITaddItems(
                 array(
                      array(),
                 )
@@ -632,7 +629,8 @@ class CmpBasketTest extends \OxidTestCase
         $o->expects($this->any())->method('_getLastCallFnc')->will($this->returnValue('tobasket'));
 
         $this->assertEquals(
-            $oBasketItem, $o->UNITaddItems(
+            $oBasketItem,
+            $o->UNITaddItems(
                 array(
                      array(
                          'aid'          => 'a_aid',
@@ -659,7 +657,8 @@ class CmpBasketTest extends \OxidTestCase
                               'basketitemid' => 'a_basketitemid',
                               'oldam'        => 5,
                           )
-                      )), oxRegistry::getSession()->getVariable('aLastcall')
+                      )),
+            oxRegistry::getSession()->getVariable('aLastcall')
         );
     }
 

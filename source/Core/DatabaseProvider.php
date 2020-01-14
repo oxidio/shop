@@ -12,6 +12,8 @@ use OxidEsales\Eshop\Core\Exception\DatabaseNotConfiguredException;
 
 /**
  * Database connection class
+ *
+ * @deprecated since v6.5.0 (2019-09-24); Use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface
  */
 class DatabaseProvider
 {
@@ -207,7 +209,6 @@ class DatabaseProvider
     protected function onPostConnect()
     {
         // @todo Set database logging from iDebug
-        // @todo Set user auditing from blLogChangesInAdmin
     }
 
     /**
@@ -298,8 +299,15 @@ class DatabaseProvider
             ]
         ];
 
-        /** The charset has to be set during the connection to the database */
-        $charset = 'utf8';
+        /**
+         * The charset has to be set during the connection to the database.
+         */
+        $charset = (string) $this->getConfigParam('dbCharset');
+        //backwards compatibility with old config files.
+        if (null == $charset) {
+            $charset = 'utf8';
+        }
+        
         $connectionParameters['default'] = array_merge($connectionParameters['default'], ['connectionCharset' => $charset]);
 
         return $connectionParameters;

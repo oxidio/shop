@@ -14,6 +14,7 @@ use stdClass;
 
 class ViewConfigTest extends \OxidTestCase
 {
+
     /**
      * oxViewConfig::getHelpPageLink() test case
      *
@@ -100,7 +101,7 @@ class ViewConfigTest extends \OxidTestCase
      */
     public function testGetHomeLink($iDefaultShopLanguage, $iDefaultBrowserLanguage, $sExpectedUrl)
     {
-        /** @var $oLang oxLang | PHPUnit_Framework_MockObject_MockObject */
+        /** @var $oLang oxLang | PHPUnit\Framework\MockObject\MockObject */
         $oLang = $this->getMock(\OxidEsales\Eshop\Core\Language::class, array('detectLanguageByBrowser'));
         $oLang
             ->expects($this->any())
@@ -242,8 +243,8 @@ class ViewConfigTest extends \OxidTestCase
             ->will($this->returnValue(false));
 
         $oVC = $this->getMock(
-            'oxviewconfig'
-            , array('getConfig', 'getTopActionClassName', 'getActCatId', 'getActTplName', 'getActContentLoadId'
+            'oxviewconfig',
+            array('getConfig', 'getTopActionClassName', 'getActCatId', 'getActTplName', 'getActContentLoadId'
                     , 'getActArticleId', 'getActSearchParam', 'getActSearchTag', 'getActListType', 'getActRecommendationId')
         );
 
@@ -294,8 +295,8 @@ class ViewConfigTest extends \OxidTestCase
             ->will($this->returnValue(true));
 
         $oVC = $this->getMock(
-            'oxviewconfig'
-            , array('getConfig', 'getTopActionClassName', 'getActCatId', 'getActTplName', 'getActContentLoadId'
+            'oxviewconfig',
+            array('getConfig', 'getTopActionClassName', 'getActCatId', 'getActTplName', 'getActContentLoadId'
                     , 'getActArticleId', 'getActSearchParam', 'getActSearchTag', 'getActListType', 'getActRecommendationId')
         );
 
@@ -497,7 +498,7 @@ class ViewConfigTest extends \OxidTestCase
     {
         $config = $this->fakeModuleStructure();
 
-        /** @var oxViewConfig|PHPUnit_Framework_MockObject_MockObject $viewConfig */
+        /** @var oxViewConfig|PHPUnit\Framework\MockObject\MockObject $viewConfig */
         $viewConfig = $this->getMock(\OxidEsales\Eshop\Core\ViewConfig::class, array('getConfig'));
         $viewConfig->expects($this->any())->method('getConfig')->will($this->returnValue($config));
         $fakeShopDirectory = $config->getConfigParam('sShopDir');
@@ -528,9 +529,10 @@ class ViewConfigTest extends \OxidTestCase
         $fakeShopDirectory = $config->getConfigParam('sShopDir');
         $message = "Requested file not found for module test1 (" .
                    $fakeShopDirectory . "modules/test1/out/blocks/non_existing_template.tpl)";
-        $this->setExpectedException('\OxidEsales\EshopCommunity\Core\Exception\FileException', $message);
+        $this->expectException('\OxidEsales\EshopCommunity\Core\Exception\FileException');
+        $this->expectExceptionMessage($message);
 
-        /** @var oxViewConfig|PHPUnit_Framework_MockObject_MockObject $viewConfig */
+        /** @var oxViewConfig|PHPUnit\Framework\MockObject\MockObject $viewConfig */
         $viewConfig = $this->getMock(\OxidEsales\Eshop\Core\ViewConfig::class, array('getConfig'));
         $viewConfig->expects($this->any())->method('getConfig')->will($this->returnValue($config));
 
@@ -549,14 +551,14 @@ class ViewConfigTest extends \OxidTestCase
         $config = $this->fakeModuleStructure();
         $config->setConfigParam("iDebug", 0);
 
-        /** @var \OxidEsales\EshopEnterprise\Core\ViewConfig|PHPUnit_Framework_MockObject_MockObject $viewConfig */
+        /** @var \OxidEsales\EshopEnterprise\Core\ViewConfig|PHPUnit\Framework\MockObject\MockObject $viewConfig */
         $viewConfig = $this->getMock(\OxidEsales\Eshop\Core\ViewConfig::class, array('getConfig'));
         $viewConfig->expects($this->any())->method('getConfig')->will($this->returnValue($config));
 
         $this->assertEquals('', $viewConfig->getModulePath('test1', '/out/blocks/non_existing_template.tpl'));
 
         /**
-         * Although no exception is thrown, the underlying error will be logged in EXCEPTION_LOG.txt
+         * Although no exception is thrown, the underlying error will be logged in oxideshop.log
          */
         $expectedExceptionClass = \OxidEsales\Eshop\Core\Exception\FileException::class;
         $this->assertLoggedException($expectedExceptionClass);
@@ -571,7 +573,7 @@ class ViewConfigTest extends \OxidTestCase
     {
         $config = $this->fakeModuleStructure();
 
-        /** @var oxViewConfig|PHPUnit_Framework_MockObject_MockObject $viewConfig */
+        /** @var oxViewConfig|PHPUnit\Framework\MockObject\MockObject $viewConfig */
         $viewConfig = $this->getMock(\OxidEsales\Eshop\Core\ViewConfig::class, array('getConfig'));
         $viewConfig->expects($this->any())->method('getConfig')->will($this->returnValue($config));
 
@@ -624,14 +626,14 @@ class ViewConfigTest extends \OxidTestCase
 
     public function testGetModuleUrlExceptionThrownWhenPathNotFoundAndDebugEnabled()
     {
-
         $config = $this->fakeModuleStructure();
         $fakeShopDirectory = $config->getConfigParam('sShopDir');
         $message = "Requested file not found for module test1 (" . $fakeShopDirectory .
                    "modules/test1/out/blocks/non_existing_template.tpl)";
-        $this->setExpectedException(\OxidEsales\Eshop\Core\Exception\FileException::class, $message);
+        $this->expectException(\OxidEsales\Eshop\Core\Exception\FileException::class);
+        $this->expectExceptionMessage($message);
 
-        /** @var \OxidEsales\Eshop\Core\ViewConfig|PHPUnit_Framework_MockObject_MockObject $viewConfig */
+        /** @var \OxidEsales\Eshop\Core\ViewConfig|PHPUnit\Framework\MockObject\MockObject $viewConfig */
         $viewConfig = $this->getMock(\OxidEsales\Eshop\Core\ViewConfig::class, array('getConfig'));
         $viewConfig->expects($this->any())->method('getConfig')->will($this->returnValue($config));
 
@@ -644,8 +646,8 @@ class ViewConfigTest extends \OxidTestCase
     public function testGetViewThemeParamReadsDirectlyFromConfig()
     {
         $configStub = $this->getMockBuilder(Config::class)
-                            ->setMethods(['isThemeOption'])
-                            ->getMock();
+            ->setMethods(['isThemeOption'])
+            ->getMock();
         $configStub->method('isThemeOption')->willReturn('true');
 
         $viewConfig = oxNew(ViewConfig::class);
@@ -2243,6 +2245,8 @@ class ViewConfigTest extends \OxidTestCase
      * /**
      * Tests retrieve session challenge token from session.
      *
+     * @group getsessionchallengetoken
+     *
      * @dataProvider _dpGetSessionChallengeToken
      *
      * @param boolean $isSessionStarted Was session started.
@@ -2251,7 +2255,7 @@ class ViewConfigTest extends \OxidTestCase
      */
     public function testGetSessionChallengeToken($isSessionStarted, $callTimes, $token)
     {
-        /** @var oxSession|PHPUnit_Framework_MockObject_MockObject $session */
+        /** @var oxSession|PHPUnit\Framework\MockObject\MockObject $session */
         $session = $this->getMock(\OxidEsales\Eshop\Core\Session::class, array('isSessionStarted', 'getSessionChallengeToken'));
 
         $session->expects($this->once())->method('isSessionStarted')->will($this->returnValue($isSessionStarted));
@@ -2263,84 +2267,6 @@ class ViewConfigTest extends \OxidTestCase
         $viewConfig->setSession($session);
 
         $this->assertSame($token, $viewConfig->getSessionChallengeToken());
-    }
-
-    /**
-     * Module data provider.
-     */
-    public function _dpIsModuleActive()
-    {
-        return array(
-            array(array('order' => 'oe/oepaypal/controllers/oepaypalorder'), array('oepaypal' => '2.0'), array(), 'oepaypal', true), // module activated
-            array(array('order' => 'oe/oepaypal/controllers/oepaypalorder'), array(), array(0 => 'oepaypal'), 'oepaypal', false),    // module disabled
-            array(array(), array(), array(), 'oepaypal', false),                                                                     // module never activated
-            array(array(), array('oepaypal' => '2.0'), array(0 => 'oepaypal'), 'oepaypal', false),                                   // module does not extend oxid-class and disabled
-        );
-    }
-
-    /**
-     * oxViewConfig::oePayPalIsModuleActive()
-     *
-     * @dataProvider _dpIsModuleActive
-     */
-    public function testIsModuleActive($aModules, $aModuleVersions, $aDisabledModules, $sModuleId, $blModuleIsActive)
-    {
-
-        $this->setConfigParam('aModules', $aModules);
-        $this->setConfigParam('aDisabledModules', $aDisabledModules);
-        $this->setConfigParam('aModuleVersions', $aModuleVersions);
-
-        $oViewConf = oxNew('oxViewConfig');
-        $blIsModuleActive = $oViewConf->isModuleActive($sModuleId);
-
-        $this->assertEquals($blModuleIsActive, $blIsModuleActive, "Module state is not as expected.");
-    }
-
-    /**
-     * Data provider
-     *
-     * @return array
-     */
-    public function providerIsModuleActive_VersionCheck()
-    {
-        return array(
-            array('1.8', null, true),
-            array('2.0', null, true),
-            array('2.1', null, false),
-            array('3.0', null, false),
-            array(null, '1.8', false),
-            array(null, '2.0', false),
-            array(null, '2.1', true),
-            array(null, '3.0', true),
-            array('1.8', '3.0', true),
-            array('1.0', '1.7', false),
-            array('2.1', '3.0', false),
-        );
-    }
-
-    /**
-     * Testing isModuleAction version check
-     *
-     * @dataProvider providerIsModuleActive_VersionCheck
-     */
-    public function testIsModuleActive_VersionCheck($sFrom, $sTo, $blModuleStateExpected)
-    {
-        $aModules = array(
-            'order'  => 'oe/oepaypal/controllers/oepaypalorder',
-            'order2' => 'oe/oepaypal2/controllers/oepaypalorder',
-        );
-        $aModuleVersions = array(
-            'oepaypal'  => '2.0',
-            'oepaypal2' => '5.0'
-        );
-        $this->setConfigParam('aModules', $aModules);
-        $this->setConfigParam('aDisabledModules', array());
-        $this->setConfigParam('aModuleVersions', $aModuleVersions);
-
-        $oViewConf = oxNew('oxViewConfig');
-        $blIsModuleActive = $oViewConf->isModuleActive('oepaypal', $sFrom, $sTo);
-
-        $this->assertEquals($blModuleStateExpected, $blIsModuleActive, "Module state is not from '$sFrom' to '$sTo'.");
     }
 
     public function testGetEdition()

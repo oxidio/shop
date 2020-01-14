@@ -6,7 +6,7 @@
 
 namespace OxidEsales\EshopCommunity\Tests\Integration\Core\Autoload\BackwardsCompatibility;
 
-class ForwardCompatibleTypeHintWithUnifiedNamespace_7_Test extends \PHPUnit_Framework_TestCase
+class ForwardCompatibleTypeHintWithUnifiedNamespace_7_Test extends \PHPUnit\Framework\TestCase
 {
 
     /**
@@ -26,9 +26,8 @@ class ForwardCompatibleTypeHintWithUnifiedNamespace_7_Test extends \PHPUnit_Fram
             );
         };
 
-        $originalErrorHandler = null;
         try {
-            $originalErrorHandler = set_error_handler(
+            set_error_handler(
                 function ($errno, $errstr, $errfile, $errline) {
                     if (E_RECOVERABLE_ERROR === $errno) {
                         throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
@@ -48,7 +47,7 @@ class ForwardCompatibleTypeHintWithUnifiedNamespace_7_Test extends \PHPUnit_Fram
             /** As of PHP 7 a TypeError is thrown */
         } finally {
             // restore original error handler
-            set_error_handler($originalErrorHandler);
+            restore_error_handler();
         }
     }
 }

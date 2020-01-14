@@ -281,7 +281,6 @@ class LangTest extends \OxidTestCase
 
         $sCacheName = "langcache_1_1_" . $myConfig->getShopId() . "_" . $myConfig->getConfigParam('sTheme') . '_9fe20164bd4aeab975137aae7f30a1ce';
         $this->assertEquals($sCacheName, $oLang->UNITgetLangFileCacheName(true, 1, array('asdasd', 'dasasd')));
-
     }
 
     public function testGetLanguageFileData()
@@ -406,7 +405,8 @@ class LangTest extends \OxidTestCase
 
 
         file_put_contents(
-            $sFilePath . "/baselang$sFilePrefix.txt", '<?php
+            $sFilePath . "/baselang$sFilePrefix.txt",
+            '<?php
             $aSeoReplaceChars = array(
                 "ä" => "ae",
                 "ö" => "oe",
@@ -420,7 +420,8 @@ class LangTest extends \OxidTestCase
         );
 
         file_put_contents(
-            $sFilePath . "/testlang$sFilePrefix.txt", '<?php
+            $sFilePath . "/testlang$sFilePrefix.txt",
+            '<?php
             $aLang = array(
                 "charset" => "ISO-8859-15",
                 "TESTKEY" => "testVäl"

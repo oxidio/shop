@@ -284,6 +284,13 @@ class Basket extends \OxidEsales\Eshop\Core\Base
     protected $_sCardId = null;
 
     /**
+     * Card message.
+     *
+     * @var string
+     */
+    protected $_sCardMessage = '';
+
+    /**
      * Enables or disable saving to data base
      *
      * @param boolean $blSave
@@ -1559,7 +1566,6 @@ class Basket extends \OxidEsales\Eshop\Core\Base
         }
 
         try { // trying to load voucher and apply it
-
             $oVoucher = oxNew(\OxidEsales\Eshop\Application\Model\Voucher::class);
 
             if (!$this->_blSkipVouchersAvailabilityChecking) {
@@ -1637,7 +1643,7 @@ class Basket extends \OxidEsales\Eshop\Core\Base
         // discount information
         // formatting discount value
         $this->aDiscounts = $this->getDiscounts();
-        if (count($this->aDiscounts) > 0) {
+        if (is_array($this->aDiscounts) && count($this->aDiscounts) > 0) {
             $oLang = \OxidEsales\Eshop\Core\Registry::getLang();
             foreach ($this->aDiscounts as $oDiscount) {
                 $oDiscount->fDiscount = $oLang->formatCurrency($oDiscount->dDiscount, $this->getBasketCurrency());
@@ -2156,7 +2162,7 @@ class Basket extends \OxidEsales\Eshop\Core\Base
     public function getDiscounts()
     {
         if ($this->getTotalDiscount() && $this->getTotalDiscount()->getBruttoPrice() == 0 && count($this->_aItemDiscounts) == 0) {
-            return null;
+            return [];
         }
 
         return array_merge($this->_aItemDiscounts, $this->_aDiscounts);
@@ -2860,15 +2866,20 @@ class Basket extends \OxidEsales\Eshop\Core\Base
         $sCatTable = getViewName('oxcategories');
 
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sParentId = $oDb->getOne("select oxparentid from oxarticles where oxid = " . $oDb->quote($sProductId));
+        $sParentId = $oDb->getOne("select oxparentid from oxarticles where oxid = :oxid", [
+            ':oxid' => $sProductId
+        ]);
         $sProductId = $sParentId ? $sParentId : $sProductId;
 
         $sQ = "select 1 from {$sO2CTable}
                  left join {$sCatTable} on {$sCatTable}.oxid = {$sO2CTable}.oxcatnid
-                 where {$sO2CTable}.oxobjectid = " . $oDb->quote($sProductId) . " and
-                       {$sCatTable}.oxrootid = " . $oDb->quote($sRootCatId);
+                 where {$sO2CTable}.oxobjectid = :oxobjectid and
+                       {$sCatTable}.oxrootid = :oxrootid";
 
-        return (bool) $oDb->getOne($sQ);
+        return (bool) $oDb->getOne($sQ, [
+            ':oxobjectid' => $sProductId,
+            ':oxrootid' => $sRootCatId
+        ]);
     }
 
     /**

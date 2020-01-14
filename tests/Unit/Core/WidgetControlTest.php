@@ -7,11 +7,11 @@ namespace OxidEsales\EshopCommunity\Tests\Unit\Core;
 
 use modDB;
 use OxidEsales\EshopCommunity\Core\Controller\BaseController;
+use OxidEsales\EshopCommunity\Internal\Framework\Templating\TemplateRendererInterface;
 use \oxRegistry;
 
 class WidgetControlTest extends \OxidTestCase
 {
-
     protected function tearDown()
     {
         parent::tearDown();
@@ -54,9 +54,11 @@ class WidgetControlTest extends \OxidTestCase
 
         $oControl->UNITrunLast();
 
+        $template = $this->getContainer()->get(TemplateRendererInterface::class);
+
         $this->assertEquals(array("testView1"), $oConfig->getActiveViewsList());
-        $this->assertEquals("testView1", \OxidEsales\Eshop\Core\Registry::getUtilsView()->getSmarty()->get_template_vars("oView"));
-    }
+        $globals = $template->getTemplateEngine()->getGlobals();
+        $this->assertEquals("testView1", $globals["oView"]);}
 
     /**
      * Testing oxShopControl::_initializeViewObject()
@@ -104,4 +106,13 @@ class WidgetControlTest extends \OxidTestCase
         $this->assertEquals("oxwCookieNote", $oControl->getConfig()->getActiveView()->getClassName());
     }
 
+    /**
+     * @internal
+     *
+     * @return \Psr\Container\ContainerInterface
+     */
+    private function getContainer()
+    {
+        return \OxidEsales\EshopCommunity\Internal\Container\ContainerFactory::getInstance()->getContainer();
+    }
 }

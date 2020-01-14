@@ -6,7 +6,7 @@
 
 namespace OxidEsales\EshopCommunity\Application\Model;
 
-use OxidEsales\EshopCommunity\Internal\Review\Bridge\UserReviewAndRatingBridgeInterface;
+use OxidEsales\EshopCommunity\Internal\Domain\Review\Bridge\UserReviewAndRatingBridgeInterface;
 
 /**
  * Article review manager.
@@ -52,7 +52,14 @@ class Review extends \OxidEsales\Eshop\Core\Model\BaseModel
 
         if (isset($this->oxreviews__oxuserid) && $this->oxreviews__oxuserid->value) {
             $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-            $this->oxuser__oxfname = new \OxidEsales\Eshop\Core\Field($oDb->getOne("SELECT oxfname FROM oxuser WHERE oxid=" . $oDb->quote($this->oxreviews__oxuserid->value)));
+            $params = [
+                ':oxid' => $this->oxreviews__oxuserid->value
+            ];
+
+            $firstName = $oDb->getOne("SELECT oxfname FROM oxuser 
+                WHERE oxid = :oxid", $params);
+
+            $this->oxuser__oxfname = new \OxidEsales\Eshop\Core\Field($firstName);
         }
 
         return $blRet;
@@ -100,23 +107,24 @@ class Review extends \OxidEsales\Eshop\Core\Model\BaseModel
      */
     public function loadList($sType, $aIds, $blLoadEmpty = false, $iLoadInLang = null)
     {
-        $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-
         $oRevs = oxNew(\OxidEsales\Eshop\Core\Model\ListModel::class);
         $oRevs->init('oxreview');
 
-        $sObjectIdWhere = '';
+        $params = [
+            ':oxtype' => $sType,
+            ':oxlang' => is_null($iLoadInLang) ? (int) \OxidEsales\Eshop\Core\Registry::getLang()->getBaseLanguage() : (int) $iLoadInLang
+        ];
+
         if (is_array($aIds) && count($aIds)) {
             $sObjectIdWhere = "oxreviews.oxobjectid in ( " . implode(", ", \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->quoteArray($aIds)) . " )";
         } elseif (is_string($aIds) && $aIds) {
-            $sObjectIdWhere = "oxreviews.oxobjectid = " . $oDb->quote($aIds);
+            $sObjectIdWhere = "oxreviews.oxobjectid = :oxobjectid";
+            $params[':oxobjectid'] = $aIds;
         } else {
             return $oRevs;
         }
 
-        $iLoadInLang = is_null($iLoadInLang) ? (int) \OxidEsales\Eshop\Core\Registry::getLang()->getBaseLanguage() : (int) $iLoadInLang;
-
-        $sSelect = "select oxreviews.* from oxreviews where oxreviews.oxtype = " . $oDb->quote($sType) . " and $sObjectIdWhere and oxreviews.oxlang = '$iLoadInLang'";
+        $sSelect = "select oxreviews.* from oxreviews where oxreviews.oxtype = :oxtype and $sObjectIdWhere and oxreviews.oxlang = :oxlang";
 
         if (!$blLoadEmpty) {
             $sSelect .= ' and oxreviews.oxtext != "" ';
@@ -124,12 +132,18 @@ class Review extends \OxidEsales\Eshop\Core\Model\BaseModel
 
         if ($this->getConfig()->getConfigParam('blGBModerate')) {
             $sSelect .= ' and ( oxreviews.oxactive = "1" ';
-            $sSelect .= ($oUser = $this->getUser()) ? 'or  oxreviews.oxuserid = ' . $oDb->quote($oUser->getId()) . ' )' : ')';
+
+            if ($oUser = $this->getUser()) {
+                $sSelect .= 'or  oxreviews.oxuserid = :oxuserid ';
+                $params[':oxuserid'] = $oUser->getId();
+            }
+
+            $sSelect .= ')';
         }
 
         $sSelect .= ' order by oxreviews.oxcreate desc ';
 
-        $oRevs->selectString($sSelect);
+        $oRevs->selectString($sSelect, $params);
 
         // change date
         foreach ($oRevs as $oItem) {
@@ -147,7 +161,7 @@ class Review extends \OxidEsales\Eshop\Core\Model\BaseModel
      */
     public function getObjectType()
     {
-        return $this->oxreviews__oxtype->value;
+        return is_object($this->oxreviews__oxtype) ? $this->oxreviews__oxtype->value : $this->oxreviews__oxtype;
     }
 
     /**
@@ -157,7 +171,7 @@ class Review extends \OxidEsales\Eshop\Core\Model\BaseModel
      */
     public function getObjectId()
     {
-        return $this->oxreviews__oxobjectid->value;
+        return is_object($this->oxreviews__oxobjectid) ? $this->oxreviews__oxobjectid->value : $this->oxreviews__oxobjectid;
     }
 
     /**

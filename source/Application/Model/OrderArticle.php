@@ -7,19 +7,16 @@
 namespace OxidEsales\EshopCommunity\Application\Model;
 
 use OxidEsales\EshopCommunity\Application\Model\Contract\ArticleInterface;
-use oxRegistry;
-use oxField;
-use oxDb;
 
 /**
  * Order article manager.
  * Performs copying of article.
- *
  */
 class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements ArticleInterface
 {
     /**
-     * Order cache
+     * Order cache.
+     * @deprecated since v6.4.0 (2019-05-29); This static property will not be used anymore.
      */
     protected static $_aOrderCache = [];
 
@@ -147,7 +144,10 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
             $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
 
             $oArticle->oxarticles__oxstock = new \OxidEsales\Eshop\Core\Field($iStockCount);
-            $oDb->execute('update oxarticles set oxarticles.oxstock = ' . $oDb->quote($iStockCount) . ' where oxarticles.oxid = ' . $oDb->quote($this->oxorderarticles__oxartid->value));
+            $oDb->execute('update oxarticles set oxarticles.oxstock = :oxstock where oxarticles.oxid = :oxid', [
+                ':oxstock' => $iStockCount,
+                ':oxid' => $this->oxorderarticles__oxartid->value
+            ]);
             $oArticle->onChange(ACTION_UPDATE_STOCK);
         }
 
@@ -169,8 +169,11 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
         $masterDb = \OxidEsales\Eshop\Core\DatabaseProvider::getMaster();
 
         // #1592A. must take real value
-        $sQ = 'select oxstock from oxarticles where oxid = ' . $masterDb->quote($this->oxorderarticles__oxartid->value);
-        $iStockCount = ( float ) $masterDb->getOne($sQ);
+        $sQ = 'select oxstock from oxarticles 
+            where oxid = :oxid';
+        $iStockCount = ( float ) $masterDb->getOne($sQ, [
+            ':oxid' => $this->oxorderarticles__oxartid->value
+        ]);
 
         $iStockCount += $dAddAmount;
 
@@ -276,8 +279,11 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
 
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
         $oArticle = oxNew(\OxidEsales\Eshop\Application\Model\Article::class);
-        $sQ = "select oxparentid from " . $oArticle->getViewName() . " where oxid=" . $oDb->quote($this->getProductId());
-        $this->oxarticles__oxparentid = new \OxidEsales\Eshop\Core\Field($oDb->getOne($sQ));
+        $sQ = "select oxparentid from " . $oArticle->getViewName() . " 
+            where oxid = :oxid";
+        $this->oxarticles__oxparentid = new \OxidEsales\Eshop\Core\Field($oDb->getOne($sQ, [
+            ':oxid' => $this->getProductId()
+        ]));
 
         return $this->oxarticles__oxparentid->value;
     }
@@ -508,7 +514,6 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
      */
     public function getBasePrice($dAmount = 1)
     {
-
         return $this->getPrice();
     }
 

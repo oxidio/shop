@@ -135,9 +135,11 @@ class Payment extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
 
             // performance
             $sSelect = "select {$sViewName}.* from {$sViewName}, oxobject2group
-                        where oxobject2group.oxobjectid = '{$sOxid}'
-                        and oxobject2group.oxgroupsid={$sViewName}.oxid ";
-            $this->_oGroups->selectString($sSelect);
+                        where oxobject2group.oxobjectid = :oxobjectid
+                        and oxobject2group.oxgroupsid = {$sViewName}.oxid ";
+            $this->_oGroups->selectString($sSelect, [
+                ':oxobjectid' => $sOxid
+            ]);
         }
 
         return $this->_oGroups;
@@ -192,8 +194,6 @@ class Payment extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
      */
     public function getPaymentValue($dBasePrice)
     {
-        $dRet = 0;
-
         if ($this->oxpayments__oxaddsumtype->value == "%") {
             $dRet = $dBasePrice * $this->oxpayments__oxaddsum->value / 100;
         } else {
@@ -361,8 +361,12 @@ class Payment extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
         if ($this->_aCountries === null) {
             $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
             $this->_aCountries = [];
-            $sSelect = 'select oxobjectid from oxobject2payment where oxpaymentid=' . $oDb->quote($this->getId()) . ' and oxtype = "oxcountry" ';
-            $rs = $oDb->getCol($sSelect);
+            $sSelect = 'select oxobjectid from oxobject2payment 
+                where oxpaymentid = :oxpaymentid and oxtype = :oxtype ';
+            $rs = $oDb->getCol($sSelect, [
+                ':oxpaymentid' => $this->getId(),
+                ':oxtype' => 'oxcountry'
+            ]);
             $this->_aCountries = $rs;
         }
 
@@ -383,7 +387,9 @@ class Payment extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
             $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
 
             // deleting payment related data
-            $rs = $oDb->execute("delete from oxobject2payment where oxpaymentid = " . $oDb->quote($sOxId));
+            $rs = $oDb->execute("delete from oxobject2payment where oxpaymentid = :oxpaymentid", [
+                ':oxpaymentid' => $sOxId
+            ]);
 
             return $rs->EOF;
         }

@@ -15,6 +15,9 @@ use OxidEsales\Eshop\Core\Module\ModuleTemplateBlockRepository;
 use OxidEsales\Eshop\Core\Module\ModuleVariablesLocator;
 use OxidEsales\Eshop\Core\Module\ModuleSmartyPluginDirectoryRepository;
 use OxidEsales\Eshop\Core\ShopIdCalculator as EshopShopIdCalculator;
+use OxidEsales\EshopCommunity\Internal\Framework\Templating\TemplateRendererBridgeInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Templating\TemplateRendererInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Theme\Bridge\AdminThemeBridgeInterface;
 use Smarty;
 
 /**
@@ -24,6 +27,8 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
 {
     /**
      * Template processor object (smarty)
+     *
+     * @deprecated since v6.4 (2019-10-10); Will be removed
      *
      * @var Smarty
      */
@@ -58,6 +63,8 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
      * Returns smarty object. If object not yet initiated - creates it. Sets such
      * default parameters, like cache lifetime, cache/templates directory, etc.
      *
+     * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
+     *
      * @param bool $blReload set true to force smarty reload
      *
      * @return smarty
@@ -75,6 +82,19 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
     }
 
     /**
+     * Templating instance getter
+     *
+     * @return TemplateRendererInterface
+     */
+    private function getRenderer()
+    {
+        $bridge = $this->getContainer()->get(TemplateRendererBridgeInterface::class);
+        $bridge->setEngine($this->getSmarty());
+
+        return $bridge->getTemplateRenderer();
+    }
+
+    /**
      * Returns rendered template output. According to debug configuration outputs
      * debug information.
      *
@@ -85,7 +105,6 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
      */
     public function getTemplateOutput($templateName, $oObject)
     {
-        $smarty = $this->getSmarty();
         $debugMode = $this->getConfig()->getConfigParam('iDebug');
 
         // assign
@@ -97,11 +116,12 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
                     echo("TemplateData[$viewName] : \n");
                     var_export($viewData[$viewName]);
                 }
-                $smarty->assign_by_ref($viewName, $viewData[$viewName]);
             }
+        } else {
+            $viewData = [];
         }
 
-        return $smarty->fetch($templateName);
+        return $this->getRenderer()->renderTemplate($templateName, $viewData);
     }
 
     /**
@@ -126,7 +146,7 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
      * by default is displayed in the inc_header, but with the custom destination set to true
      * the exception won't be displayed by default but can be displayed where ever wanted in the tpl
      *
-     * @param StandardException|IDisplayError|string $oEr                  an exception object or just a language local (string),
+     * @param StandardException|IDisplayError|string $exception            an exception object or just a language local (string),
      *                                                                     which will be converted into a oxExceptionToDisplay object
      * @param bool                                   $blFull               if true the whole object is add to display (default false)
      * @param bool                                   $useCustomDestination true if the exception shouldn't be displayed
@@ -136,7 +156,7 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
      * @param string                                 $activeController     defines a name of the controller, which should
      *                                                                     handle the error.
      */
-    public function addErrorToDisplay($oEr, $blFull = false, $useCustomDestination = false, $customDestination = "", $activeController = "")
+    public function addErrorToDisplay($exception, $blFull = false, $useCustomDestination = false, $customDestination = "", $activeController = "")
     {
         //default
         $destination = 'default';
@@ -153,34 +173,37 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
             $session->start();
         }
 
-        $aEx = \OxidEsales\Eshop\Core\Registry::getSession()->getVariable('Errors');
-        if ($oEr instanceof \OxidEsales\Eshop\Core\Exception\StandardException) {
-            $oEx = oxNew(\OxidEsales\Eshop\Core\Exception\ExceptionToDisplay::class);
-            $oEx->setMessage($oEr->getMessage());
-            $oEx->setExceptionType($oEr->getType());
+        $sessionErrors = \OxidEsales\Eshop\Core\Registry::getSession()->getVariable('Errors');
+        if ($exception instanceof \OxidEsales\Eshop\Core\Exception\StandardException) {
+            $exceptionToDisplay = oxNew(\OxidEsales\Eshop\Core\Exception\ExceptionToDisplay::class);
+            $exceptionToDisplay->setMessage($exception->getMessage());
+            $exceptionToDisplay->setExceptionType($exception->getType());
 
-            if ($oEr instanceof \OxidEsales\Eshop\Core\Exception\SystemComponentException) {
-                $oEx->setMessageArgs($oEr->getComponent());
+            if ($exception instanceof \OxidEsales\Eshop\Core\Exception\SystemComponentException) {
+                $exceptionToDisplay->setMessageArgs($exception->getComponent());
             }
 
-            $oEx->setValues($oEr->getValues());
-            $oEx->setStackTrace($oEr->getTraceAsString());
-            $oEx->setDebug($blFull);
-            $oEr = $oEx;
-        } elseif ($oEr && !($oEr instanceof \OxidEsales\Eshop\Core\Contract\IDisplayError)) {
-            // assuming that a string was given
-            $sTmp = $oEr;
-            $oEr = oxNew(\OxidEsales\Eshop\Core\DisplayError::class);
-            $oEr->setMessage($sTmp);
-        } elseif ($oEr instanceof \OxidEsales\Eshop\Core\Contract\IDisplayError) {
+            $exceptionToDisplay->setValues($exception->getValues());
+            $exceptionToDisplay->setStackTrace($exception->getTraceAsString());
+            $exceptionToDisplay->setDebug($blFull);
+            $exception = $exceptionToDisplay;
+        } elseif ($exception instanceof \Throwable) {
+            $tempException = $exception;
+            $exception = oxNew(\OxidEsales\Eshop\Core\DisplayError::class);
+            $exception->setMessage($tempException->getTraceAsString());
+        } elseif ($exception && !($exception instanceof \OxidEsales\Eshop\Core\Contract\IDisplayError)) {
+            $tempException = $exception;
+            $exception = oxNew(\OxidEsales\Eshop\Core\DisplayError::class);
+            $exception->setMessage($tempException);
+        } elseif ($exception instanceof \OxidEsales\Eshop\Core\Contract\IDisplayError) {
             // take the object
         } else {
-            $oEr = null;
+            $exception = null;
         }
 
-        if ($oEr) {
-            $aEx[$destination][] = serialize($oEr);
-            \OxidEsales\Eshop\Core\Registry::getSession()->setVariable('Errors', $aEx);
+        if ($exception) {
+            $sessionErrors[$destination][] = serialize($exception);
+            \OxidEsales\Eshop\Core\Registry::getSession()->setVariable('Errors', $sessionErrors);
 
             if ($activeController == '') {
                 $activeController = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('actcontrol');
@@ -193,9 +216,37 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
     }
 
     /**
+     * Runs long description through template engine.
+     *
+     * @param string $description Description
+     * @param array  $context     View data to use its view data (optional)
+     * @param string $oxid        Current object id
+     *
+     * @return string
+     */
+    public function getRenderedContent(string $description, array $context, string $oxid = null) : string
+    {
+        if (\OxidEsales\Eshop\Core\Registry::getConfig()->isDemoShop()) {
+            return $description;
+        }
+
+        $activeLanguageId = \OxidEsales\Eshop\Core\Registry::getLang()->getTplLanguage();
+
+        $renderer = clone $this->getRenderer();
+
+        return $renderer->renderFragment(
+            $description,
+            "ox:" . $oxid . $activeLanguageId,
+            $context
+        );
+    }
+
+    /**
      * Runs long description through smarty. If you pass array of data
      * to process, array will be returned, if you pass string - string
      * will be passed as result
+     *
+     * @deprecated since v6.4 (2019-10-10); Use getRenderedContent()
      *
      * @param mixed                                            $sDesc       description or array of descriptions
      *                                                                      (array( [] => array(_ident_, _value_to_process_)))
@@ -207,10 +258,6 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
      */
     public function parseThroughSmarty($sDesc, $sOxid = null, $oActView = null, $blRecompile = false)
     {
-        if (\OxidEsales\Eshop\Core\Registry::getConfig()->isDemoShop()) {
-            return $sDesc;
-        }
-
         startProfile("parseThroughSmarty");
 
         if (!is_array($sDesc) && strpos($sDesc, "[{") === false) {
@@ -219,40 +266,18 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
             return $sDesc;
         }
 
-        $activeLanguageId = \OxidEsales\Eshop\Core\Registry::getLang()->getTplLanguage();
-
-        // now parse it through smarty
-        $smarty = clone $this->getSmarty();
-
-        // save old tpl data
-        $tplVars = $smarty->_tpl_vars;
-        $forceRecompile = $smarty->force_compile;
-
-        $smarty->force_compile = $blRecompile;
-
         if (!$oActView) {
             $oActView = oxNew(\OxidEsales\Eshop\Application\Controller\FrontendController::class);
             $oActView->addGlobalParams();
         }
 
-        $viewData = $oActView->getViewData();
-        foreach (array_keys($viewData) as $name) {
-            $smarty->assign_by_ref($name, $viewData[$name]);
-        }
-
         if (is_array($sDesc)) {
             foreach ($sDesc as $name => $aData) {
-                $smarty->oxidcache = new \OxidEsales\Eshop\Core\Field($aData[1], \OxidEsales\Eshop\Core\Field::T_RAW);
-                $result[$name] = $smarty->fetch("ox:" . $aData[0] . $activeLanguageId);
+                $result[$name] = $this->getRenderedContent($aData[1], $oActView->getViewData(), $sOxid);
             }
         } else {
-            $smarty->oxidcache = new \OxidEsales\Eshop\Core\Field($sDesc, \OxidEsales\Eshop\Core\Field::T_RAW);
-            $result = $smarty->fetch("ox:{$sOxid}{$activeLanguageId}");
+            $result = $this->getRenderedContent($sDesc, $oActView->getViewData(), $sOxid);
         }
-
-        // restore tpl vars for continuing smarty processing if it is in one
-        $smarty->_tpl_vars = $tplVars;
-        $smarty->force_compile = $forceRecompile;
 
         stopProfile("parseThroughSmarty");
 
@@ -333,6 +358,8 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
     /**
      * sets properties of smarty object
      *
+     * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
+     *
      * @param Smarty $smarty template processor object (smarty)
      */
     protected function _fillCommonSmartyProperties($smarty)
@@ -361,8 +388,7 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
         $smarty->default_template_handler_func = [\OxidEsales\Eshop\Core\Registry::getUtilsView(), '_smartyDefaultTemplateHandler'];
 
         $smarty->plugins_dir = array_merge(
-            $this->getModuleSmartyPluginDirectories(),
-            $this->getShopSmartyPluginDirectories(),
+            $this->getSmartyPluginDirectories(),
             $smarty->plugins_dir
         );
 
@@ -402,6 +428,23 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
     }
 
     /**
+     * Returns all Smarty plugins including defined in modules
+     *
+     * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
+     *
+     * @return array
+     */
+    public function getSmartyPluginDirectories()
+    {
+        return array_merge(
+            $this->getModuleSmartyPluginDirectories(),
+            $this->getShopSmartyPluginDirectories()
+        );
+    }
+
+    /**
+     * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
+     *
      * @return array
      */
     protected function getShopSmartyPluginDirectories()
@@ -418,16 +461,24 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
     /**
      * Sets compile check property to smarty object.
      *
+     * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
+     *
      * @param object $smarty template processor object (smarty)
      */
     protected function _smartyCompileCheck($smarty)
     {
         $config = $this->getConfig();
         $smarty->compile_check = $config->getConfigParam('blCheckTemplates');
+        if ($config->isProductiveMode()) {
+            // override in any case
+            $smarty->compile_check = false;
+        }
     }
 
     /**
      * is called when a template cannot be obtained from its resource.
+     *
+     * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
      *
      * @param string $resourceType      template type
      * @param string $resourceName      template file name
@@ -544,10 +595,10 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
     {
         $themeId = $this->getConfig()->getConfigParam('sTheme');
         if ($this->isAdmin()) {
-            $themeId = 'admin';
+            $themeId = $this->getContainer()->get(AdminThemeBridgeInterface::class)->getActiveTheme();
         }
 
-        return $themePath . $themeId . "/tpl/";
+        return $themePath . $themeId . DIRECTORY_SEPARATOR . 'tpl' . DIRECTORY_SEPARATOR;
     }
 
     /**

@@ -82,7 +82,7 @@ class DatabaseTest extends DatabaseInterfaceImplementationTest
     public function testGetAllThrowsDatabaseExceptionOnInvalidArguments($invalidParameter)
     {
         $expectedExceptionClass = '\InvalidArgumentException';
-        $this->setExpectedException($expectedExceptionClass);
+        $this->expectException($expectedExceptionClass);
 
         $this->database->getAll(
             "SELECT OXID FROM " . self::TABLE_NAME . " WHERE OXID = '" . self::FIXTURE_OXID_1 . "'",
@@ -175,7 +175,8 @@ class DatabaseTest extends DatabaseInterfaceImplementationTest
                '"' . self::FIXTURE_OXID_3 . '"' .
                ')';
 
-        $this->setExpectedException(\InvalidArgumentException::class, 'Argument $offset must not be smaller than zero.');
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Argument $offset must not be smaller than zero.');
 
         $this->database->selectLimit($sql, 1, -1);
     }
@@ -185,7 +186,7 @@ class DatabaseTest extends DatabaseInterfaceImplementationTest
      */
     public function testStartTransactionThrowsExpectedExceptionOnFailure()
     {
-        $this->setExpectedException(self::DATABASE_EXCEPTION_CLASS);
+        $this->expectException(self::DATABASE_EXCEPTION_CLASS);
 
         $connectionMock =  $this->getMockBuilder('\OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database')
             ->setMethods(['beginTransaction'])
@@ -194,7 +195,7 @@ class DatabaseTest extends DatabaseInterfaceImplementationTest
             ->method('beginTransaction')
             ->willThrowException(new DBALException());
 
-        /** @var \OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database|\PHPUnit_Framework_MockObject_MockObject $databaseMock */
+        /** @var \OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database|\PHPUnit\Framework\MockObject\MockObject $databaseMock */
         $databaseMock = $this->getMockBuilder('\OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database')
             ->setMethods(['getConnection'])
             ->getMock();
@@ -210,7 +211,7 @@ class DatabaseTest extends DatabaseInterfaceImplementationTest
      */
     public function testCommitTransactionThrowsExpectedExceptionOnFailure()
     {
-        $this->setExpectedException(self::DATABASE_EXCEPTION_CLASS);
+        $this->expectException(self::DATABASE_EXCEPTION_CLASS);
 
         $connectionMock =  $this->getMockBuilder('\OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database')
             ->setMethods(['commit'])
@@ -219,7 +220,7 @@ class DatabaseTest extends DatabaseInterfaceImplementationTest
             ->method('commit')
             ->willThrowException(new DBALException());
 
-        /** @var \OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database|\PHPUnit_Framework_MockObject_MockObject $databaseMock */
+        /** @var \OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database|\PHPUnit\Framework\MockObject\MockObject $databaseMock */
         $databaseMock = $this->getMockBuilder('\OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database')
             ->setMethods(['getConnection'])
             ->getMock();
@@ -235,7 +236,7 @@ class DatabaseTest extends DatabaseInterfaceImplementationTest
      */
     public function testRollbackTransactionThrowsExpectedExceptionOnFailure()
     {
-        $this->setExpectedException(self::DATABASE_EXCEPTION_CLASS);
+        $this->expectException(self::DATABASE_EXCEPTION_CLASS);
 
         $connectionMock =  $this->getMockBuilder('\OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database')
             ->setMethods(['rollBack'])
@@ -244,7 +245,7 @@ class DatabaseTest extends DatabaseInterfaceImplementationTest
             ->method('rollBack')
             ->willThrowException(new DBALException());
 
-        /** @var \OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database|\PHPUnit_Framework_MockObject_MockObject $databaseMock */
+        /** @var \OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database|\PHPUnit\Framework\MockObject\MockObject $databaseMock */
         $databaseMock = $this->getMockBuilder('\OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database')
             ->setMethods(['getConnection'])
             ->getMock();
@@ -260,9 +261,9 @@ class DatabaseTest extends DatabaseInterfaceImplementationTest
      */
     public function testSetTransactionIsolationLevelThrowsExpectedExceptionOnFailure()
     {
-        $this->setExpectedException(self::DATABASE_EXCEPTION_CLASS);
+        $this->expectException(self::DATABASE_EXCEPTION_CLASS);
 
-        /** @var \OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database|\PHPUnit_Framework_MockObject_MockObject $databaseMock */
+        /** @var \OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database|\PHPUnit\Framework\MockObject\MockObject $databaseMock */
         $databaseMock = $this->getMockBuilder('\OxidEsales\EshopCommunity\Core\Database\Adapter\Doctrine\Database')
             ->setMethods(['execute'])
             ->getMock();
@@ -278,7 +279,7 @@ class DatabaseTest extends DatabaseInterfaceImplementationTest
      */
     public function testSetTransactionIsolationLevelThrowsExpectedExceptionOnInvalidParameter()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->database->setTransactionIsolationLevel('INVALID TRANSACTION ISOLATION LEVEL');
     }
@@ -351,7 +352,8 @@ class DatabaseTest extends DatabaseInterfaceImplementationTest
      */
     public function testQuoteIdentifierWithInvalidValues($identifier, $expectedMessage)
     {
-        $this->setExpectedException('OxidEsales\EshopCommunity\Core\Exception\DatabaseException', $expectedMessage);
+        $this->expectException('OxidEsales\EshopCommunity\Core\Exception\DatabaseException');
+        $this->expectExceptionMessage($expectedMessage);
 
         $quotedIdentifier = $this->database->quoteIdentifier($identifier);
 
@@ -389,7 +391,7 @@ class DatabaseTest extends DatabaseInterfaceImplementationTest
         $actualQuotedValue = $this->database->quote($value);
         $this->assertSame($expectedQuotedValue, $actualQuotedValue, $message);
 
-        $this->setExpectedException($expectedException);
+        $this->expectException($expectedException);
 
         $query = "SELECT OXID FROM " . self::TABLE_NAME . " WHERE OXID = {$actualQuotedValue}";
         $resultSet = $this->database->select($query);
@@ -567,7 +569,8 @@ class DatabaseTest extends DatabaseInterfaceImplementationTest
 
         $expectedSqlMode = '';
         $actualSqlMode = $this->database->getOne($query);
-        $this->assertSame($expectedSqlMode,
+        $this->assertSame(
+            $expectedSqlMode,
             $actualSqlMode,
             "The sql_mode variable on the database is not the expected one."
         );
@@ -583,5 +586,4 @@ class DatabaseTest extends DatabaseInterfaceImplementationTest
         $unique = array_unique($expectUnique);
         $this->assertEquals($unique, $expectUnique, 'There should not be any doubled entries in the given array!');
     }
-
 }

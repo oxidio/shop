@@ -155,8 +155,6 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     public function init()
     {
-        $myConfig = $this->getConfig();
-
         // authorization check
         if (!$this->_authorize()) {
             \OxidEsales\Eshop\Core\Registry::getUtils()->redirect('index.php?cl=login', true, 302);
@@ -184,7 +182,6 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     public function addGlobalParams($oShop = null)
     {
-        $mySession = $this->getSession();
         $myConfig = $this->getConfig();
         $oLang = \OxidEsales\Eshop\Core\Registry::getLang();
 
@@ -489,8 +486,6 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
      */
     protected function _getCountryByCode($sCountryCode)
     {
-        $myConfig = $this->getConfig();
-
         //default country
         $sCountry = 'international';
 
@@ -499,9 +494,11 @@ class AdminController extends \OxidEsales\Eshop\Core\Controller\BaseController
             $iEnglishId = array_search("en", $aLangIds);
             if (false !== $iEnglishId) {
                 $sViewName = getViewName("oxcountry", $iEnglishId);
-                $sQ = "select oxtitle from {$sViewName} where oxisoalpha2 = " . \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->quote($sCountryCode);
+                $sQ = "select oxtitle from {$sViewName} where oxisoalpha2 = :oxisoalpha2";
                 // Value does not change that often, reading from slave is ok here (see ESDEV-3804 and ESDEV-3822).
-                $sCountryName = \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->getOne($sQ);
+                $sCountryName = \OxidEsales\Eshop\Core\DatabaseProvider::getDb()->getOne($sQ, [
+                    ':oxisoalpha2' => $sCountryCode
+                ]);
                 if ($sCountryName) {
                     $sCountry = $sCountryName;
                 }
