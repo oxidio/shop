@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject;
 
@@ -13,11 +16,9 @@ use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ModuleConfiguration\SmartyPluginDirectory;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ModuleConfiguration\TemplateBlock;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ModuleConfiguration\ClassWithoutNamespace;
+use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Exception\ModuleSettingNotFountException;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Setting\Setting;
 
-/**
- * @internal
- */
 class ModuleConfiguration
 {
     /**
@@ -578,8 +579,8 @@ class ModuleConfiguration
 
     /**
      * @param string $settingName
-     *
      * @return Setting
+     * @throws ModuleSettingNotFountException
      */
     public function getModuleSetting(string $settingName): Setting
     {
@@ -588,6 +589,7 @@ class ModuleConfiguration
                 return $setting;
             }
         }
+        throw new ModuleSettingNotFountException("Module setting \"$settingName\" was not found in configuration.");
     }
 
     /**

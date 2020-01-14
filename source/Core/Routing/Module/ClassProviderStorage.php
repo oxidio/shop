@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
 namespace OxidEsales\EshopCommunity\Core\Routing\Module;
 
 use OxidEsales\Eshop\Core\Contract\ClassProviderStorageInterface;
@@ -29,7 +31,7 @@ class ClassProviderStorage implements ClassProviderStorageInterface
      */
     public function get()
     {
-        return (array) $this->getConfig()->getShopConfVar(self::STORAGE_KEY);
+        return (array) Registry::getConfig()->getShopConfVar(self::STORAGE_KEY);
     }
 
     /**
@@ -41,7 +43,7 @@ class ClassProviderStorage implements ClassProviderStorageInterface
     {
         $value = $this->toLowercase($value);
 
-        $this->getConfig()->saveShopConfVar('aarr', self::STORAGE_KEY, $value);
+        Registry::getConfig()->saveShopConfVar('aarr', self::STORAGE_KEY, $value);
     }
 
     /**
@@ -107,15 +109,5 @@ class ClassProviderStorage implements ClassProviderStorageInterface
         }
 
         return $result;
-    }
-
-    /**
-     * Get the config object.
-     *
-     * @return \oxConfig The config object.
-     */
-    private function getConfig()
-    {
-        return Registry::getConfig();
     }
 }

@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Domain\Review\Service;
 
@@ -11,9 +14,6 @@ use OxidEsales\EshopCommunity\Internal\Domain\Review\DataObject\Rating;
 use OxidEsales\EshopCommunity\Internal\Domain\Review\DataObject\Review;
 use OxidEsales\EshopCommunity\Internal\Domain\Review\ViewDataObject\ReviewAndRating;
 
-/**
-  * @internal
- */
 class ReviewAndRatingMergingService implements ReviewAndRatingMergingServiceInterface
 {
     /**

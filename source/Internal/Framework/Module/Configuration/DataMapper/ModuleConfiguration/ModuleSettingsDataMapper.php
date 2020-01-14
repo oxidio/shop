@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataMapper\ModuleConfiguration;
 
@@ -10,9 +13,6 @@ use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataMapper
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ModuleConfiguration;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Setting\Setting;
 
-/**
- * @internal
- */
 class ModuleSettingsDataMapper implements ModuleConfigurationDataMapperInterface
 {
     public const MAPPING_KEY = 'moduleSettings';

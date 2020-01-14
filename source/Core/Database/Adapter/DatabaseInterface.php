@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -11,6 +12,8 @@ use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
 
 /**
  * The database connection interface specifies how a database connection should look and act.
+ *
+ * @deprecated since v6.5.0 (2019-09-24); Use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface
  */
 interface DatabaseInterface
 {

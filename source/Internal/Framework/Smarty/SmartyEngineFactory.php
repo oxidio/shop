@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Smarty;
 
@@ -11,10 +14,6 @@ use OxidEsales\EshopCommunity\Internal\Framework\Smarty\Configuration\SmartyConf
 use OxidEsales\EshopCommunity\Internal\Framework\Templating\TemplateEngineFactoryInterface;
 use OxidEsales\EshopCommunity\Internal\Framework\Templating\TemplateEngineInterface;
 
-/**
- * Class SmartyEngineFactory
- * @package OxidEsales\EshopCommunity\Internal\Smarty
- */
 class SmartyEngineFactory implements TemplateEngineFactoryInterface
 {
     /**

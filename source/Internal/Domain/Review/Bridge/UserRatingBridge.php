@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Domain\Review\Bridge;
 
@@ -11,9 +14,6 @@ use OxidEsales\EshopCommunity\Internal\Domain\Review\Service\UserRatingServiceIn
 use OxidEsales\EshopCommunity\Internal\Domain\Review\Exception\RatingPermissionException;
 use OxidEsales\Eshop\Application\Model\Rating;
 
-/**
-  * @internal
- */
 class UserRatingBridge implements UserRatingBridgeInterface
 {
     /**
@@ -39,6 +39,7 @@ class UserRatingBridge implements UserRatingBridgeInterface
      * @param string $ratingId
      *
      * @throws RatingPermissionException
+     * @throws EntryDoesNotExistDaoException
      */
     public function deleteRating($userId, $ratingId)
     {

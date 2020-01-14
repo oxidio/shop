@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -29,6 +30,8 @@ class InputValidator extends \OxidEsales\Eshop\Core\Base
     /**
      * Required fields for credit card payment.
      *
+     * @deprecated since v6.6.0 (2019-12-18); credit card payment method will be no longer supported
+     *
      * @var array
      */
     protected $_aRequiredCCFields = ['kktype',
@@ -51,6 +54,8 @@ class InputValidator extends \OxidEsales\Eshop\Core\Base
 
     /**
      * Possible credit card types
+     *
+     *  @deprecated since v6.6.0 (2019-12-18); credit card payment method will be no longer supported
      *
      * @var array
      */
@@ -106,7 +111,7 @@ class InputValidator extends \OxidEsales\Eshop\Core\Base
         }
 
         if (!\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blAllowUnevenAmounts')) {
-            $amount = round(( string ) $amount);
+            $amount = round((string) $amount);
         }
 
         //negative amounts are not allowed

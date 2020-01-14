@@ -1,19 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Domain\Authentication\Service;
 
 use OxidEsales\EshopCommunity\Internal\Domain\Authentication\Exception\PasswordHashException;
 use OxidEsales\EshopCommunity\Internal\Domain\Authentication\Policy\PasswordPolicyInterface;
 
-/**
- * Class BcryptPasswordHashService
- *
- * @internal
- */
 class BcryptPasswordHashService implements PasswordHashServiceInterface
 {
     /**
@@ -89,7 +87,7 @@ class BcryptPasswordHashService implements PasswordHashServiceInterface
     /**
      * @return array
      */
-    private function getOptions() : array
+    private function getOptions(): array
     {
         return ['cost' => $this->cost];
     }

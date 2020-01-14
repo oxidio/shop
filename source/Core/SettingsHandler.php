@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
 namespace OxidEsales\EshopCommunity\Core;
 
 /**
@@ -158,8 +160,7 @@ class SettingsHandler extends \OxidEsales\Eshop\Core\Base
         $shopId = $config->getShopId();
         $module = $this->getModuleConfigId($moduleId);
 
-        $decodeValueQuery = $config->getDecodeValueQuery();
-        $moduleConfigsQuery = "SELECT oxvarname, oxvartype, {$decodeValueQuery} as oxvardecodedvalue FROM oxconfig WHERE oxmodule = :oxmodule AND oxshopid = :oxshopid";
+        $moduleConfigsQuery = "SELECT oxvarname, oxvartype, oxvarvalue FROM oxconfig WHERE oxmodule = :oxmodule AND oxshopid = :oxshopid";
         $dbConfigs = $db->getAll($moduleConfigsQuery, [
             ':oxmodule' => $module,
             ':oxshopid' => $shopId
@@ -167,7 +168,7 @@ class SettingsHandler extends \OxidEsales\Eshop\Core\Base
 
         $result = [];
         foreach ($dbConfigs as $oneModuleConfig) {
-            $result[$oneModuleConfig['oxvarname']] = $config->decodeValue($oneModuleConfig['oxvartype'], $oneModuleConfig['oxvardecodedvalue']);
+            $result[$oneModuleConfig['oxvarname']] = $config->decodeValue($oneModuleConfig['oxvartype'], $oneModuleConfig['oxvarvalue']);
         }
 
         return $result;

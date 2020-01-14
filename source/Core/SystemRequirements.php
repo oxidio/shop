@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -9,7 +10,7 @@ namespace OxidEsales\EshopCommunity\Core;
 use OxidEsales\Eshop\Core\Exception\SystemComponentException;
 use OxidEsales\Eshop\Core\Database\Adapter\ResultSetInterface;
 use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
-use OxidEsales\EshopCommunity\Internal\Framework\Templating\TemplateLoaderInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Templating\Loader\TemplateLoaderInterface;
 
 /**
  * System requirements class.
@@ -269,7 +270,8 @@ class SystemRequirements
 
         // special config file check
         $sFullPath = $sPath . "config.inc.php";
-        if (!is_readable($sFullPath) ||
+        if (
+            !is_readable($sFullPath) ||
             ($this->isAdmin() && is_writable($sFullPath)) ||
             (!$this->isAdmin() && !is_writable($sFullPath))
         ) {
@@ -532,7 +534,7 @@ class SystemRequirements
         $result = 1;
         $iErrNo = 0;
         $sErrStr = '';
-        if ($oRes = @fsockopen('www.example.com', 80, $iErrNo, $sErrStr, 10)) {
+        if ($oRes = @fsockopen('olc.oxid-esales.com', 80, $iErrNo, $sErrStr, 10)) {
             $result = 2;
             fclose($oRes);
         }
@@ -558,9 +560,11 @@ class SystemRequirements
             $requirementFits = static::MODULE_STATUS_BLOCKS_SETUP;
         }
 
-        if (is_null($requirementFits) &&
-            version_compare($installedPhpVersion, $minimalRecommendedVersion, '>=')
-            && version_compare($installedPhpVersion, $maximalRecommendedVersion, '<=')) {
+        if (
+            is_null($requirementFits) &&
+            version_compare($installedPhpVersion, $minimalRecommendedVersion, '>=') &&
+            version_compare($installedPhpVersion, $maximalRecommendedVersion, '<=')
+        ) {
             $requirementFits = static::MODULE_STATUS_OK;
         }
 
@@ -700,14 +704,16 @@ class SystemRequirements
          * Version MySQL 5.6.* in neither recommended nor supported by OXID eSales.
          * See https://bugs.mysql.com/bug.php?id=79203
          */
-        if (is_null($requirementFits) &&
+        if (
+            is_null($requirementFits) &&
             version_compare($installedVersion, '5.6.0', '>=') &&
             version_compare($installedVersion, '5.7.0', '<')
         ) {
             $requirementFits = static::MODULE_STATUS_FITS_MINIMUM_REQUIREMENTS;
         }
 
-        if (is_null($requirementFits) &&
+        if (
+            is_null($requirementFits) &&
             version_compare($installedVersion, $minimalRequiredVersion, '>=') &&
             version_compare($installedVersion, $maximalRequiredVersion, '<=')
         ) {
@@ -912,7 +918,7 @@ class SystemRequirements
             }
             $iModuleState = $this->getModuleInfo($sModule);
             $aSysInfo[$sGroup][$sModule] = $iModuleState;
-            $this->_blSysReqStatus = $this->_blSysReqStatus && ( bool ) abs($iModuleState);
+            $this->_blSysReqStatus = $this->_blSysReqStatus && (bool) abs($iModuleState);
         }
 
         return $aSysInfo;

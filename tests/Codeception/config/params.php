@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -13,8 +14,10 @@ use OxidEsales\TestingLibrary\Services\Library\DatabaseDefaultsFileGenerator;
 $facts = new Facts();
 
 $selenium_server_port = getenv('SELENIUM_SERVER_PORT');
-$selenium_server_port = ($selenium_server_port) ? $selenium_server_port : '4444';
-$php = (getenv('PHPBIN')) ? getenv('PHPBIN') : 'php';
+$selenium_server_port = ($selenium_server_port) ? : '4444';
+$php = (getenv('PHPBIN')) ? : 'php';
+$cc_screen_shot_url = getenv('CC_SCREEN_SHOTS_URL');
+$cc_screen_shot_url = ($cc_screen_shot_url) ? : '';
 
 return [
     'SHOP_URL' => $facts->getShopUrl(),
@@ -29,18 +32,19 @@ return [
     'MYSQL_CONFIG_PATH' => getMysqlConfigPath(),
     'SELENIUM_SERVER_PORT' => $selenium_server_port,
     'PHP_BIN' => $php,
+    'SCREEN_SHOT_URL' => $cc_screen_shot_url
 ];
 
 function getTestDataDumpFilePath()
 {
-    return getShopTestPath().'/Codeception/_data/dump.sql';
+    return getShopTestPath() . '/Codeception/_data/dump.sql';
 }
 
 function getShopSuitePath($facts)
 {
     $testSuitePath = getenv('TEST_SUITE');
     if (!$testSuitePath) {
-        $testSuitePath = $facts->getShopRootPath().'/tests';
+        $testSuitePath = $facts->getShopRootPath() . '/tests';
     }
     return $testSuitePath;
 }
@@ -50,7 +54,7 @@ function getShopTestPath()
     $facts = new Facts();
 
     if ($facts->isEnterprise()) {
-        $shopTestPath = $facts->getEnterpriseEditionRootPath().'/Tests';
+        $shopTestPath = $facts->getEnterpriseEditionRootPath() . '/Tests';
     } else {
         $shopTestPath = getShopSuitePath($facts);
     }

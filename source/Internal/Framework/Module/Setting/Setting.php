@@ -1,26 +1,16 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
 
+declare(strict_types=1);
+
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Setting;
 
-/**
- * @internal
- */
 class Setting
 {
-    /**
-     * @var string
-     */
-    private $moduleId;
-
-    /**
-     * @var int
-     */
-    private $shopId;
-
     /**
      * @var string
      */
@@ -50,42 +40,6 @@ class Setting
      * @var int
      */
     private $positionInGroup = 0;
-
-    /**
-     * @return string
-     */
-    public function getModuleId(): string
-    {
-        return $this->moduleId;
-    }
-
-    /**
-     * @param string $moduleId
-     * @return Setting
-     */
-    public function setModuleId(string $moduleId): Setting
-    {
-        $this->moduleId = $moduleId;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getShopId(): int
-    {
-        return $this->shopId;
-    }
-
-    /**
-     * @param int $shopId
-     * @return Setting
-     */
-    public function setShopId(int $shopId): Setting
-    {
-        $this->shopId = $shopId;
-        return $this;
-    }
 
     /**
      * @return string

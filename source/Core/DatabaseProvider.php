@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
 namespace OxidEsales\EshopCommunity\Core;
 
 use OxidEsales\Eshop\Core\Database\Adapter\DatabaseInterface;
@@ -12,6 +14,8 @@ use OxidEsales\Eshop\Core\Exception\DatabaseNotConfiguredException;
 
 /**
  * Database connection class
+ *
+ * @deprecated since v6.5.0 (2019-09-24); Use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface
  */
 class DatabaseProvider
 {
@@ -207,7 +211,6 @@ class DatabaseProvider
     protected function onPostConnect()
     {
         // @todo Set database logging from iDebug
-        // @todo Set user auditing from blLogChangesInAdmin
     }
 
     /**

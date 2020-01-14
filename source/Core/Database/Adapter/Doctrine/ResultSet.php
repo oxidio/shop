@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -13,6 +14,8 @@ use OxidEsales\Eshop\Core\Database\Adapter\ResultSetInterface;
  * The doctrine statement wrapper, to support the old adodblite interface.
  *
  * @package OxidEsales\EshopCommunity\Core\Database\Adapter
+ *
+ * @deprecated since v6.5.0 (2019-09-24); Use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface
  */
 class ResultSet implements \IteratorAggregate, ResultSetInterface
 {

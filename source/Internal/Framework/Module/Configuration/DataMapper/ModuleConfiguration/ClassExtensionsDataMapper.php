@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataMapper\ModuleConfiguration;
 
@@ -10,9 +13,6 @@ use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataMapper
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ModuleConfiguration;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ModuleConfiguration\ClassExtension;
 
-/**
- * @internal
- */
 class ClassExtensionsDataMapper implements ModuleConfigurationDataMapperInterface
 {
     public const MAPPING_KEY = 'classExtensions';
@@ -47,7 +47,7 @@ class ClassExtensionsDataMapper implements ModuleConfigurationDataMapperInterfac
         return $extensions;
     }
 
-    private function setClassExtensions(ModuleConfiguration $moduleConfiguration, array $extensions) : void
+    private function setClassExtensions(ModuleConfiguration $moduleConfiguration, array $extensions): void
     {
         foreach ($extensions as $shopClass => $moduleClass) {
             $moduleConfiguration->addClassExtension(new ClassExtension(

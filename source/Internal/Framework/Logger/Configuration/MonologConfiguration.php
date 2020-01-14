@@ -1,16 +1,16 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
 
+declare(strict_types=1);
+
 namespace OxidEsales\EshopCommunity\Internal\Framework\Logger\Configuration;
 
 use OxidEsales\EshopCommunity\Internal\Transition\Utility\Context;
 
-/**
- * @internal
- */
 class MonologConfiguration implements MonologConfigurationInterface
 {
     /**
@@ -31,14 +31,15 @@ class MonologConfiguration implements MonologConfigurationInterface
     /**
      * MonologConfiguration constructor.
      *
-     * @param string  $loggerName
-     * @param Context $context
+     * @param string $loggerName
+     * @param string $logFilePath
+     * @param string $logLevel
      */
-    public function __construct($loggerName, $context)
+    public function __construct($loggerName, $logFilePath, $logLevel)
     {
         $this->loggerName = $loggerName;
-        $this->logFilePath = $context->getLogFilePath();
-        $this->logLevel = $context->getLogLevel();
+        $this->logFilePath = $logFilePath;
+        $this->logLevel = $logLevel;
     }
 
 

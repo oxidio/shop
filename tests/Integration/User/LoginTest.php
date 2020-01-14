@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
 namespace OxidEsales\EshopCommunity\Tests\Integration\User;
 
 use oxField;
@@ -29,43 +31,6 @@ class LoginTest extends UserTestCase
         $this->assertSame($oUser->getId(), oxRegistry::getSession()->getVariable('usr'), 'User ID is missing in session.');
 
         $oUser->load($oUser->getId());
-        $this->assertNotSame($this->_sOldEncodedPassword, $oUser->oxuser__oxpassword->value, 'Old and new passwords must not match.');
-        $this->assertNotSame($this->_sOldSalt, $oUser->oxuser__oxpasssalt->value, 'Old and new salt must not match.');
-    }
-
-    /**
-     * Tries to login with old password from different subshop, makes sure there are no crashes
-     */
-    public function testAdminLoginWithOldPasswordMultiShop()
-    {
-        $this->setAdminMode(true);
-
-        //faking cookie check
-        $oUtils = $this->getMock(\OxidEsales\Eshop\Core\UtilsServer::class, array("getOxCookie"));
-        $oUtils->expects($this->any())->method("getOxCookie")->will($this->returnValue(array("test" => "test")));
-        \OxidEsales\Eshop\Core\Registry::set(\OxidEsales\Eshop\Core\UtilsServer::class, $oUtils);
-
-        //creating test admin user
-        $oUser = $this->_createUser($this->_sDefaultUserName, $this->_sOldEncodedPassword, $this->_sOldSalt);
-        //updating user over oxBase methods as oxUser restricts rights update
-        $oUpdUser = oxNew('oxBase');
-        $oUpdUser->init("oxuser");
-        $oUpdUser->load($oUser->getId());
-        $oUpdUser->oxuser__oxrights = new oxField(1);
-        $oUpdUser->oxuser__oxshopid = new oxField(1);
-        $oUpdUser->save();
-
-        //set active shop 2
-        oxRegistry::getConfig()->setShopId(2);
-
-        //perform the login
-        $result = $this->_login($this->_sDefaultUserName, $this->_sDefaultUserPassword);
-
-        $this->assertSame('payment', $result);
-
-        $oUser->load($oUser->getId());
-        $this->assertEquals(1, $oUser->oxuser__oxshopid->value, "User shop ID changed");
-        $this->assertSame($oUser->getId(), oxRegistry::getSession()->getVariable('auth'), 'User ID is missing in session.');
         $this->assertNotSame($this->_sOldEncodedPassword, $oUser->oxuser__oxpassword->value, 'Old and new passwords must not match.');
         $this->assertNotSame($this->_sOldSalt, $oUser->oxuser__oxpasssalt->value, 'Old and new salt must not match.');
     }

@@ -1,15 +1,12 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
 namespace OxidEsales\EshopCommunity\Internal\Transition\ShopEvents;
 
-/**
- * Trait ModelChangeEventTrait
- *
- * @package OxidEsales\EshopCommunity\Internal\ShopEvents
- */
 trait ModelChangeEventTrait
 {
     /**

@@ -1,15 +1,14 @@
-<?php declare(strict_types=1);
+<?php
 
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
 
+declare(strict_types=1);
+
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Install\DataObject;
 
-/**
- * @internal
- */
 class OxidEshopPackage
 {
     /**
@@ -67,7 +66,7 @@ class OxidEshopPackage
     /**
      * @return string
      */
-    public function getPackageSourcePath() : string
+    public function getPackageSourcePath(): string
     {
         return !empty($this->sourceDirectory)
             ? $this->packagePath . DIRECTORY_SEPARATOR . $this->sourceDirectory

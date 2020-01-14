@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\MetaData\Service;
 
@@ -12,9 +15,6 @@ use OxidEsales\EshopCommunity\Internal\Framework\Module\MetaData\Exception\Inval
 use OxidEsales\EshopCommunity\Internal\Framework\Module\MetaData\Validator\MetaDataValidatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @internal
- */
 class MetaDataProvider implements MetaDataProviderInterface
 {
     const METADATA_ID = 'id';

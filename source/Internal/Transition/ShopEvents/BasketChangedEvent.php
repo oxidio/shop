@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -10,11 +11,6 @@ namespace OxidEsales\EshopCommunity\Internal\Transition\ShopEvents;
 
 use Symfony\Component\EventDispatcher\Event;
 
-/**
- * Class BasketChangedEvent
- *
- * @package OxidEsales\EshopCommunity\Internal\ShopEvents
- */
 class BasketChangedEvent extends Event
 {
     const NAME = self::class;

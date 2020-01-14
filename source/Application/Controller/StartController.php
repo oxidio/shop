@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -143,7 +144,8 @@ class StartController extends \OxidEsales\Eshop\Application\Controller\FrontendC
      */
     protected function _prepareMetaDescription($sMeta, $iLength = 1024, $blDescTag = false)
     {
-        if (!$sMeta &&
+        if (
+            !$sMeta &&
             \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadAktion') &&
             $oArt = $this->getFirstArticle()
         ) {
@@ -166,7 +168,8 @@ class StartController extends \OxidEsales\Eshop\Application\Controller\FrontendC
      */
     protected function _prepareMetaKeyword($sKeywords, $blRemoveDuplicatedWords = true)
     {
-        if (!$sKeywords &&
+        if (
+            !$sKeywords &&
             \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadAktion') &&
             $oArt = $this->getFirstArticle()
         ) {
@@ -192,28 +195,6 @@ class StartController extends \OxidEsales\Eshop\Application\Controller\FrontendC
         }
 
         return $this->_blLoadActions;
-    }
-
-    /**
-     * Template variable getter. Returns start page articles (OXSTART)
-     *
-     * @return array
-     */
-    public function getArticleList()
-    {
-        if ($this->_aArticleList === null) {
-            $this->_aArticleList = [];
-            if ($this->_getLoadActionsParam()) {
-                // start list
-                $oArtList = oxNew(\OxidEsales\Eshop\Application\Model\ArticleList::class);
-                $oArtList->loadActionArticles('OXSTART');
-                if ($oArtList->count()) {
-                    $this->_aArticleList = $oArtList;
-                }
-            }
-        }
-
-        return $this->_aArticleList;
     }
 
     /**

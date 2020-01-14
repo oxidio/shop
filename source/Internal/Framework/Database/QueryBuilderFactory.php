@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Database;
 
@@ -10,9 +13,6 @@ use PDO;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 
-/**
- * @internal
- */
 class QueryBuilderFactory implements QueryBuilderFactoryInterface
 {
     /**
@@ -33,7 +33,7 @@ class QueryBuilderFactory implements QueryBuilderFactoryInterface
      *
      * @return QueryBuilder
      */
-    public function create()
+    public function create(): QueryBuilder
     {
         $this->connection->setFetchMode(PDO::FETCH_ASSOC);
 

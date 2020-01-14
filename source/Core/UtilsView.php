@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
 namespace OxidEsales\EshopCommunity\Core;
 
 use oxException;
@@ -27,6 +29,8 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
 {
     /**
      * Template processor object (smarty)
+     *
+     * @deprecated since v6.4 (2019-10-10); Will be removed
      *
      * @var Smarty
      */
@@ -60,6 +64,8 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
      * returns existing or creates smarty object
      * Returns smarty object. If object not yet initiated - creates it. Sets such
      * default parameters, like cache lifetime, cache/templates directory, etc.
+     *
+     * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
      *
      * @param bool $blReload set true to force smarty reload
      *
@@ -220,7 +226,7 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
      *
      * @return string
      */
-    public function getRenderedContent(string $description, array $context, string $oxid = null) : string
+    public function getRenderedContent(string $description, array $context, string $oxid = null): string
     {
         if (\OxidEsales\Eshop\Core\Registry::getConfig()->isDemoShop()) {
             return $description;
@@ -241,6 +247,8 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
      * Runs long description through smarty. If you pass array of data
      * to process, array will be returned, if you pass string - string
      * will be passed as result
+     *
+     * @deprecated since v6.4 (2019-10-10); Use getRenderedContent()
      *
      * @param mixed                                            $sDesc       description or array of descriptions
      *                                                                      (array( [] => array(_ident_, _value_to_process_)))
@@ -352,6 +360,8 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
     /**
      * sets properties of smarty object
      *
+     * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
+     *
      * @param Smarty $smarty template processor object (smarty)
      */
     protected function _fillCommonSmartyProperties($smarty)
@@ -422,6 +432,8 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
     /**
      * Returns all Smarty plugins including defined in modules
      *
+     * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
+     *
      * @return array
      */
     public function getSmartyPluginDirectories()
@@ -433,6 +445,8 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
     }
 
     /**
+     * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
+     *
      * @return array
      */
     protected function getShopSmartyPluginDirectories()
@@ -446,6 +460,8 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
 
     /**
      * Sets compile check property to smarty object.
+     *
+     * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
      *
      * @param object $smarty template processor object (smarty)
      */
@@ -461,6 +477,8 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
 
     /**
      * is called when a template cannot be obtained from its resource.
+     *
+     * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
      *
      * @param string $resourceType      template type
      * @param string $resourceName      template file name
@@ -705,7 +723,8 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
     {
         $templateBlocks = [];
         foreach ($activeBlockTemplates as $activeBlockTemplate) {
-            if (!in_array($this->prepareBlockKey($activeBlockTemplate), $templateBlocksToExchange['theme'])
+            if (
+                !in_array($this->prepareBlockKey($activeBlockTemplate), $templateBlocksToExchange['theme'])
                 || $activeBlockTemplate['OXTHEME']
             ) {
                 $templateBlocks[] = $activeBlockTemplate;
@@ -729,7 +748,8 @@ class UtilsView extends \OxidEsales\Eshop\Core\Base
         $templateBlocks = [];
         $customThemeId = \OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('sCustomTheme');
         foreach ($activeBlockTemplates as $activeBlockTemplate) {
-            if (!in_array($this->prepareBlockKey($activeBlockTemplate), $templateBlocksToExchange['custom_theme'])
+            if (
+                !in_array($this->prepareBlockKey($activeBlockTemplate), $templateBlocksToExchange['custom_theme'])
                 || $activeBlockTemplate['OXTHEME'] === $customThemeId
             ) {
                 $templateBlocks[] = $activeBlockTemplate;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -260,6 +261,8 @@ class Email extends PHPMailer
     /**
      * Smarty instance
      *
+     * @deprecated since v6.4 (2019-10-10); Will be removed
+     *
      * @var \Smarty
      */
     protected $_oSmarty = null;
@@ -337,6 +340,8 @@ class Email extends PHPMailer
     }
 
     /**
+     * @deprecated since v6.4 (2019-10-10); Use TemplateRendererBridgeInterface
+     *
      * Smarty instance getter, assigns this oxEmail instance to "oEmailView" variable
      *
      * @return \Smarty
@@ -615,8 +620,8 @@ class Email extends PHPMailer
         // Process view data array through oxoutput processor
         $this->_processViewArray();
 
-        $this->setBody($renderer->renderTemplate($config->getTemplatePath($this->_sOrderOwnerTemplate, false), $this->getViewData()));
-        $this->setAltBody($renderer->renderTemplate($config->getTemplatePath($this->_sOrderOwnerPlainTemplate, false), $this->getViewData()));
+        $this->setBody($renderer->renderTemplate($this->_sOrderOwnerTemplate, $this->getViewData()));
+        $this->setAltBody($renderer->renderTemplate($this->_sOrderOwnerPlainTemplate, $this->getViewData()));
 
         //Sets subject to email
         // #586A

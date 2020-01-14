@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Cache;
 
@@ -11,9 +14,6 @@ use OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Event\FinalizingMo
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Event\ModuleSetupEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal
- */
 class InvalidateModuleCacheEventSubscriber implements EventSubscriberInterface
 {
     /**

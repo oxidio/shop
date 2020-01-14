@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -8,11 +9,6 @@ namespace OxidEsales\EshopCommunity\Internal\Transition\Adapter\TemplateLogic;
 
 use Twig\Environment;
 
-/**
- * Class InsertNewBasketItemLogicTwig
- *
- * @package OxidEsales\EshopCommunity\Internal\Transition\Adapter\TemplateLogic
- */
 class InsertNewBasketItemLogicTwig extends AbstractInsertNewBasketItemLogic
 {
     /**

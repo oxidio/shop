@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
 namespace OxidEsales\EshopCommunity\Tests\Unit\Setup;
 
 use OxidEsales\EshopCommunity\Setup\Utilities;
@@ -40,7 +42,7 @@ class UtilitiesTest extends \OxidTestCase
 
         parent::setUp();
 
-        $this->configTestPath = __DIR__ .'/../testData/Setup';
+        $this->configTestPath = __DIR__ . '/../testData/Setup';
         $this->removeTestFile();
     }
 
@@ -73,14 +75,14 @@ class UtilitiesTest extends \OxidTestCase
     /**
      * Testing Utilities::getFileContents()
      */
-    public function testGetFileContents()
+    public function testUtilitiesGetFileContents()
     {
-        $sLicenseFile = "lizenz.txt";
+        $utilities = new Utilities();
 
-        $sFilePath = getShopBasePath() . "Setup/En/{$sLicenseFile}";
+        $fsStream = $this->getVfsStreamWrapper();
+        $filePath = $fsStream->createFile($utilities->getSetupDirectory() . 'testFileContent', 'test');
 
-        $oUtils = new Utilities();
-        $this->assertEquals(file_get_contents($sFilePath), $oUtils->getFileContents($sFilePath));
+        $this->assertEquals(file_get_contents($filePath), $utilities->getFileContents($filePath));
     }
 
     /**

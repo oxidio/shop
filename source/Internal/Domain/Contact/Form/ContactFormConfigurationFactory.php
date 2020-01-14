@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Domain\Contact\Form;
 
@@ -14,10 +17,6 @@ use OxidEsales\EshopCommunity\Internal\Framework\FormConfiguration\FormConfigura
 use OxidEsales\EshopCommunity\Internal\Framework\FormConfiguration\FormFieldsConfigurationDataProviderInterface;
 use OxidEsales\EshopCommunity\Internal\Transition\Utility\ContextInterface;
 
-/**
- * Class ContactFormConfigurationFactory
- * @internal
- */
 class ContactFormConfigurationFactory implements FormConfigurationFactoryInterface
 {
     /**

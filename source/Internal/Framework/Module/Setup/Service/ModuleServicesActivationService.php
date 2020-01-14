@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Service;
 
@@ -17,9 +20,6 @@ use OxidEsales\EshopCommunity\Internal\Framework\Module\State\ModuleStateService
 use OxidEsales\EshopCommunity\Internal\Transition\Utility\ContextInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @internal
- */
 class ModuleServicesActivationService implements ModuleServicesActivationServiceInterface
 {
 

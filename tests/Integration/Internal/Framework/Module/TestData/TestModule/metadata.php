@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -27,7 +28,7 @@ $aModule = array(
     'settings' => [
         [
             'group' => 'main',
-            'name' => 'setting',
+            'name' => 'test-setting',
             'type' => 'arr',
             'value' => ['Preis', 'Hersteller'],
         ]

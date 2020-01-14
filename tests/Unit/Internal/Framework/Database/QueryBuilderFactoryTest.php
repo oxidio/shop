@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Tests\Unit\Internal\Framework\Database;
 
@@ -33,6 +36,7 @@ class QueryBuilderFactoryTest extends \PHPUnit\Framework\TestCase
     {
         $connection = $this
             ->getMockBuilder(Connection::class)
+            ->setMethods(['setFetchMode'])
             ->disableOriginalConstructor()
             ->getMock();
 

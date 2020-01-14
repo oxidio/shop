@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -10,11 +11,6 @@ namespace OxidEsales\EshopCommunity\Internal\Transition\ShopEvents;
 
 use Symfony\Component\EventDispatcher\Event;
 
-/**
- * Class AllCookiesRemovedEvent
- *
- * @package OxidEsales\EshopCommunity\Internal\ShopEvents
- */
 class AllCookiesRemovedEvent extends Event
 {
     const NAME = self::class;

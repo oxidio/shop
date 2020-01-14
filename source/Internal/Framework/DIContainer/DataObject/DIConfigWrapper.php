@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\DIContainer\DataObject;
 
@@ -11,9 +14,6 @@ use OxidEsales\EshopCommunity\Internal\Framework\DIContainer\Exception\MissingSe
 use Psr\Container\ContainerInterface;
 use OxidEsales\EshopCommunity\Internal\Framework\DIContainer\Exception\NoServiceYamlException;
 
-/**
- * @internal
- */
 class DIConfigWrapper
 {
     const SERVICE_SECTION = 'services';
@@ -233,8 +233,10 @@ class DIConfigWrapper
     {
         $sections = [$this::IMPORTS_SECTION, $this::SERVICE_SECTION];
         foreach ($sections as $section) {
-            if (array_key_exists($section, $this->configArray) &&
-                (!$this->configArray[$section] || !count($this->configArray[$section]))) {
+            if (
+                array_key_exists($section, $this->configArray) &&
+                (!$this->configArray[$section] || !count($this->configArray[$section]))
+            ) {
                 unset($this->configArray[$section]);
             }
         }

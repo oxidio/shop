@@ -1,13 +1,14 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
 namespace OxidEsales\EshopCommunity\Tests\Unit\Core;
 
 use OxidEsales\Eshop\Core\Registry;
 use \oxObjectException;
-
 use Exception;
 use \oxBase;
 use oxBaseHelper;
@@ -922,11 +923,11 @@ class BaseTest extends \OxidTestCase
     {
         $oBase = new _oxBase();
         $oBase->init("oxactions");
-        $select = "select * from oxactions where oxid = 'oxstart'";
+        $select = "select * from oxactions where oxid = 'oxtopstart'";
         $oDB = oxDb::getDB(oxDB::FETCH_MODE_ASSOC);
         $rs = $oDB->select($select);
         $oBase->assign($rs->fields);
-        $this->assertEquals("oxstart", $oBase->getId());
+        $this->assertEquals("oxtopstart", $oBase->getId());
     }
 
     /**
@@ -939,11 +940,11 @@ class BaseTest extends \OxidTestCase
         $oDB = oxDb::getDb(oxDB::FETCH_MODE_ASSOC);
         $oBase = new _oxBase();
         $oBase->init("oxactions");
-        $oBase->oxactions__oxid = new oxField("oxstart", oxField::T_RAW);
-        $select = "select * from oxactions where oxid = 'oxstart'";
+        $oBase->oxactions__oxid = new oxField("oxtopstart", oxField::T_RAW);
+        $select = "select * from oxactions where oxid = 'oxtopstart'";
         $rs = $oDB->select($select);
         $oBase->assign($rs->fields);
-        $this->assertEquals($oBase->getId(), "oxstart");
+        $this->assertEquals($oBase->getId(), "oxtopstart");
     }
 
     /**
@@ -955,7 +956,7 @@ class BaseTest extends \OxidTestCase
     {
         $oBase = new _oxBase();
         $oBase->init("oxactions");
-        $oBase->oxactions__oxid = new oxField("oxstart", oxField::T_RAW);
+        $oBase->oxactions__oxid = new oxField("oxtopstart", oxField::T_RAW);
         $oBase->assign("aaa");
         $this->assertEquals($oBase->getId(), null);
     }
@@ -988,11 +989,11 @@ class BaseTest extends \OxidTestCase
     {
         $oBase = new _oxBase();
         $oBase->init("oxactions");
-        $rs = array("oxid" => "oxstart", "oxtitle" => "Startseite unten");
+        $rs = array("oxid" => "oxtopstart", "oxtitle" => "Startseite unten");
         foreach ($rs as $name => $value) {
             $oBase->setFieldData($name, $value);
         }
-        $this->assertEquals($oBase->oxactions__oxid->value, "oxstart");
+        $this->assertEquals($oBase->oxactions__oxid->value, "oxtopstart");
         $this->assertEquals($oBase->oxactions__oxtitle->value, "Startseite unten");
     }
 
@@ -1005,11 +1006,11 @@ class BaseTest extends \OxidTestCase
     {
         $oBase = new _oxBase();
         $oBase->init("oxactions");
-        $rs = array("oxid" => "oxstart", "oxactions__oxtitle" => "Startseite unten");
+        $rs = array("oxid" => "oxtopstart", "oxactions__oxtitle" => "Startseite unten");
         foreach ($rs as $name => $value) {
             $oBase->setFieldData($name, $value);
         }
-        $this->assertEquals($oBase->oxactions__oxid->value, "oxstart");
+        $this->assertEquals($oBase->oxactions__oxid->value, "oxtopstart");
         $this->assertEquals($oBase->oxactions__oxtitle->value, "Startseite unten");
     }
 
@@ -1023,12 +1024,12 @@ class BaseTest extends \OxidTestCase
         $oBase = new _oxBase();
         $oBase->setClassVar("_blUseLazyLoading", true);
         $oBase->init("oxactions");
-        $rs = array("oxid" => "oxstart", "oxactions__oxtestval" => "Startseite unten", "oxtestval2" => "TestVal2");
+        $rs = array("oxid" => "oxtopstart", "oxactions__oxtestval" => "Startseite unten", "oxtestval2" => "TestVal2");
         foreach ($rs as $name => $value) {
             $oBase->setFieldData($name, $value);
         }
         //standard field
-        $this->assertEquals($oBase->oxactions__oxid->value, "oxstart");
+        $this->assertEquals($oBase->oxactions__oxid->value, "oxtopstart");
         //was not set before
         //T2008-09-03
         //$this->assertFalse(isset($oBase->oxactions__oxtestval));
@@ -1049,12 +1050,12 @@ class BaseTest extends \OxidTestCase
         $oBase->setNonPublicVar("_sCoreTable", "oxactions");
         $aFieldNames = $oBase->getNonPublicVar('_aFieldNames');
         $this->assertFalse(isset($aFieldNames['oxtitle']));
-        $rs = array("oxid" => "oxstart", "oxtitle" => "Startseite unten");
+        $rs = array("oxid" => "oxtopstart", "oxtitle" => "Startseite unten");
         foreach ($rs as $name => $value) {
             $oBase->UNITsetFieldData($name, $value);
         }
         //standard field
-        $this->assertEquals($oBase->oxactions__oxid->value, "oxstart");
+        $this->assertEquals($oBase->oxactions__oxid->value, "oxtopstart");
         //was not set before
         $this->assertTrue(isset($oBase->oxactions__oxtitle));
         $aFieldNames = $oBase->getNonPublicVar('_aFieldNames');
@@ -1070,8 +1071,8 @@ class BaseTest extends \OxidTestCase
     {
         $oBase = new _oxBase();
         $oBase->init("oxactions");
-        $oBase->oxactions__oxid = new oxField("oxstart", oxField::T_RAW);
-        $this->assertEquals("oxstart", $oBase->getFieldData("oxid"));
+        $oBase->oxactions__oxid = new oxField("oxtopstart", oxField::T_RAW);
+        $this->assertEquals("oxtopstart", $oBase->getFieldData("oxid"));
     }
 
     /**
@@ -1096,8 +1097,8 @@ class BaseTest extends \OxidTestCase
         $oBase = new _oxBase();
         $oBase->modifyCacheKey(null, true);
         $oBase->init("oxactions");
-        $oBase->load("oxstart");
-        $this->assertEquals($oBase->getId(), "oxstart");
+        $oBase->load("oxtopstart");
+        $this->assertEquals($oBase->getId(), "oxtopstart");
         $this->assertTrue(isset($oBase->oxactions__oxtitle));
     }
 
@@ -1135,9 +1136,9 @@ class BaseTest extends \OxidTestCase
         $oBase = new _oxBase();
         $oBase->enableLazyLoading();
         $oBase->init("oxactions");
-        $oBase->load("oxstart");
+        $oBase->load("oxtopstart");
 
-        $this->assertEquals("oxstart", $oBase->getId());
+        $this->assertEquals("oxtopstart", $oBase->getId());
 
         $this->assertFalse($oBase->isPropertyLoaded('oxactions__oxtitle'));
     }
@@ -1187,10 +1188,10 @@ class BaseTest extends \OxidTestCase
         $oBase = oxNew('oxBase');
         $oBase->init("oxactions");
         $sView = getViewName("oxactions", -1);
-        $sSelect = $oBase->buildSelectString(array("$sView.oxid" => "oxstart"));
+        $sSelect = $oBase->buildSelectString(array("$sView.oxid" => "oxtopstart"));
         $sSelect = str_replace("  ", " ", $sSelect);
 
-        $this->assertEquals("select `$sView`.`oxid`, `$sView`.`oxshopid`, `$sView`.`oxtype`, `$sView`.`oxtitle`, `$sView`.`oxtitle_1`, `$sView`.`oxtitle_2`, `$sView`.`oxtitle_3`, `$sView`.`oxlongdesc`, `$sView`.`oxlongdesc_1`, `$sView`.`oxlongdesc_2`, `$sView`.`oxlongdesc_3`, `$sView`.`oxactive`, `$sView`.`oxactivefrom`, `$sView`.`oxactiveto`, `$sView`.`oxpic`, `$sView`.`oxpic_1`, `$sView`.`oxpic_2`, `$sView`.`oxpic_3`, `$sView`.`oxlink`, `$sView`.`oxlink_1`, `$sView`.`oxlink_2`, `$sView`.`oxlink_3`, `$sView`.`oxsort`, `$sView`.`oxtimestamp` from $sView where 1 and $sView.oxid = 'oxstart'", $sSelect);
+        $this->assertEquals("select `$sView`.`oxid`, `$sView`.`oxshopid`, `$sView`.`oxtype`, `$sView`.`oxtitle`, `$sView`.`oxtitle_1`, `$sView`.`oxtitle_2`, `$sView`.`oxtitle_3`, `$sView`.`oxlongdesc`, `$sView`.`oxlongdesc_1`, `$sView`.`oxlongdesc_2`, `$sView`.`oxlongdesc_3`, `$sView`.`oxactive`, `$sView`.`oxactivefrom`, `$sView`.`oxactiveto`, `$sView`.`oxpic`, `$sView`.`oxpic_1`, `$sView`.`oxpic_2`, `$sView`.`oxpic_3`, `$sView`.`oxlink`, `$sView`.`oxlink_1`, `$sView`.`oxlink_2`, `$sView`.`oxlink_3`, `$sView`.`oxsort`, `$sView`.`oxtimestamp` from $sView where 1 and $sView.oxid = 'oxtopstart'", $sSelect);
     }
 
     /**
@@ -1254,11 +1255,11 @@ class BaseTest extends \OxidTestCase
      */
     public function testSelectExistingData()
     {
-        $sSelect = "select oxactions.oxid, oxactions.oxtitle from oxactions  where oxactions.oxid = 'oxstart'";
+        $sSelect = "select oxactions.oxid, oxactions.oxtitle from oxactions  where oxactions.oxid = 'oxtopstart'";
         $oBase = new _oxBase();
         $oBase->init('oxactions');
         $this->assertEquals($oBase->assignRecord($sSelect), true);
-        $this->assertEquals($oBase->oxactions__oxid->value, 'oxstart');
+        $this->assertEquals($oBase->oxactions__oxid->value, 'oxtopstart');
     }
 
     /**
@@ -1307,7 +1308,7 @@ class BaseTest extends \OxidTestCase
     {
         $oBase = new _oxBase();
         $oBase->init("oxactions");
-        $oBase->setId("oxstart");
+        $oBase->setId("oxtopstart");
         $this->assertTrue($oBase->exists());
     }
 
@@ -1333,7 +1334,7 @@ class BaseTest extends \OxidTestCase
     {
         $oBase = new _oxBase();
         $oBase->init("oxactions");
-        $this->assertTrue($oBase->exists("oxstart"));
+        $this->assertTrue($oBase->exists("oxtopstart"));
     }
 
     /**
@@ -1473,9 +1474,9 @@ class BaseTest extends \OxidTestCase
             ->method('update')
             ->will($this->returnValue(true));
         $oBase->init('oxactions');
-        $oBase->setId('oxstart');
+        $oBase->setId('oxtopstart');
         $sResult = $oBase->save();
-        $this->assertEquals('oxstart', $sResult);
+        $this->assertEquals('oxtopstart', $sResult);
     }
 
     /**
@@ -1487,7 +1488,7 @@ class BaseTest extends \OxidTestCase
     {
         $oBase = new _oxBase();
         $oBase->init("oxactions");
-        $oBase->setId("oxstart");
+        $oBase->setId("oxtopstart");
         $oBase->setClassVar("_aFieldNames", null);
         $this->assertFalse($oBase->save());
     }
@@ -1538,7 +1539,7 @@ class BaseTest extends \OxidTestCase
             ->method('update')
             ->will($this->returnValue(true));
         $oBase->init("oxactions");
-        $oBase->setId("oxstart");
+        $oBase->setId("oxtopstart");
         $oBase->setIsDerived(true);
         $sResult = $oBase->save();
         $this->assertFalse($sResult);
@@ -2343,7 +2344,7 @@ class BaseTest extends \OxidTestCase
         $this->assertTrue(is_array($aFieldNames) && count($aFieldNames) > 0);
         $this->assertTrue(
             in_array("oxtitle", $aFieldNames),
-            "oxtitle expected to be in array:  ". serialize($aFieldNames)
+            "oxtitle expected to be in array:  " . serialize($aFieldNames)
         );
     }
 

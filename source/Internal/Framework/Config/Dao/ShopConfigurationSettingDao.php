@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Config\Dao;
 
@@ -15,9 +18,6 @@ use OxidEsales\EshopCommunity\Internal\Transition\Utility\ContextInterface;
 use OxidEsales\EshopCommunity\Internal\Framework\Config\Event\ShopConfigurationChangedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @internal
- */
 class ShopConfigurationSettingDao implements ShopConfigurationSettingDaoInterface
 {
     /**
@@ -53,11 +53,11 @@ class ShopConfigurationSettingDao implements ShopConfigurationSettingDaoInterfac
      * @param EventDispatcherInterface     $eventDispatcher
      */
     public function __construct(
-        QueryBuilderFactoryInterface    $queryBuilderFactory,
-        ContextInterface                $context,
-        ShopSettingEncoderInterface     $shopSettingEncoder,
-        ShopAdapterInterface            $shopAdapter,
-        EventDispatcherInterface        $eventDispatcher
+        QueryBuilderFactoryInterface $queryBuilderFactory,
+        ContextInterface $context,
+        ShopSettingEncoderInterface $shopSettingEncoder,
+        ShopAdapterInterface $shopAdapter,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->queryBuilderFactory = $queryBuilderFactory;
         $this->context = $context;
@@ -81,7 +81,7 @@ class ShopConfigurationSettingDao implements ShopConfigurationSettingDaoInterfac
                 'oxshopid'      => ':shopId',
                 'oxvarname'     => ':name',
                 'oxvartype'     => ':type',
-                'oxvarvalue'    => 'encode(:value, :key)',
+                'oxvarvalue'    => ':value',
             ])
             ->setParameters([
                 'id'        => $this->shopAdapter->generateUniqueId(),
@@ -91,8 +91,7 @@ class ShopConfigurationSettingDao implements ShopConfigurationSettingDaoInterfac
                 'value'     => $this->shopSettingEncoder->encode(
                     $shopConfigurationSetting->getType(),
                     $shopConfigurationSetting->getValue()
-                ),
-                'key'       => $this->context->getConfigurationEncryptionKey(),
+                )
             ]);
 
         $queryBuilder->execute();
@@ -116,15 +115,14 @@ class ShopConfigurationSettingDao implements ShopConfigurationSettingDaoInterfac
     {
         $queryBuilder = $this->queryBuilderFactory->create();
         $queryBuilder
-            ->select('decode(oxvarvalue, :key) as value, oxvartype as type, oxvarname as name')
+            ->select('oxvarvalue as value, oxvartype as type, oxvarname as name')
             ->from('oxconfig')
             ->where('oxshopid = :shopId')
             ->andWhere('oxvarname = :name')
             ->andWhere('oxmodule = ""')
             ->setParameters([
                 'shopId'    => $shopId,
-                'name'      => $name,
-                'key'       => $this->context->getConfigurationEncryptionKey(),
+                'name'      => $name
             ]);
 
         $result = $queryBuilder->execute()->fetch();

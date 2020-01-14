@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
 namespace OxidEsales\EshopCommunity\Tests\Unit\Core;
 
 use OxidEsales\Eshop\Core\Config;
@@ -11,13 +13,11 @@ use OxidEsales\Eshop\Core\Theme;
 use OxidEsales\EshopCommunity\Core\Exception\ExceptionHandler;
 use OxidEsales\EshopCommunity\Core\ShopIdCalculator;
 use OxidEsales\Facts\Facts;
-
 use \oxConfig;
 use \stdClass;
 use \oxDb;
 use \oxRegistry;
 use \oxTestModules;
-
 use OxidEsales\EshopCommunity\Core\Module\ModuleTemplatePathCalculator;
 use OxidEsales\EshopCommunity\Core\Registry;
 
@@ -228,7 +228,7 @@ class ConfigTest extends \OxidTestCase
         $config = $this->getMock(\OxidEsales\Eshop\Core\Config::class, array('isSsl', 'getSslShopUrl', 'getShopUrl'));
         $config->expects($this->any())->method('isSsl')->will($this->returnValue($withSsl));
         foreach (['getSslShopUrl', 'getShopUrl'] as $method) {
-            $config->expects($this->any())->method($method)->will($this->returnValue('http'. ($withSsl?'s':'') . '://oxid-esales.com'));
+            $config->expects($this->any())->method($method)->will($this->returnValue('http' . ($withSsl ? 's' : '') . '://oxid-esales.com'));
         }
         $res = $config->isHttpsOnly();
         return $res;
@@ -548,7 +548,7 @@ class ConfigTest extends \OxidTestCase
         $oConfig->init();
 
         $sQ = 'select oxproductive from oxshops where oxid = "' . $oConfig->getShopID() . '"';
-        $blProductive = ( bool ) oxDb::getDb()->getOne($sQ);
+        $blProductive = (bool) oxDb::getDb()->getOne($sQ);
 
         $this->assertEquals($blProductive, $oConfig->isProductiveMode());
     }
@@ -567,7 +567,7 @@ class ConfigTest extends \OxidTestCase
         $sQ = 'select oxvarname from oxconfig where oxvartype="bool" and oxshopid="' . $sShopId . '" and oxmodule="" order by rand()';
         $sVar = oxDb::getDb()->getOne($sQ);
 
-        $sQ = 'select DECODE( oxvarvalue, "' . $oConfig->getConfigParam('sConfigKey') . '") from oxconfig where oxshopid="' . $sShopId . '" and oxvarname="' . $sVar . '" and oxmodule=""';
+        $sQ = 'select oxvarvalue from oxconfig where oxshopid="' . $sShopId . '" and oxvarname="' . $sVar . '" and oxmodule=""';
         $sVal = oxDb::getDb()->getOne($sQ);
 
         $oConfig->UNITloadVarsFromDB($sShopId, array($sVar));
@@ -585,7 +585,7 @@ class ConfigTest extends \OxidTestCase
         $sQ = 'select oxvarname from oxconfig where oxvartype="arr" and oxshopid="' . $sShopId . '"  and oxmodule="" order by rand()';
         $sVar = oxDb::getDb()->getOne($sQ);
 
-        $sQ = 'select DECODE( oxvarvalue, "' . $oConfig->getConfigParam('sConfigKey') . '") from oxconfig where oxshopid="' . $sShopId . '" and oxvarname="' . $sVar . '" and oxmodule=""';
+        $sQ = 'select oxvarvalue from oxconfig where oxshopid="' . $sShopId . '" and oxvarname="' . $sVar . '" and oxmodule=""';
         $sVal = oxDb::getDb()->getOne($sQ);
 
         $oConfig->UNITloadVarsFromDB($sShopId, array($sVar));
@@ -603,7 +603,7 @@ class ConfigTest extends \OxidTestCase
         $sQ = 'select oxvarname from oxconfig where (oxmodule="" or oxmodule="theme:azure") and oxvartype not in ( "bool", "arr", "aarr" )  and oxshopid="' . $sShopId . '"  and oxmodule="" order by rand()';
         $sVar = oxDb::getDb()->getOne($sQ);
 
-        $sQ = 'select DECODE( oxvarvalue, "' . $oConfig->getConfigParam('sConfigKey') . '") from oxconfig where oxshopid="' . $sShopId . '" and oxvarname="' . $sVar . '" and oxmodule=""';
+        $sQ = 'select oxvarvalue from oxconfig where oxshopid="' . $sShopId . '" and oxvarname="' . $sVar . '" and oxmodule=""';
         $sVal = oxDb::getDb()->getOne($sQ);
 
         $oConfig->UNITloadVarsFromDB($sShopId, array($sVar));
@@ -683,7 +683,6 @@ class ConfigTest extends \OxidTestCase
         $oConfig = oxNew('oxConfig');
         $oConfig->init();
         $sShopId = $oConfig->getShopId();
-        $sConfKey = $oConfig->getConfigParam('sConfigKey');
         $oDb = oxDb::getDb(oxDB::FETCH_MODE_ASSOC);
 
         $aVars = array("theme:basic#iNewBasketItemMessage",
@@ -708,7 +707,7 @@ class ConfigTest extends \OxidTestCase
             $sModule = $aData[0] ? $aData[0] : oxConfig::OXMODULE_THEME_PREFIX . $oConfig->getConfigParam('sTheme');
             $sVar = $aData[1];
 
-            $sQ = "select DECODE( oxvarvalue, '{$sConfKey}') from oxconfig where oxshopid='{$sShopId}' and oxmodule = '{$sModule}' and  oxvarname='{$sVar}'";
+            $sQ = "select oxvarvalue from oxconfig where oxshopid='{$sShopId}' and oxmodule = '{$sModule}' and  oxvarname='{$sVar}'";
             $this->assertEquals($oDb->getOne($sQ), $oConfig->getShopConfVar($sVar, $sShopId, $sModule), "\nshop:{$sShopId}; {$sModule}; var:{$sVar}\n");
         }
     }
@@ -720,9 +719,9 @@ class ConfigTest extends \OxidTestCase
         $sShopId = $oConfig->getBaseShopId();
 
         $sQ1 = "insert into oxconfig (oxid, oxshopid, oxvarname, oxvartype, oxvarvalue) values
-                                    ('_test1', '$sShopId', 'testVar1', 'int', 0x071d6980dc7afb6707bb)";
+                                    ('_test1', '$sShopId', 'testVar1', 'int', '1111111111')";
         $sQ2 = "insert into oxconfig (oxid, oxshopid, oxvarname, oxvartype, oxvarvalue) values
-                                    ('_test2', '$sShopId', 'testVar1', 'int', 0x071d6980dc7afb6707bb)";
+                                    ('_test2', '$sShopId', 'testVar1', 'int', '1111111111')";
 
         oxDb::getDb()->execute($sQ1);
         oxDb::getDb()->execute($sQ2);
@@ -2246,18 +2245,6 @@ class ConfigTest extends \OxidTestCase
         $this->assertEquals($aAssocArray, $oConfig->decodeValue("aarr", serialize($aAssocArray)));
     }
 
-    /**
-     * Test case for oxConfig::getDecodeValueQuery()
-     *
-     * @return null
-     */
-    public function testGetDecodeValueQuery()
-    {
-        $oConfig = oxNew('oxConfig');
-        $sQ = " DECODE( oxvarvalue, '" . $oConfig->getConfigParam('sConfigKey') . "') ";
-        $this->assertEquals($sQ, $oConfig->getDecodeValueQuery());
-    }
-
     public function testGetShopMainUrl()
     {
         $oConfig = oxNew('oxConfig');
@@ -2402,23 +2389,6 @@ class ConfigTest extends \OxidTestCase
      */
     public function testSaveSystemConfigurationParameterInMainShop($sType, $sName, $sValue)
     {
-        $oConfig = oxNew('oxConfig');
-        $oConfig->saveSystemConfigParameter($sType, $sName, $sValue);
-
-        if ($sType == 'num') {
-            $this->assertEquals((float) $sValue, $oConfig->getSystemConfigParameter($sName));
-        } else {
-            $this->assertEquals($sValue, $oConfig->getSystemConfigParameter($sName));
-        }
-    }
-
-    /**
-     * @dataProvider getSystemConfigurationParameters
-     */
-    public function testSaveSystemConfigurationParameterInSubShop($sType, $sName, $sValue)
-    {
-        $this->getConfig()->setShopId(2);
-
         $oConfig = oxNew('oxConfig');
         $oConfig->saveSystemConfigParameter($sType, $sName, $sValue);
 

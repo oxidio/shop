@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Command;
 
@@ -14,9 +17,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\PathUtil\Path;
 
-/**
- * @internal
- */
 class InstallModuleConfigurationCommand extends Command
 {
     const MESSAGE_INSTALLATION_WAS_SUCCESSFUL = 'Module configuration has been installed.';

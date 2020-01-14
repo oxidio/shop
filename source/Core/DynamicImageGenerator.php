@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -56,7 +57,6 @@ namespace {
         }
     }
 }
-
 namespace OxidEsales\EshopCommunity\Core {
 
     /**
@@ -414,13 +414,11 @@ namespace OxidEsales\EshopCommunity\Core {
 
                 // any name matching path?
                 if ($names) {
-                    $decodeField = $config->getDecodeValueQuery();
-
                     // selecting shop which image quality matches user given
                     $q = "select oxshopid
                             from oxconfig
                             where oxvarname = 'sDefaultImageQuality' and
-                       {$decodeField} = :quality";
+                            oxvarvalue = :quality";
 
                     $shopIdsArray = $db->getAll($q, [
                         ':quality' => $quality
@@ -439,7 +437,7 @@ namespace OxidEsales\EshopCommunity\Core {
                         $checkSize = "$width*$height";
 
                         // selecting config variables to check
-                        $q = "select oxvartype, {$decodeField} as oxvarvalue from oxconfig
+                        $q = "select oxvartype, oxvarvalue from oxconfig
                            where oxvarname in ( {$names} ) and oxshopid in ( {$shopIds} ) order by oxshopid";
 
                         $values = $db->getAll($q);
@@ -478,12 +476,14 @@ namespace OxidEsales\EshopCommunity\Core {
             $fileExtensionTarget = strtolower(pathinfo($imageTarget, PATHINFO_EXTENSION));
 
             // Do some validation and return false on failure
-            if (!$this->validateGdVersion()
+            if (
+                !$this->validateGdVersion()
                 || !$this->validateFileExist($imageSource)
                 || !$this->_isTargetPathValid($imageTarget)
                 || !$this->validateImageFileExtension($fileExtensionSource)
                 || !$this->validateImageFileExtension($fileExtensionTarget)
-                || $fileExtensionSource !== $fileExtensionTarget) {
+                || $fileExtensionSource !== $fileExtensionTarget
+            ) {
                 return false;
             }
 

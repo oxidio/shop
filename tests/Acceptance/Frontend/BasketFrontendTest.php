@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -299,7 +300,7 @@ class BasketFrontendTest extends FrontendTestCase
      */
     public function testFrontendOrderStep1Navigation()
     {
-        $this->addToBasket("1001", 1, 'basket', array( 'sel' => array(0=>2)));
+        $this->addToBasket("1001", 1, 'basket', array( 'sel' => array(0 => 2)));
         $this->addToBasket("1002-2");
         $this->addToBasket("1003");
         $this->addToBasket("1000");
@@ -601,7 +602,7 @@ class BasketFrontendTest extends FrontendTestCase
         $this->assertEquals("0800 111114", $this->getValue("invadr[oxuser__oxmobfon]"));
         $this->assertEquals("0800 111113", $this->getValue("invadr[oxuser__oxprivfon]"));
         $this->assertEquals("01", $this->getValue("invadr[oxuser__oxbirthdate][day]"));
-        $this->assertEquals("01", $this->getValue("invadr[oxuser__oxbirthdate][month]"));
+        $this->assertEquals("1", $this->getValue("invadr[oxuser__oxbirthdate][month]"));
         $this->assertEquals("1980", $this->getValue("invadr[oxuser__oxbirthdate][year]"));
         $this->assertEquals("off", $this->getValue("subscribeNewsletter"));
 
@@ -1055,7 +1056,7 @@ class BasketFrontendTest extends FrontendTestCase
      */
     private function _continueToNextStep($iSteps = 1)
     {
-        for ($i=1; $i <= $iSteps; $i++) {
+        for ($i = 1; $i <= $iSteps; $i++) {
             $this->clickAndWait("//button[text()='%CONTINUE_TO_NEXT_STEP%']");
         }
     }

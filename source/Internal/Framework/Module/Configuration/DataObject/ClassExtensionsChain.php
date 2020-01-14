@@ -1,17 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject;
 
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\Exception\ExtensionNotInChainException;
 use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject\ModuleConfiguration\ClassExtension;
 
-/**
- * @internal
- */
 class ClassExtensionsChain implements \IteratorAggregate
 {
     const NAME = 'classExtensions';
@@ -52,7 +52,7 @@ class ClassExtensionsChain implements \IteratorAggregate
      *
      * @return void
      */
-    public function addExtensions(array $extensions) : void
+    public function addExtensions(array $extensions): void
     {
         foreach ($extensions as $extension) {
             $this->addExtension($extension);
@@ -69,8 +69,10 @@ class ClassExtensionsChain implements \IteratorAggregate
         $extended = $classExtension->getShopClassName();
         $extension = $classExtension->getModuleExtensionClassName();
         
-        if (false === array_key_exists($extended, $this->chain) ||
-            false === \array_search($extension, $this->chain[$extended], true)) {
+        if (
+            false === array_key_exists($extended, $this->chain) ||
+            false === \array_search($extension, $this->chain[$extended], true)
+        ) {
             throw new ExtensionNotInChainException(
                 'There is no class ' . $extended . ' extended by class ' .
                 $extension . ' in the current chain'

@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Tests\Integration\Internal\Framework\Module\State;
 
@@ -26,7 +29,7 @@ class ModuleStateServiceTest extends TestCase
         $this->moduleStateService = $this->get(ModuleStateServiceInterface::class);
 
         /** @var ContextStub $contextStub */
-        $contextStub = $this->container->get(ContextInterface::class);
+        $contextStub = $this->get(ContextInterface::class);
         $contextStub->setAllShopIds([1,2]);
 
         if ($this->moduleStateService->isActive('testModuleId', 1)) {
@@ -89,5 +92,4 @@ class ModuleStateServiceTest extends TestCase
 
         $this->moduleStateService->setDeactivated('testModuleId', 1);
     }
-
 }

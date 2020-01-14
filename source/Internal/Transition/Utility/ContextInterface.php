@@ -1,16 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
 
+declare(strict_types=1);
+
 namespace OxidEsales\EshopCommunity\Internal\Transition\Utility;
 
-use OxidEsales\EshopCommunity\Internal\Transition\Utility\BasicContextInterface;
-
-/**
- * @internal
- */
 interface ContextInterface extends BasicContextInterface
 {
     /**
@@ -34,7 +32,29 @@ interface ContextInterface extends BasicContextInterface
     public function getRequiredContactFormFields(): array;
 
     /**
+     * @return bool
+     */
+    public function isEnabledAdminQueryLog(): bool;
+
+    /**
+     * @return bool
+     */
+    public function isAdmin(): bool;
+
+    /**
      * @return string
      */
-    public function getConfigurationEncryptionKey(): string;
+    public function getAdminLogFilePath(): string;
+
+    /**
+     * @return array
+     */
+    public function getSkipLogTags(): array;
+
+    /**
+     * @return string
+     *
+     * @throws AdminUserNotFoundException
+     */
+    public function getAdminUserId(): string;
 }

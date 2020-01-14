@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -22,9 +23,6 @@ class Version20180703135728 extends AbstractMigration
      */
     public function up(Schema $schema)
     {
-        $facts = new Facts();
-        $configFile = new ConfigFile($facts->getSourcePath() . '/config.inc.php');
-        $configKey = is_null($configFile->getVar('sConfigKey')) ? Config::DEFAULT_CONFIG_KEY : $configFile->getVar('sConfigKey');
         $varName = 'contactFormRequiredFields';
         $varType = 'arr';
         $rawValue = serialize(['email']);
@@ -42,7 +40,7 @@ class Version20180703135728 extends AbstractMigration
                       `OXID`,
                       ?, 
                       ?, 
-                      ENCODE(?, ?)
+                      ?
                   FROM `oxshops`                  
                   WHERE NOT EXISTS (
                       SELECT `OXVARNAME` 
@@ -52,7 +50,7 @@ class Version20180703135728 extends AbstractMigration
                   )";
         $this->addSql(
             $query,
-            [$varName, $varType, $rawValue, $configKey, $varName]
+            [$varName, $varType, $rawValue, $varName]
         );
     }
 

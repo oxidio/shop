@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -8,7 +9,7 @@ namespace  OxidEsales\EshopCommunity\Application\Component\Widget;
 
 use OxidEsales\Eshop\Core\Request;
 use OxidEsales\Eshop\Core\Registry;
-use OxidEsales\EshopCommunity\Internal\Framework\Templating\TemplateLoaderInterface;
+use OxidEsales\EshopCommunity\Internal\Framework\Templating\Loader\TemplateLoaderInterface;
 
 /**
  * Category tree widget.

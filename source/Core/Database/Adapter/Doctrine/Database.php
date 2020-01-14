@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
@@ -18,12 +19,17 @@ use OxidEsales\Eshop\Core\Database\Adapter\DatabaseInterface;
 use OxidEsales\Eshop\Core\Exception\DatabaseConnectionException;
 use OxidEsales\Eshop\Core\Exception\DatabaseErrorException;
 use OxidEsales\Eshop\Core\Exception\StandardException;
+use OxidEsales\EshopCommunity\Internal\Framework\Database\Logger\DatabaseLoggerFactoryInterface;
+use OxidEsales\EshopCommunity\Internal\Container\ContainerFactory;
 use PDO;
 
 /**
  * The doctrine implementation of our database.
  *
  * @package OxidEsales\Eshop\Core\Database\Adapter\Doctrine;
+ *
+ * @deprecated since v6.5.0 (2019-09-24);
+ *             Use OxidEsales\EshopCommunity\Internal\Framework\Database\QueryBuilderFactoryInterface
  */
 class Database implements DatabaseInterface
 {
@@ -94,12 +100,6 @@ class Database implements DatabaseInterface
     public function connect()
     {
         $connection = null;
-
-        /**
-         * @todo we need a SQLLogger that logs to a (CSV?) file, as we probably do not want to log into the database.
-         *
-         * $configuration->setSQLLogger(new EchoSQLLogger());
-         */
 
         try {
             $connection = $this->getConnectionFromDriverManager();
@@ -1306,7 +1306,8 @@ class Database implements DatabaseInterface
         $dateTypes = ['YEAR'];
 
         $assignedType = strtoupper($assignedType);
-        if ((
+        if (
+            (
             in_array($assignedType, $integerTypes) ||
                 in_array($assignedType, $fixedPointTypes) ||
                 in_array($assignedType, $floatingPointTypes) ||
@@ -1331,8 +1332,9 @@ class Database implements DatabaseInterface
      */
     protected function getFirstCommandInStatement($query)
     {
+        $singleLineQuery = str_replace(["\r", "\n"], ' ', $query);
         $sqlComments = '@(([\'"]).*?[^\\\]\2)|((?:\#|--).*?$|/\*(?:[^/*]|/(?!\*)|\*(?!/)|(?R))*\*\/)\s*|(?<=;)\s+@ms';
-        $uncommentedQuery = preg_replace($sqlComments, '$1', $query);
+        $uncommentedQuery = preg_replace($sqlComments, '$1', $singleLineQuery);
 
         $command = strtoupper(
             trim(
@@ -1380,10 +1382,24 @@ class Database implements DatabaseInterface
      */
     protected function getConnectionFromDriverManager()
     {
-        $configuration = new Configuration();
-        $connectionParameters = $this->getConnectionParameters();
+        return DriverManager::getConnection($this->getConnectionParameters(), $this->getConnectionConfiguration());
+    }
 
-        return DriverManager::getConnection($connectionParameters, $configuration);
+    private function getConnectionConfiguration(): Configuration
+    {
+        $configuration = new Configuration();
+        $this->configureSqlLogger($configuration);
+        return $configuration;
+    }
+
+    private function configureSqlLogger(Configuration $configuration): void
+    {
+        $container = ContainerFactory::getInstance()->getContainer();
+        /** logger instantiation requires auto-wiring(compiled container) */
+        if ($container->isCompiled()) {
+            $databaseLogger = $container->get(DatabaseLoggerFactoryInterface::class)->getDatabaseLogger();
+            $configuration->setSQLLogger($databaseLogger);
+        }
     }
 
     /**

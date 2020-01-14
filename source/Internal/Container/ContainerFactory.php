@@ -1,19 +1,18 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
 
+declare(strict_types=1);
+
 namespace OxidEsales\EshopCommunity\Internal\Container;
 
-use OxidEsales\EshopCommunity\Internal\Transition\Utility\BasicContextInterface;
+use OxidEsales\EshopCommunity\Internal\Transition\Utility\BasicContext;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
 
-/**
-  *
- * @internal
- */
 class ContainerFactory
 {
     /**
@@ -99,26 +98,11 @@ class ContainerFactory
     }
 
     /**
-     * @todo: move it to another place.
-     *
      * @return string
      */
     private static function getCacheFilePath()
     {
-        $context = self::getBootstrapContainer()->get(BasicContextInterface::class);
-
-        return $context->getContainerCacheFilePath();
-    }
-
-    /**
-     * @return ContainerInterface
-     */
-    private static function getBootstrapContainer(): ContainerInterface
-    {
-        if (self::$bootstrapContainer === null) {
-            self::$bootstrapContainer = BootstrapContainerFactory::getBootstrapContainer();
-        }
-        return self::$bootstrapContainer;
+        return (new BasicContext())->getContainerCacheFilePath();
     }
 
     /**
