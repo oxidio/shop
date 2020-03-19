@@ -60,11 +60,7 @@ $aLang = [
 'BIRTHDATE'                                                   => 'Geburtsdatum',
 'BLOCK_PRICE'                                                 => 'Mengenstaffelpreise',
 'CANCEL'                                                      => 'Beenden',
-'CARD_MASTERCARD'                                             => 'Mastercard',
-'CARD_SECURITY_CODE'                                          => 'Prüfziffer',
-'CARD_SECURITY_CODE_DESCRIPTION'                              => 'Diese befindet sich auf der Rückseite Ihrer Kreditkarte. Die Prüfziffer sind die letzten drei Ziffern im Unterschriftsfeld.',
 'CARD_TO'                                                     => 'Karte an',
-'CARD_VISA'                                                   => 'Visa',
 'CART'                                                        => 'Warenkorb',
 'CATEGORIES'                                                  => 'Kategorien',
 'CATEGORY'                                                    => 'Kategorie',
@@ -95,9 +91,6 @@ $aLang = [
 'COUPON'                                                      => 'Gutschein',
 'COUPON_NOT_ACCEPTED'                                         => 'Der Gutschein "%s" kann nicht akzeptiert werden.',
 'CREATE_PASSWORD'                                             => 'Passwort erstellen',
-// @deprecated since v6.6.0 (2019-12-18); credit card payment method will be no longer supported
-'CREDITCARD'                                                  => 'Karte',
-// END deprecated
 'CURRENT_PRODUCT'                                             => 'Aktueller Artikel',
 'CUSTOMERS_ALSO_BOUGHT'                                       => 'Kunden, die diesen Artikel gekauft haben, kauften auch',
 'DATE'                                                        => 'Datum',

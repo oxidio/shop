@@ -2440,12 +2440,6 @@ return [
         'isInterface'      => false,
         'isDeprecated'     => false
     ],
-    'OxidEsales\Eshop\Core\CreditCardValidator'                                  => [
-        'editionClassName' => \OxidEsales\EshopCommunity\Core\CreditCardValidator::class,
-        'isAbstract'       => false,
-        'isInterface'      => false,
-        'isDeprecated'     => true
-    ],
     'OxidEsales\Eshop\Core\Curl'                                                 => [
         'editionClassName' => \OxidEsales\EshopCommunity\Core\Curl::class,
         'isAbstract'       => false,
@@ -2850,12 +2844,6 @@ return [
     ],
     'OxidEsales\Eshop\Core\Language'                                             => [
         'editionClassName' => \OxidEsales\EshopCommunity\Core\Language::class,
-        'isAbstract'       => false,
-        'isInterface'      => false,
-        'isDeprecated'     => false
-    ],
-    'OxidEsales\Eshop\Core\MailValidator'                                        => [
-        'editionClassName' => \OxidEsales\EshopCommunity\Core\MailValidator::class,
         'isAbstract'       => false,
         'isInterface'      => false,
         'isDeprecated'     => false

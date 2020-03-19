@@ -7,7 +7,8 @@
 
 namespace OxidEsales\EshopCommunity\Application\Controller\Admin;
 
-use OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\AfterRequestProcessedEvent;
+use OxidEsales\Eshop\Core\Str;
+use OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\AfterAdminAjaxRequestProcessedEvent;
 
 /**
  * AJAX call processor class
@@ -142,7 +143,7 @@ class ListComponentAjax extends \OxidEsales\Eshop\Core\Base
     {
         if ($function) {
             $this->$function();
-            $this->dispatchEvent(new AfterRequestProcessedEvent());
+            $this->dispatchEvent(new AfterAdminAjaxRequestProcessedEvent);
         } else {
             $sQAdd = $this->_getQuery();
 
@@ -359,7 +360,7 @@ class ListComponentAjax extends \OxidEsales\Eshop\Core\Base
         if (is_array($aFilter) && count($aFilter)) {
             $aCols = $this->_getVisibleColNames();
             $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-            $oStr = getStr();
+            $oStr = Str::getStr();
 
             foreach ($aFilter as $sCol => $sValue) {
                 // skipping empty filters

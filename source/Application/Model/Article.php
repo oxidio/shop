@@ -11,6 +11,7 @@ use Exception;
 use oxField;
 use OxidEsales\Eshop\Core\Field;
 use OxidEsales\Eshop\Core\Registry;
+use OxidEsales\Eshop\Core\Str;
 use oxList;
 
 // defining supported link types
@@ -26,7 +27,6 @@ define('OXARTICLE_LINKTYPE_RECOMM', 5);
  * Article manager.
  * Creates fully detailed article object, with such information as VAT,
  * discounts, etc.
- *
  */
 class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements \OxidEsales\Eshop\Application\Model\Contract\ArticleInterface, \OxidEsales\Eshop\Core\Contract\IUrl
 {
@@ -70,21 +70,21 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     /**
      * cached article variant min price
      *
-     * @var double | null
+     * @var double|null
      */
     protected $_dVarMinPrice = null;
 
     /**
      * cached article variant max price
      *
-     * @var double | null
+     * @var double|null
      */
     protected $_dVarMaxPrice = null;
 
     /**
      * caches article vat
      *
-     * @var double | null
+     * @var double|null
      */
     protected $_dArticleVat = null;
 
@@ -880,13 +880,13 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     /**
      * Returns price per unit
      *
-     * @return string
+     * @return \OxidEsales\Eshop\Core\Price|null
      */
     public function getUnitPrice()
     {
         // Performance
         if (!\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadPrice') || !$this->_blLoadPrice) {
-            return;
+            return null;
         }
 
         $oPrice = null;
@@ -942,7 +942,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     public function getVarMinPrice()
     {
         if (!\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('bl_perfLoadPrice') || !$this->_blLoadPrice) {
-            return;
+            return null;
         }
 
         $oPrice = null;
@@ -1269,7 +1269,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      *
      * @param bool $blIncludeVariants - include variant ratings
      *
-     * @return double
+     * @return int
      */
     public function getArticleRatingCount($blIncludeVariants = false)
     {
@@ -1690,8 +1690,8 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
                 $oBaseObj->setLanguage($sLanguage);
             }
 
-            $sSql = "select * from " . $oBaseObj->getViewName() . " 
-                where oxparentid = :oxparentid 
+            $sSql = "select * from " . $oBaseObj->getViewName() . "
+                where oxparentid = :oxparentid
                 order by oxsort ";
             $oVariants->selectString($sSql, [':oxparentid' => $sId]);
 
@@ -1727,7 +1727,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
             // if the oxcategory instance of this article is not cached
             if (!isset($this->_aCategoryCache[$sOXID])) {
                 startPRofile('getCategory');
-                $oStr = getStr();
+                $oStr = Str::getStr();
                 $sWhere = $oCategory->getSqlActiveSnippet();
                 $sSelect = $this->_generateSearchStr($sOXID);
                 $sSelect .= ($oStr->strstr(
@@ -1994,10 +1994,10 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
             $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
             $sO2CView = getViewName('oxobject2category', $this->getLanguage());
             $sViewName = getViewName('oxcategories', $this->getLanguage());
-            $sSelect = "select 1 from $sO2CView as $sO2CView 
+            $sSelect = "select 1 from $sO2CView as $sO2CView
                 left join {$sViewName} on {$sViewName}.oxid = $sO2CView.oxcatnid
-                where $sO2CView.oxobjectid = :oxobjectid 
-                    and {$sViewName}.oxactive = :oxactive 
+                where $sO2CView.oxobjectid = :oxobjectid
+                    and {$sViewName}.oxactive = :oxactive
                     and {$sViewName}.oxskipdiscounts = :oxskipdiscounts ";
             $params = [
                 ':oxobjectid' => $this->getId(),
@@ -2215,8 +2215,8 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
         $this->beforeUpdate();
 
         $database = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $query = 'select oxstock 
-            from oxarticles 
+        $query = 'select oxstock
+            from oxarticles
             where oxid = :oxid FOR UPDATE ';
         $actualStock = $database->getOne($query, [
             ':oxid' => $this->getId()
@@ -2341,7 +2341,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
             $iActPicId = \OxidEsales\Eshop\Core\Registry::getConfig()->getRequestParameter('actpicid');
         }
 
-        $oStr = getStr();
+        $oStr = Str::getStr();
         $iCntr = 0;
         $iPicCount = $myConfig->getConfigParam('iPicCount');
         $blCheckActivePicId = true;
@@ -2504,7 +2504,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
 
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb(\OxidEsales\Eshop\Core\DatabaseProvider::FETCH_MODE_ASSOC);
         // fetching DB info as its up-to-date
-        $sQ = 'select oxstock, oxstockflag from oxarticles 
+        $sQ = 'select oxstock, oxstockflag from oxarticles
             where oxid = :oxid';
         $sQ .= $selectForUpdate ? ' FOR UPDATE ' : '';
         $rs = $oDb->select($sQ, [
@@ -2959,13 +2959,24 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     /**
      * Returns formatted delivery date. If the date is past or not set ('0000-00-00') returns false.
      *
-     * @return string | bool
+     * @deprecated since v6.2 (2020-02-26); use getRestockDate();
+     * @return string|bool
      */
     public function getDeliveryDate()
     {
-        $deliveryDate = $this->getFieldData("oxdelivery");
-        if ($deliveryDate >= date('Y-m-d')) {
-            return \OxidEsales\Eshop\Core\Registry::getUtilsDate()->formatDBDate($deliveryDate);
+        return $this->getRestockDate();
+    }
+
+    /**
+     * Returns formatted delivery date. If the date is past or not set ('0000-00-00') returns false.
+     *
+     * @return string|bool
+     */
+    public function getRestockDate()
+    {
+        $restockDate = $this->getFieldData('oxdelivery');
+        if ($restockDate >= date('Y-m-d')) {
+            return Registry::getUtilsDate()->formatDBDate($restockDate);
         }
 
         return false;
@@ -2976,7 +2987,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      *
      * @deprecated since v5.1 (2013-10-03); use getTPrice() and oxPrice modifier;
      *
-     * @return double | bool
+     * @return double|bool
      */
     public function getFTPrice()
     {
@@ -3538,7 +3549,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      * @param bool      $blRemoveNotOrderables if true, removes from list not orderable articles, which are out of stock [optional]
      * @param bool|null $forceCoreTableUsage   if true forces core table use, default is false [optional]
      *
-     * @return array | oxsimplevariantlist | oxarticlelist
+     * @return array|oxsimplevariantlist|oxarticlelist
      */
     protected function _loadVariantList($loadSimpleVariants, $blRemoveNotOrderables = true, $forceCoreTableUsage = null)
     {
@@ -3985,7 +3996,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
                 $sActiveSqlSnippet = " and " . $this->getSqlActiveSnippet(true);
             }
             $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb(\OxidEsales\Eshop\Core\DatabaseProvider::FETCH_MODE_ASSOC);
-            $sQ = "select oxid from " . $this->getViewName(true) . " 
+            $sQ = "select oxid from " . $this->getViewName(true) . "
                 where oxparentid = :oxparentid" . $sActiveSqlSnippet . " order by oxsort";
             $oRs = $oDb->select($sQ, [
                 ':oxparentid' => $sId
@@ -4058,7 +4069,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
     {
         // we do not use lists here as we don't need this overhead right now
         $oDb = \OxidEsales\Eshop\Core\DatabaseProvider::getDb();
-        $sSelect = 'select oxattrid from oxobject2attribute 
+        $sSelect = 'select oxattrid from oxobject2attribute
             where oxobject2attribute.oxobjectid = :oxobjectid';
         if ($this->getParentId()) {
             $sSelect .= ' OR oxobject2attribute.oxobjectid = :oxparentid';
@@ -4185,8 +4196,8 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
             ':oxparentid' => $sParentIdForVariants,
             ':oxid' => $this->oxarticles__oxid->value
         ];
-        $oRs = $oDb->select("select oxid from {$sArtTable} 
-            where oxparentid = :oxparentid 
+        $oRs = $oDb->select("select oxid from {$sArtTable}
+            where oxparentid = :oxparentid
             and oxid != :oxid ", $params);
         if ($oRs != false && $oRs->count() > 0) {
             while (!$oRs->EOF) {
@@ -4356,7 +4367,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      *
      * @param string $sFieldName field name
      *
-     * @return null;
+     * @return null
      */
     protected function _assignParentFieldValue($sFieldName)
     {
@@ -4395,7 +4406,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
      *
      * @param string $sFieldName Field name
      *
-     * @return bool.
+     * @return bool
      */
     protected function _isImageField($sFieldName)
     {
@@ -4480,7 +4491,7 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
             $iOnStock = $this->oxarticles__oxstock->value;
             if (\OxidEsales\Eshop\Core\Registry::getConfig()->getConfigParam('blPsBasketReservationEnabled')) {
                 $session = \OxidEsales\Eshop\Core\Registry::getSession();
-                if ($reservations = $session->getBasketReservations()){
+                if ($reservations = $session->getBasketReservations()) {
                     $iOnStock += $reservations->getReservedAmount($this->getId());
                 }
             }
@@ -4756,9 +4767,9 @@ class Article extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements
             $vendorId = $rs->fields[1];
             $manufacturerId = $rs->fields[2];
 
-            $query = 'SELECT SUM(oxstock) FROM ' . $this->getViewName(true) . ' 
-                WHERE oxparentid = :oxparentid 
-                AND ' . $this->getSqlActiveSnippet(true) . ' 
+            $query = 'SELECT SUM(oxstock) FROM ' . $this->getViewName(true) . '
+                WHERE oxparentid = :oxparentid
+                AND ' . $this->getSqlActiveSnippet(true) . '
                 AND oxstock > 0 ';
             $stock = (float) $database->getOne($query, [
                 ':oxparentid' => $parentId

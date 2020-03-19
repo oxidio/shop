@@ -31,7 +31,7 @@ class ScriptLogicTest extends TestCase
      * Sets up the fixture, for example, open a network connection.
      * This method is called before a test is executed.
      */
-    public function setUp(): void
+    public function setup(): void
     {
         $this->config = Registry::getConfig();
         $this->oldIDebug = $this->config->getConfigParam("iDebug");
@@ -51,11 +51,10 @@ class ScriptLogicTest extends TestCase
 
     /**
      * @covers ScriptLogic::include
-     *
-     * @expectedException \PHPUnit\Framework\Error\Warning
      */
     public function testIncludeFileNotExists(): void
     {
+        $this->expectWarning();
         $this->scriptLogic->include('somescript.js');
     }
 

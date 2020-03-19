@@ -76,7 +76,6 @@ class ApplicationServerDao implements \OxidEsales\Eshop\Core\Dao\ApplicationServ
      * Deletes the entity with the given id.
      *
      * @param string $id An id of the entity to delete.
-     *
      */
     public function delete($id)
     {
@@ -164,7 +163,7 @@ class ApplicationServerDao implements \OxidEsales\Eshop\Core\Dao\ApplicationServ
 
         $parameter = [
             ':value' => $this->convertAppServerToConfigOption($appServer),
-            ':oxvarname' => self::CONFIG_NAME_FOR_SERVER_INFO.$appServer->getId(),
+            ':oxvarname' => self::CONFIG_NAME_FOR_SERVER_INFO . $appServer->getId(),
             ':oxshopid' => $this->config->getBaseShopId()
         ];
 

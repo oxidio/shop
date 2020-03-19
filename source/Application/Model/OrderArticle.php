@@ -8,6 +8,7 @@
 namespace OxidEsales\EshopCommunity\Application\Model;
 
 use OxidEsales\EshopCommunity\Application\Model\Contract\ArticleInterface;
+use OxidEsales\Eshop\Core\Str;
 
 /**
  * Order article manager.
@@ -345,7 +346,7 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
      *
      * @param string $sArticleId article id (optional, is not passed oxorderarticles__oxartid will be used)
      *
-     * @return \OxidEsales\Eshop\Application\Model\Article | false
+     * @return \OxidEsales\Eshop\Application\Model\Article|false
      */
     protected function _getOrderArticle($sArticleId = null)
     {
@@ -399,7 +400,7 @@ class OrderArticle extends \OxidEsales\Eshop\Core\Model\BaseModel implements Art
 
             if ($oArticle = $this->_getOrderArticle($sArtId)) {
                 $aList = explode(", ", $sOrderArtSelList);
-                $oStr = getStr();
+                $oStr = Str::getStr();
 
                 $aArticleSelList = $oArticle->getSelectLists();
 

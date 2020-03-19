@@ -199,7 +199,6 @@ class Database implements DatabaseInterface
      * Adds the param driverOptions to an existing array of connection parameters
      *
      * @param array $existingParameters
-     *
      */
     protected function addDriverOptions(array &$existingParameters)
     {
@@ -231,7 +230,6 @@ class Database implements DatabaseInterface
      *
      * @param array  $existingParameters
      * @param string $connectionCharset
-     *
      */
     protected function addConnectionCharset(array &$existingParameters, $connectionCharset)
     {
@@ -507,45 +505,23 @@ class Database implements DatabaseInterface
     }
 
     /**
-     * Set the transaction isolation level.
-     * Allowed values 'READ UNCOMMITTED', 'READ COMMITTED', 'REPEATABLE READ' and 'SERIALIZABLE'.
-     *
-     * NOTE: Currently the transaction isolation level is set on the database session and not globally.
-     * Setting the transaction isolation level globally requires root privileges in MySQL an this application should not
-     * be executed with root privileges.
-     * If you need to set the transaction isolation level globally, ask your database administrator to do so,
-     * This method is MySQL specific, as we use the MySQL syntax for setting the transaction isolation level.
-     *
      * @see Doctrine::transactionIsolationLevelMap
      *
      * @param string $level The transaction isolation level
      *
-     * @throws \InvalidArgumentException|DatabaseErrorException     *
+     * @throws \InvalidArgumentException|DatabaseErrorException
      *
-     * @return bool|integer
+     * @return bool|int
      */
     public function setTransactionIsolationLevel($level)
     {
-        $result = false;
-        $availableLevels = array_keys($this->transactionIsolationLevelMap);
+        $level = strtoupper($level);
 
-        if (!in_array(strtoupper($level), $availableLevels)) {
-            throw new \InvalidArgumentException();
+        if (!array_key_exists($level, $this->transactionIsolationLevelMap)) {
+            throw new \InvalidArgumentException('Transaction isolation level is invalid');
         }
 
-        try {
-            if (in_array(strtoupper($level), $availableLevels)) {
-                $result = $this->execute('SET SESSION TRANSACTION ISOLATION LEVEL ' . $level);
-            }
-        } catch (DBALException $exception) {
-            $exception = $this->convertException($exception);
-            $this->handleException($exception);
-        } catch (PDOException $exception) {
-            $exception = $this->convertException($exception);
-            $this->handleException($exception);
-        }
-
-        return $result;
+        return $this->getConnection()->setTransactionIsolation($this->transactionIsolationLevelMap[$level]);
     }
 
     /**
@@ -1059,8 +1035,7 @@ class Database implements DatabaseInterface
     {
         $connection = $this->getConnection();
         $databaseName = $connection->getDatabase();
-        $query = "
-            SELECT
+        $query = "SELECT
               COLUMN_NAME AS `Field`,
               COLUMN_TYPE AS `Type`,
               IS_NULLABLE AS `Null`,
@@ -1074,7 +1049,8 @@ class Database implements DatabaseInterface
             WHERE
               TABLE_SCHEMA = '$databaseName'
               AND
-              TABLE_NAME = '$table'";
+              TABLE_NAME = '$table'
+            ORDER BY ORDINAL_POSITION ASC";
 
         try {
             $columns = $connection->executeQuery($query)->fetchAll();

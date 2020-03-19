@@ -7,6 +7,8 @@
 
 namespace OxidEsales\EshopCommunity\Core;
 
+use OxidEsales\Eshop\Core\Str;
+
 /**
  * Database field description object.
  *
@@ -95,7 +97,7 @@ class Field // extends \OxidEsales\Eshop\Core\Base
      *
      * @param string $name Variable name
      *
-     * @return string | null
+     * @return string|null
      */
     public function __get($name)
     {
@@ -105,7 +107,7 @@ class Field // extends \OxidEsales\Eshop\Core\Base
                 break;
             case 'value':
                 if (is_string($this->rawValue)) {
-                    $this->value = getStr()->htmlspecialchars($this->rawValue);
+                    $this->value = Str::getStr()->htmlspecialchars($this->rawValue);
                 } else {
                     // TODO: call htmlentities for each value (recursively?)
                     $this->value = $this->rawValue;
@@ -145,7 +147,7 @@ class Field // extends \OxidEsales\Eshop\Core\Base
      */
     public function convertToPseudoHtml()
     {
-        $this->setValue(str_replace("\r", '', nl2br(getStr()->htmlspecialchars($this->rawValue))), self::T_RAW);
+        $this->setValue(str_replace("\r", '', nl2br(Str::getStr()->htmlspecialchars($this->rawValue))), self::T_RAW);
     }
 
     /**

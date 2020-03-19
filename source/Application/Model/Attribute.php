@@ -10,11 +10,11 @@ namespace OxidEsales\EshopCommunity\Application\Model;
 use oxDb;
 use oxRegistry;
 use oxField;
+use OxidEsales\Eshop\Core\Str;
 
 /**
  * Article attributes manager.
  * Collects and keeps attributes of chosen article.
- *
  */
 class Attribute extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
 {
@@ -143,7 +143,7 @@ class Attribute extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
         $sAttViewName = getViewName('oxattribute');
 
         return $oDb->getOne("select oxid from $sAttViewName where LOWER(oxtitle) = :oxtitle ", [
-            ':oxtitle' => getStr()->strtolower($sSelTitle)
+            ':oxtitle' => Str::getStr()->strtolower($sSelTitle)
         ]);
     }
 
@@ -175,7 +175,7 @@ class Attribute extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
      *
      * @param string $sArtId article ids
      *
-     * @return null;
+     * @return null
      */
     public function getAttributeAssigns($sArtId)
     {
@@ -208,7 +208,7 @@ class Attribute extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
      */
     public function setTitle($sTitle)
     {
-        $this->_sTitle = getStr()->htmlspecialchars($sTitle);
+        $this->_sTitle = Str::getStr()->htmlspecialchars($sTitle);
     }
 
     /**
@@ -228,7 +228,7 @@ class Attribute extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
      */
     public function addValue($sValue)
     {
-        $this->_aValues[] = getStr()->htmlspecialchars($sValue);
+        $this->_aValues[] = Str::getStr()->htmlspecialchars($sValue);
     }
 
     /**
@@ -238,7 +238,7 @@ class Attribute extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel
      */
     public function setActiveValue($sValue)
     {
-        $this->_sActiveValue = getStr()->htmlspecialchars($sValue);
+        $this->_sActiveValue = Str::getStr()->htmlspecialchars($sValue);
     }
 
     /**

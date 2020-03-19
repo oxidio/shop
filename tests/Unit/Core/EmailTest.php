@@ -30,7 +30,7 @@ class EmailTest extends \OxidTestCase
      *
      * @return null
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -94,7 +94,7 @@ class EmailTest extends \OxidTestCase
      *
      * @return null
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $oActShop = $this->getConfig()->getActiveShop();
         $oActShop->setLanguage(0);
@@ -656,7 +656,7 @@ class EmailTest extends \OxidTestCase
     }
 
     /*
-     * Test setting reply to with empty value. Should assign deffault reply to address
+     * Test setting reply to with empty value. Should assign default reply to address
      */
     public function testSetReplyToWithNoParams()
     {
@@ -1018,8 +1018,8 @@ class EmailTest extends \OxidTestCase
     {
         $headerLine = $this->_oEmail->headerLine('testName', 'testValue');
 
-        $this->assertContains('testName', $headerLine);
-        $this->assertContains('testValue', $headerLine);
+        $this->assertStringContainsString('testName', $headerLine);
+        $this->assertStringContainsString('testValue', $headerLine);
     }
 
     public function testHeaderLineXMailer()

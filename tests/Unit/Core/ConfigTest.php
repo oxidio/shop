@@ -63,7 +63,7 @@ class ConfigTest extends \OxidTestCase
      *
      * @return null
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->getConfig()->sTheme = false;
@@ -81,7 +81,7 @@ class ConfigTest extends \OxidTestCase
      *
      * @return null
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         oxRegistry::getLang()->setBaseLanguage(1);
 
@@ -2140,7 +2140,7 @@ class ConfigTest extends \OxidTestCase
         $oConfig = oxNew('oxConfig');
         $oConfig->init();
         $oConfig->setConfigParam('blFormerTplSupport', true);
-        $this->assertContains('nopic.jpg', $oConfig->getPictureUrl("test.gif", false));
+        $this->assertStringContainsString('nopic.jpg', $oConfig->getPictureUrl("test.gif", false));
     }
 
     public function testGetPictureUrlNeverEmptyString()
@@ -2149,7 +2149,7 @@ class ConfigTest extends \OxidTestCase
         $oConfig->init();
         $oConfig->setConfigParam('blFormerTplSupport', true);
         $this->assertNotEquals('', $oConfig->getPictureUrl("test.gif", false));
-        $this->assertContains('master/nopic.jpg', $oConfig->getPictureUrl("test.gif", false));
+        $this->assertStringContainsString('master/nopic.jpg', $oConfig->getPictureUrl("test.gif", false));
     }
 
     public function testgetPictureUrlForBugEntry0001557()

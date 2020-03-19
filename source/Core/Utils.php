@@ -7,8 +7,9 @@
 
 namespace OxidEsales\EshopCommunity\Core;
 
-use stdClass;
 use Exception;
+use OxidEsales\Eshop\Core\Str;
+use stdClass;
 
 /**
  * General utils class
@@ -424,7 +425,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
      *
      * @param string $sKey Cache key.
      *
-     * @return null;
+     * @return null
      */
     public function fromPhpFileCache($sKey)
     {
@@ -494,37 +495,33 @@ class Utils extends \OxidEsales\Eshop\Core\Base
     public function fromFileCache($sKey)
     {
         if (!array_key_exists($sKey, $this->_aFileCacheContents)) {
-            $sRes = null;
-
             $aMeta = $this->getCacheMeta($sKey);
-            $blInclude = isset($aMeta["include"]) ? $aMeta["include"] : false;
             $sCachePath = isset($aMeta["cachepath"]) ? $aMeta["cachepath"] : $this->getCacheFilePath($sKey);
-
-            // trying to lock
-            $this->_lockFile($sCachePath, $sKey, LOCK_SH);
 
             clearstatcache();
             if (is_readable($sCachePath)) {
+                $this->_lockFile($sCachePath, $sKey, LOCK_SH);
+
+                $blInclude = isset($aMeta["include"]) ? $aMeta["include"] : false;
                 $sRes = $blInclude ? $this->_includeFile($sCachePath) : $this->_readFile($sCachePath);
-            }
 
-            if (isset($sRes['ttl']) && $sRes['ttl'] != 0) {
-                $iTimestamp = $sRes['timestamp'];
-                $iTtl = $sRes['ttl'];
+                if (isset($sRes['ttl']) && $sRes['ttl'] != 0) {
+                    $iTimestamp = $sRes['timestamp'];
+                    $iTtl = $sRes['ttl'];
 
-                $iTime = \OxidEsales\Eshop\Core\Registry::getUtilsDate()->getTime();
-                if ($iTime > $iTimestamp + $iTtl) {
-                    return null;
+                    $iTime = \OxidEsales\Eshop\Core\Registry::getUtilsDate()->getTime();
+                    if ($iTime > $iTimestamp + $iTtl) {
+                        return null;
+                    }
                 }
-            }
-            // release lock
-            $this->_releaseFile($sKey, LOCK_SH);
 
-            // caching
-            $this->_aFileCacheContents[$sKey] = $sRes;
+                $this->_aFileCacheContents[$sKey] = $sRes;
+
+                $this->_releaseFile($sKey, LOCK_SH);
+            }
         }
 
-        return $this->_aFileCacheContents[$sKey]['content'];
+        return isset($this->_aFileCacheContents[$sKey]) ? $this->_aFileCacheContents[$sKey]['content'] : null;
     }
 
     /**
@@ -1003,7 +1000,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
      */
     public function isValidAlpha($sField)
     {
-        return (bool) getStr()->preg_match('/^[a-zA-Z0-9_]*$/', $sField);
+        return (bool)Str::getStr()->preg_match('/^[a-zA-Z0-9_]*$/', $sField);
     }
 
     /**
@@ -1144,7 +1141,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
      */
     protected function _addUrlParameters($sUrl, $aParams)
     {
-        $sDelimiter = ((getStr()->strpos($sUrl, '?') !== false)) ? '&' : '?';
+        $sDelimiter = ((Str::getStr()->strpos($sUrl, '?') !== false)) ? '&' : '?';
         foreach ($aParams as $sName => $sVal) {
             $sUrl = $sUrl . $sDelimiter . $sName . '=' . $sVal;
             $sDelimiter = '&';
@@ -1175,7 +1172,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
             $oObject->price = isset($aPrice[1]) ? $aPrice[1] : 0;
             $aName[0] = isset($aPrice[0]) ? $aPrice[0] : '';
 
-            $iPercPos = getStr()->strpos($oObject->price, '%');
+            $iPercPos = Str::getStr()->strpos($oObject->price, '%');
             if ($iPercPos !== false) {
                 $oObject->priceUnit = '%';
                 $oObject->fprice = $oObject->price;
@@ -1210,7 +1207,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
             }
         } elseif (isset($aPrice[0]) && isset($aPrice[1])) {
             // A. removing unused part of information
-            $aName[0] = getStr()->preg_replace("/!P!.*/", "", $aName[0]);
+            $aName[0] = Str::getStr()->preg_replace("/!P!.*/", "", $aName[0]);
         }
 
         $oObject->name = $aName[0];
@@ -1411,7 +1408,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
      */
     public function checkUrlEndingSlash($sUrl)
     {
-        if (!getStr()->preg_match("/\/$/", $sUrl)) {
+        if (!Str::getStr()->preg_match("/\/$/", $sUrl)) {
             $sUrl .= '/';
         }
 
@@ -1449,7 +1446,7 @@ class Utils extends \OxidEsales\Eshop\Core\Base
      */
     public function extractDomain($sHost)
     {
-        $oStr = getStr();
+        $oStr = Str::getStr();
         if (
             !$oStr->preg_match('/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/', $sHost) &&
             ($iLastDot = strrpos($sHost, '.')) !== false

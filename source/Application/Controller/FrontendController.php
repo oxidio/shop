@@ -1053,7 +1053,7 @@ class FrontendController extends \OxidEsales\Eshop\Core\Controller\BaseControlle
                 $content->loadByIdent($metaIdent) &&
                 $content->oxcontents__oxactive->value
             ) {
-                return getStr()->strip_tags($content->oxcontents__oxcontent->value);
+                return Str::getStr()->strip_tags($content->oxcontents__oxcontent->value);
             }
         }
     }
@@ -1267,7 +1267,7 @@ class FrontendController extends \OxidEsales\Eshop\Core\Controller\BaseControlle
     protected function _prepareMetaDescription($meta, $length = 1024, $removeDuplicatedWords = false)
     {
         if ($meta) {
-            $stringModifier = getStr();
+            $stringModifier = Str::getStr();
             if ($length != -1) {
                 /* *
                  * performance - we do not need a huge amount of initial text.
@@ -1331,7 +1331,7 @@ class FrontendController extends \OxidEsales\Eshop\Core\Controller\BaseControlle
      */
     protected function _removeDuplicatedWords($input, $skipTags = [])
     {
-        $stringModifier = getStr();
+        $stringModifier = Str::getStr();
         if (is_array($input)) {
             $input = implode(" ", $input);
         }
@@ -2571,7 +2571,7 @@ class FrontendController extends \OxidEsales\Eshop\Core\Controller\BaseControlle
     /**
      * Returns array of fields which must be filled during registration
      *
-     * @return array | bool
+     * @return array|bool
      */
     public function getMustFillFields()
     {
@@ -2593,7 +2593,7 @@ class FrontendController extends \OxidEsales\Eshop\Core\Controller\BaseControlle
      *
      * @param string $field required field to check
      *
-     * @return array | bool
+     * @return array|bool
      */
     public function isFieldRequired($field)
     {

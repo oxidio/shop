@@ -12,7 +12,6 @@ use oxField;
 
 /**
  * Vendor manager
- *
  */
 class Vendor extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements \OxidEsales\Eshop\Core\Contract\IUrl
 {
@@ -108,7 +107,7 @@ class Vendor extends \OxidEsales\Eshop\Core\Model\MultiLanguageModel implements 
      *
      * @param string $sOxid object id
      *
-     * @return oxvendor
+     * @return bool
      */
     public function load($sOxid)
     {
