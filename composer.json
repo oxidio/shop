@@ -75,8 +75,7 @@
         "branch-alias": {
             "dev-oxidio-6.1.x": "6.3.x-dev",
             "dev-oxidio-6.2.x": "6.5.x-dev",
-            "dev-oxidio-6.x": "6.7.x-dev",
-            "dev-oxidio-master": "6.x-dev"
+            "dev-oxidio-master": "6.7.x-dev"
         },
         "oxideshop": {
             "blacklist-filter": [
