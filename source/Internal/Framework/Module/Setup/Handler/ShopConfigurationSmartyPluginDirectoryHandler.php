@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Handler;
 
@@ -14,34 +17,13 @@ use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject
 
 class ShopConfigurationSmartyPluginDirectoryHandler implements ModuleConfigurationHandlerInterface
 {
-    /**
-     * @var string
-     */
-    private $settingName;
-
-    /**
-     * @var string
-     */
-    private $shopConfigurationSettingName;
-
-    /**
-     * @var ShopConfigurationSettingDaoInterface
-     */
+    /** @var ShopConfigurationSettingDaoInterface */
     private $shopConfigurationSettingDao;
 
-    /**
-     * ShopConfigurationModuleSettingHandler constructor.
-     * @param string                               $settingName
-     * @param string                               $shopConfigurationSettingName
-     * @param ShopConfigurationSettingDaoInterface $shopConfigurationSettingDao
-     */
+    /** @param ShopConfigurationSettingDaoInterface $shopConfigurationSettingDao */
     public function __construct(
-        string                                  $settingName,
-        string                                  $shopConfigurationSettingName,
-        ShopConfigurationSettingDaoInterface    $shopConfigurationSettingDao
+        ShopConfigurationSettingDaoInterface $shopConfigurationSettingDao
     ) {
-        $this->settingName = $settingName;
-        $this->shopConfigurationSettingName = $shopConfigurationSettingName;
         $this->shopConfigurationSettingDao = $shopConfigurationSettingDao;
     }
 
@@ -107,14 +89,14 @@ class ShopConfigurationSmartyPluginDirectoryHandler implements ModuleConfigurati
     {
         try {
             $shopConfigurationSetting = $this->shopConfigurationSettingDao->get(
-                $this->shopConfigurationSettingName,
+                ShopConfigurationSetting::MODULE_SMARTY_PLUGIN_DIRECTORIES,
                 $shopId
             );
         } catch (EntryDoesNotExistDaoException $exception) {
             $shopConfigurationSetting = new ShopConfigurationSetting();
             $shopConfigurationSetting
                 ->setShopId($shopId)
-                ->setName($this->shopConfigurationSettingName)
+                ->setName(ShopConfigurationSetting::MODULE_SMARTY_PLUGIN_DIRECTORIES)
                 ->setType(ShopSettingType::ARRAY)
                 ->setValue([]);
         }

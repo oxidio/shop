@@ -64,7 +64,9 @@ $aLang = [
 'MOD_SERVER_PERMISSIONS'                        => 'Files/folders access rights',
 'MOD_ALLOW_URL_FOPEN'                           => 'allow_url_fopen and fsockopen to port 80',
 'MOD_PHP4_COMPAT'                               => 'Zend compatibility mode must be off',
-'MOD_PHP_VERSION'                               => 'PHP version 7.1 or 7.2',
+// @deprecated since v.6.5.1 (2020-02-12);
+'MOD_PHP_VERSION'                               => 'PHP version from 7.1 to 7.4',
+// END deprecated
 'MOD_REQUEST_URI'                               => 'REQUEST_URI set',
 'MOD_LIB_XML2'                                  => 'LIB XML2',
 'MOD_PHP_XML'                                   => 'DOM',
@@ -73,7 +75,7 @@ $aLang = [
 'MOD_TOKENIZER'                                 => 'Tokenizer',
 'MOD_BC_MATH'                                   => 'BCMath',
 'MOD_MYSQL_CONNECT'                             => 'PDO_MySQL',
-'MOD_MYSQL_VERSION'                             => 'MySQL version 5.5 or 5.7',
+'MOD_MYSQL_VERSION'                             => 'MySQL version 5.5, 5.7 or MariaDB',
 'MOD_GD_INFO'                                   => 'GDlib v2 incl. JPEG support',
 'MOD_INI_SET'                                   => 'ini_set allowed',
 'MOD_REGISTER_GLOBALS'                          => 'register_globals must be off',

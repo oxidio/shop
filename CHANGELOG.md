@@ -4,20 +4,85 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [6.5.1] - Unreleased
+## [6.5.2] - 2020-03-16
+
+### Deprecated
+- `OxidEsales\EshopCommunity\Application\Model\Article::getDeliveryDate()` [PR-768](https://github.com/OXID-eSales/oxideshop_ce/pull/768)
+- Language Variable:
+    - `SYSREQ_MYSQL_VERSION`
+### Fixed
+- Issue with session ID regeneration on user registration
+### Removed
+- `OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Handler\ShopConfigurationModuleSettingHandler`
+
+## [6.5.1] - 2020-02-25
 
 ### Deprecated
 - `OxidEsales\Eshop\Core\Config::getDecodeValueQuery()`
 - `OxidEsales\Eshop\Core\Config::$sConfigKey`
+- `OxidEsales\EshopCommunity\Core\Base::$_oRights`
 - `OxidEsales\Eshop\Core\Config::DEFAULT_CONFIG_KEY`
 - `Conf`
-- `OxidEsales\Eshop\Core\Registry\UserPayment::_insert()`
-- `OxidEsales\EshopCommunity\Core\InputValidator::validatePaymentInputData()`
-- `OxidEsales\EshopCommunity\Application\Controller\PaymentController::validatePayment()`
+- `OxidEsales\Eshop\Core\Session::$_blStarted`
+- `OxidEsales\Eshop\Application\Model\UserPayment::$_sPaymentKey`
+- `OxidEsales\Eshop\Application\Model\UserPayment::getPaymentKey()`
+- `OxidEsales\EshopCommunity\Core\SystemRequirements::checkMysqlVersion()`
+- `OxidEsales\EshopCommunity\Core\SystemRequirements::checkPhpVersion()`
+- `OxidEsales\EshopCommunity\Core\MailValidator`
+- Language Variable:
+    - `SYSREQ_PHP_VERSION`
+    - `MOD_PHP_VERSION`
+- Credit Card:
+    - Class:
+        - `OxidEsales\Eshop\Core\CreditCardValidator`
+    - Function: 
+        - `OxidEsales\Eshop\Application\Controller\PaymentController::_filterDynData()`
+        - `OxidEsales\Eshop\Application\Model\UserPayment::setStoreCreditCardInfo()`
+        - `OxidEsales\Eshop\Application\Model\UserPayment::getStoreCreditCardInfo()`
+        - `OxidEsales\Eshop\Application\Controller\PaymentController::getCreditYears()`
+        - `OxidEsales\Eshop\Application\Controller\PaymentController::getDynDataFiltered()`
+    - Property:     
+        - `OxidEsales\Eshop\Core\InputValidator::$_aRequiredCCFields`
+        - `OxidEsales\Eshop\Core\InputValidator::$_aPossibleCCType`
+        - `OxidEsales\Eshop\Application\Controller\PaymentController::$_blDynDataFiltered`
+        - `OxidEsales\Eshop\Application\Model\UserPayment::$_blStoreCreditCardInfo`
+        - `OxidEsales\Eshop\Application\Controller\PaymentController::$_aCreditYears`
+    - Language Variable:
+        - `CREDITCARD`
+        - `PAYMENT_CREDITCARD`
+        - `SHOP_CONFIG_STORECREDITCARDINFO`
+        - `PAYMENT_RDFA_CREDITCARD`
+        - `PAYMENT_RDFA_MASTERCARD`
+        - `PAYMENT_RDFA_VISA`
+        - `PAYMENT_RDFA_AMERICANEXPRESS`
+        - `PAYMENT_RDFA_DINERSCLUB`
+        - `PAYMENT_RDFA_DISCOVER`
+        - `PAYMENT_RDFA_JCB`
+        - `PAGE_CHECKOUT_PAYMENT_CREDITCARD`
+        - `CARD_SECURITY_CODE_DESCRIPTION`
+        - `HELP_SHOP_CONFIG_ATTENTION`
+        - `CARD_MASTERCARD`
+        - `CARD_SECURITY_CODE`
+        - `CARD_VISA`
 
 ### Fixed
 - Warnings in order discounts recalculation [PR-742](https://github.com/OXID-eSales/oxideshop_ce/pull/742)
 - Require at least 3.4.26 DI component [PR-746](https://github.com/OXID-eSales/oxideshop_ce/pull/746)
+- Fix return type annoation for `OxidEsales\EshopCommunity\Application\Model::load()` to `bool`
+- Handle translated error message from validator in password change correctly [PR-731](https://github.com/OXID-eSales/oxideshop_ce/pull/731)
+- Fix docblock and var name in NavigationController::_doStartUpChecks [PR-751](https://github.com/OXID-eSales/oxideshop_ce/pull/751)
+
+### Added
+- Support MariaDB (tested for MariaDB 10.4)
+- Support PHP 7.3 and 7.4
+- Utilizes Travis CI caching feature for faster builds
+- Uninstall method for removing module
+- Add possibility to overwrite the offline page [PR-755](https://github.com/OXID-eSales/oxideshop_ce/pull/755)
+- Email validation extracted to service `OxidEsales\EshopCommunity\Internal\Domain\Email\EmailValidationService`
+- Events:
+    - `\OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Event\ServicesYamlConfigurationErrorEvent`
+    - `\OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\AfterAdminAjaxRequestProcessedEvent`
+    - `\OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\AfterRequestProcessedEvent`
 
 ## [6.5.0] - 2019-11-07
 
@@ -114,17 +179,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     - `\OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Event\FinalizingModuleDeactivationEvent`
     - `\OxidEsales\EshopCommunity\Internal\Framework\Config\Event\ShopConfigurationChangedEvent`
     - `\OxidEsales\EshopCommunity\Internal\Framework\Module\Setting\Event\SettingChangedEvent`
-    - `\OxidEsales\EshopCommunity\Internal\ShopEvents\AfterModelDeleteEvent`
-    - `\OxidEsales\EshopCommunity\Internal\ShopEvents\AfterModelInsertEvent`
-    - `\OxidEsales\EshopCommunity\Internal\ShopEvents\AfterModelUpdateEvent`
-    - `\OxidEsales\EshopCommunity\Internal\ShopEvents\AllCookiesRemovedEvent`
-    - `\OxidEsales\EshopCommunity\Internal\ShopEvents\ApplicationExitEvent`
-    - `\OxidEsales\EshopCommunity\Internal\ShopEvents\BasketChangedEvent`
-    - `\OxidEsales\EshopCommunity\Internal\ShopEvents\BeforeHeadersSendEvent`
-    - `\OxidEsales\EshopCommunity\Internal\ShopEvents\BeforeModelDeleteEvent`
-    - `\OxidEsales\EshopCommunity\Internal\ShopEvents\BeforeModelUpdateEvent`
-    - `\OxidEsales\EshopCommunity\Internal\ShopEvents\BeforeSessionStartEvent`
-    - `\OxidEsales\EshopCommunity\Internal\ShopEvents\ViewRenderedEvent`
+    - `\OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\AfterModelDeleteEvent`
+    - `\OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\AfterModelInsertEvent`
+    - `\OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\AfterModelUpdateEvent`
+    - `\OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\AllCookiesRemovedEvent`
+    - `\OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\ApplicationExitEvent`
+    - `\OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\BasketChangedEvent`
+    - `\OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\BeforeHeadersSendEvent`
+    - `\OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\BeforeModelDeleteEvent`
+    - `\OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\BeforeModelUpdateEvent`
+    - `\OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\BeforeSessionStartEvent`
+    - `\OxidEsales\EshopCommunity\Internal\Transition\ShopEvents\ViewRenderedEvent`
     - `\OxidEsales\EshopCommunity\Internal\Framework\Theme\Event\ThemeSettingChangedEvent`
 - Interface:
     - `\OxidEsales\EshopCommunity\Internal\Domain\Authentication\Bridge\PasswordServiceBridgeInterface` as the new default 
@@ -228,6 +293,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Fix the host for checking the SystemRequirements->fsockopen to working one [#0006606](https://bugs.oxid-esales.com/view.php?id=6606) [PR-556](https://github.com/OXID-eSales/oxideshop_ce/pull/556)
 - Fix more complex multiline query command detection [PR-734](https://github.com/OXID-eSales/oxideshop_ce/pull/734)
+- Issue with session ID regeneration on user registration
 
 ## [6.3.6] - 2019-10-29
 
@@ -724,7 +790,8 @@ See
 - [OXID eShop v6.0.0 Beta1: Overview of Changes](https://oxidforge.org/en/oxid-eshop-v6-0-0-beta1-overview-of-changes.html)
 - [OXID eShop v6.0.0 Beta1: Detailed Code Changelog](https://oxidforge.org/en/oxid-eshop-v6-0-0-beta1-detailed-code-changelog.html)
 
-[6.5.1]: https://github.com/OXID-eSales/oxideshop_ce/compare/v6.5.0...b-6.2.x
+[6.5.2]: https://github.com/OXID-eSales/oxideshop_ce/compare/v6.5.1...v6.5.2
+[6.5.1]: https://github.com/OXID-eSales/oxideshop_ce/compare/v6.5.0...v6.5.1
 [6.5.0]: https://github.com/OXID-eSales/oxideshop_ce/compare/v6.4.0...v6.5.0
 [6.4.0]: https://github.com/OXID-eSales/oxideshop_ce/compare/v6.3.5...v6.4.0
 [6.3.6]: https://github.com/OXID-eSales/oxideshop_ce/compare/v6.3.5...v6.3.6

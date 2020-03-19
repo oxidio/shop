@@ -1113,7 +1113,11 @@ $aLang = [
     'SHOP_CONFIG_STOCKWARNINGLIMIT'                           => 'Lagerbestand, ab dem den Benutzern angezeigt wird, dass nur noch wenige Artikel auf Lager sind',
     'SHOP_CONFIG_STOCKOFFDEFAULTMESSAGE'                      => 'Die "Nicht-auf-Lager"-Standardmeldung nutzen',
     'SHOP_CONFIG_STOCKONDEFAULTMESSAGE'                       => 'Die "Auf-Lager"-Standardmeldung nutzen',
+
+    // @deprecated since v6.5.1 (2019-02-07); credit card payment method will be no longer supported
     'SHOP_CONFIG_STORECREDITCARDINFO'                         => 'Kreditkarten-Informationen speichern',
+    // END deprecated
+
     'SHOP_CONFIG_SHOWTSINTERNATIONALFEESMESSAGE'              => 'Zeige Meldung über mögliche internationale Liefergebühren',
     'SHOP_CONFIG_SHOWTSCODMESSAGE'                            => 'Zeige Meldung über mögliche Nachnahmegebühren',
     'SHOP_CONFIG_TIMEFORMAT'                                  => 'Zeitformat im Administrationsbereich',
@@ -1231,7 +1235,9 @@ $aLang = [
     'SYSREQ_MOD_REWRITE'                      => 'Apache mod_rewrite Modul',
     'SYSREQ_ALLOW_URL_FOPEN'                  => 'allow_url_fopen oder fsockopen auf Port 80',
     'SYSREQ_PHP4_COMPAT'                      => 'Zend Kompatibilitätsmodus muss ausgeschaltet sein',
-    'SYSREQ_PHP_VERSION'                      => 'PHP Version 7.1 oder 7.2',
+    // @deprecated since v.6.5.1 (2020-02-12);
+    'SYSREQ_PHP_VERSION'                      => 'PHP Version 7.1 and 7.4',
+    // END deprecated
     'SYSREQ_REQUEST_URI'                      => 'REQUEST_URI vorhanden',
     'SYSREQ_LIB_XML2'                         => 'LIB XML2',
     'SYSREQ_PHP_XML'                          => 'DOM',
@@ -1240,7 +1246,11 @@ $aLang = [
     'SYSREQ_TOKENIZER'                        => 'Tokenizer',
     'SYSREQ_BC_MATH'                          => 'BCMath',
     'SYSREQ_MYSQL_CONNECT'                    => 'PDO_MySQL',
+
+    // @deprecated since v6.5.1 (2020-03-12); We do not check mysql version
     'SYSREQ_MYSQL_VERSION'                    => 'MySQL Version 5.5 oder 5.7',
+    // END deprecated
+
     'SYSREQ_GD_INFO'                          => 'GDlib v2 incl. JPEG Unterstützung',
     'SYSREQ_INI_SET'                          => 'ini_set erlaubt',
     'SYSREQ_REGISTER_GLOBALS'                 => 'register_globals muss ausgeschaltet sein',
@@ -1840,6 +1850,8 @@ $aLang = [
     'PAYMENT_RDFA_BYINVOICE'               => 'Rechnung',
     'PAYMENT_RDFA_CHECKINADVANCE'          => 'Barscheck',
     'PAYMENT_RDFA_BYBANKTRANSFERINADVANCE' => 'Vorauskasse',
+
+    // @deprecated since v6.5.1 (2019-02-07); credit card payment method will be no longer supported
     'PAYMENT_RDFA_CREDITCARD'              => 'Kreditkartenzahlung',
     'PAYMENT_RDFA_AMERICANEXPRESS'         => 'American Express',
     'PAYMENT_RDFA_DINERSCLUB'              => 'Diners Club',
@@ -1847,6 +1859,7 @@ $aLang = [
     'PAYMENT_RDFA_JCB'                     => 'JCB',
     'PAYMENT_RDFA_MASTERCARD'              => 'MasterCard',
     'PAYMENT_RDFA_VISA'                    => 'VISA',
+    // END deprecated
 
     'DELIVERY_RDFA_ASIGN_DELIVERY'             => 'Versandarten zuordnen',
     'DELIVERY_RDFA_ADVICE'                     => '<b>Hinweis:</b> Bitte wählen Sie nur die in GoodRelations vordefinierten Versandarten aus, die Ihrer Versandart %s entsprechen',

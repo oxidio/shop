@@ -25,6 +25,8 @@ class UserPayment extends \OxidEsales\Eshop\Core\Model\BaseModel
     /**
      * Payment information encryption key
      *
+     * @deprecated since v6.5.1 (2020-02-07); Database encoding was completely removed and property is not used anymore.
+     *
      * @var string.
      */
     protected $_sPaymentKey = 'fq45QS09_fqyx09239QQ';
@@ -38,6 +40,8 @@ class UserPayment extends \OxidEsales\Eshop\Core\Model\BaseModel
 
     /**
      * Store credit card information in db or not
+     *
+     * @deprecated since v6.5.1 (2019-02-07); credit card payment method will be no longer supported
      *
      * @var bool
      */
@@ -99,7 +103,9 @@ class UserPayment extends \OxidEsales\Eshop\Core\Model\BaseModel
     }
 
     /**
-     * Returns payment key used for DB value decription
+     * Returns payment key used for DB value description
+     *
+     * @deprecated since v6.5.1 (2020-02-07); Database encoding was completely removed and method is not used anymore.
      *
      * @return string
      */
@@ -128,17 +134,16 @@ class UserPayment extends \OxidEsales\Eshop\Core\Model\BaseModel
      * Inserts payment information to DB. Returns insert status.
      *
      * @return bool
-     *
-     * @deprecated since v6.5.0 (2019-11-28); oxidcreditcard will be no longer supported so Method will be removed
-     *
      */
     protected function _insert()
     {
+        // @deprecated since v6.5.1 (2019-02-07); credit card payment method will be no longer supported
         // we do not store credit card information
         // check and in case skip it
         if (!$this->getStoreCreditCardInfo() && $this->oxuserpayments__oxpaymentsid->value == 'oxidcreditcard') {
             return true;
         }
+        // END deprecated
 
         //encode sensitive data
         $sEncodedValue = '';
@@ -192,6 +197,8 @@ class UserPayment extends \OxidEsales\Eshop\Core\Model\BaseModel
      * Set store or not credit card information in db
      *
      * @param bool $blStoreCreditCardInfo store or not credit card info
+     *
+     * @deprecated since v6.5.1 (2019-02-07); credit card payment method will be no longer supported
      */
     public function setStoreCreditCardInfo($blStoreCreditCardInfo)
     {
@@ -200,6 +207,8 @@ class UserPayment extends \OxidEsales\Eshop\Core\Model\BaseModel
 
     /**
      * Get store or not credit card information in db parameter
+     *
+     * @deprecated since v6.5.1 (2019-02-07); credit card payment method will be no longer supported
      *
      * @return bool
      */
@@ -240,9 +249,6 @@ class UserPayment extends \OxidEsales\Eshop\Core\Model\BaseModel
      * Returns an array of dyn payment values
      *
      * @return array
-     *
-     * @deprecated since v6.5.0 (2019-11-28); oxidcreditcard will be no longer supported so Method will be removed
-     *
      */
     public function getDynValues()
     {

@@ -45,7 +45,7 @@ class ModuleFilesInstaller implements ModuleFilesInstallerInterface
     /**
      * @param OxidEshopPackage $package
      */
-    public function install(OxidEshopPackage $package)
+    public function install(OxidEshopPackage $package): void
     {
         $finder = $this->getFinder($package->getPackageSourcePath(), $package->getBlackListFilters());
 
@@ -59,11 +59,19 @@ class ModuleFilesInstaller implements ModuleFilesInstallerInterface
 
     /**
      * @param OxidEshopPackage $package
+     */
+    public function uninstall(OxidEshopPackage $package): void
+    {
+        $this->fileSystemService->remove($this->getTargetPath($package));
+    }
+
+    /**
+     * @param OxidEshopPackage $package
      * @return bool
      */
     public function isInstalled(OxidEshopPackage $package): bool
     {
-        return file_exists($this->getTargetPath($package));
+        return $this->fileSystemService->exists($this->getTargetPath($package));
     }
 
     /**

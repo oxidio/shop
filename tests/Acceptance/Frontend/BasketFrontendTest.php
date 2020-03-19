@@ -337,7 +337,7 @@ class BasketFrontendTest extends FrontendTestCase
 
         $this->clickAndWait("link=%STEPS_BASKET%");
         $this->assertEquals("%YOU_ARE_HERE%: / %PAGE_TITLE_BASKET%", $this->getText("breadCrumb"));
-        $this->clickAndWait("//section[@id='content']/div[3]//button[text()='%CONTINUE_TO_NEXT_STEP%']");
+        $this->clickAndWait("//section[@id='content']//button[text()='%CONTINUE_TO_NEXT_STEP%']");
         $this->assertEquals("%YOU_ARE_HERE%: / %ADDRESS%", $this->getText("breadCrumb"));
     }
 
@@ -618,7 +618,6 @@ class BasketFrontendTest extends FrontendTestCase
         $this->assertEquals("Test S&H set [EN] šÄßüл", $this->getSelectedLabel("sShipSet"));
         $this->assertFalse($this->isVisible("testpayment_1"));
         $this->assertElementPresent("payment_oxidcashondel");
-        $this->assertElementPresent("payment_oxidcreditcard");
         $this->assertElementNotPresent("payment_oxidpayadvance");
         $this->assertElementNotPresent("payment_oxiddebitnote");
 

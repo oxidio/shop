@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
 /**
  * Copyright © OXID eSales AG. All rights reserved.
  * See LICENSE file for license details.
  */
+
+declare(strict_types=1);
 
 namespace OxidEsales\EshopCommunity\Internal\Framework\Module\Setup\Handler;
 
@@ -14,26 +17,12 @@ use OxidEsales\EshopCommunity\Internal\Framework\Module\Configuration\DataObject
 
 class ShopConfigurationEventsHandler implements ModuleConfigurationHandlerInterface
 {
-    /**
-     * @var string
-     */
-    private $shopConfigurationSettingName;
-
-    /**
-     * @var ShopConfigurationSettingDaoInterface
-     */
+    /** @var ShopConfigurationSettingDaoInterface */
     private $shopConfigurationSettingDao;
 
-    /**
-     * ShopConfigurationModuleSettingHandler constructor.
-     * @param string                               $shopConfigurationSettingName
-     * @param ShopConfigurationSettingDaoInterface $shopConfigurationSettingDao
-     */
-    public function __construct(
-        string                                  $shopConfigurationSettingName,
-        ShopConfigurationSettingDaoInterface    $shopConfigurationSettingDao
-    ) {
-        $this->shopConfigurationSettingName = $shopConfigurationSettingName;
+    /** @param ShopConfigurationSettingDaoInterface $shopConfigurationSettingDao */
+    public function __construct(ShopConfigurationSettingDaoInterface $shopConfigurationSettingDao)
+    {
         $this->shopConfigurationSettingDao = $shopConfigurationSettingDao;
     }
 
@@ -45,21 +34,13 @@ class ShopConfigurationEventsHandler implements ModuleConfigurationHandlerInterf
     {
         if ($configuration->hasEvents()) {
             $shopConfigurationSetting = $this->getShopConfigurationSetting($shopId);
-
             $events = [];
-
-            if ($configuration->hasEvents()) {
-                foreach ($configuration->getEvents() as $event) {
-                    $events[$event->getAction()] = $event->getMethod();
-                }
+            foreach ($configuration->getEvents() as $event) {
+                $events[$event->getAction()] = $event->getMethod();
             }
 
-            $shopSettingValue = array_merge(
-                $shopConfigurationSetting->getValue(),
-                [
-                    $events,
-                ]
-            );
+            $shopSettingValue = $shopConfigurationSetting->getValue();
+            $shopSettingValue[$configuration->getId()] = $events;
 
             $shopConfigurationSetting->setValue($shopSettingValue);
 
@@ -93,14 +74,14 @@ class ShopConfigurationEventsHandler implements ModuleConfigurationHandlerInterf
     {
         try {
             $shopConfigurationSetting = $this->shopConfigurationSettingDao->get(
-                $this->shopConfigurationSettingName,
+                ShopConfigurationSetting::MODULE_EVENTS,
                 $shopId
             );
         } catch (EntryDoesNotExistDaoException $exception) {
             $shopConfigurationSetting = new ShopConfigurationSetting();
             $shopConfigurationSetting
                 ->setShopId($shopId)
-                ->setName($this->shopConfigurationSettingName)
+                ->setName(ShopConfigurationSetting::MODULE_EVENTS)
                 ->setType(ShopSettingType::ARRAY)
                 ->setValue([]);
         }
